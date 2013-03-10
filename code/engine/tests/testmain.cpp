@@ -43,6 +43,7 @@ int work(db::threads::iocp* io) {
 int db::main() {
 
 	//network::errlog.open("network.txt");
+
 	//threads::errlog.open("threads.txt");
 
 	threads::iocp io;
