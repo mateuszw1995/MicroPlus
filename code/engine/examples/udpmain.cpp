@@ -1,4 +1,4 @@
-#include "..\../db/db.h"
+#include "db.h"
 #include "redirectio.h"
 
 // todo:
@@ -42,14 +42,14 @@ int work(db::threads::iocp* io) {
 }
 
 
-int db::main() {
+int main() {
 
 	//network::errlog.open("network.txt");
 	//threads::errlog.open("threads.txt");
 
 	threads::iocp io;
 
-	RedirectIOToConsole();
+	//RedirectIOToConsole();
 	if(network::init()) 
 	{	
 		using namespace network;

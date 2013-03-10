@@ -1,4 +1,5 @@
-﻿#include "customgui/gui1.h"
+﻿#include "db.h"
+#include "customgui/gui1.h"
 #include <ctime>
 
 int resizer(glwindow& gl) {
@@ -12,7 +13,7 @@ int resizer(glwindow& gl) {
 	return 0;
 }
 
-int db::main() { 
+int main() {
 	srand((unsigned int)(time(NULL)));
 
 	db::error errlog(0, 0);
@@ -25,6 +26,7 @@ int db::main() {
 	graphics::errlog.log_successful(true);
 	window::errlog.log_successful(true);
 	
+	glwindow::init();
 	glwindow gl("Conspiracy", 0);
 	gl.create(math::rect_xywh(20, 20, 1500, 500), true);
 	gl.resize_func(resizer);

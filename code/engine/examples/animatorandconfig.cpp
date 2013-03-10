@@ -1,7 +1,7 @@
 //#define include_DWM
-#include "..\..\db\db.h"
+#include "db.h"
 
-int db::main() {
+int main() {
 	using namespace db;
 	using namespace math;
 	using namespace window;

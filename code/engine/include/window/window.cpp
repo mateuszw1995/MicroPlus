@@ -394,6 +394,23 @@ namespace db {
 			destroy();
 		}
 
+		bool glwindow::init() {
+			hinst = GetModuleHandle(NULL);
+			wcl.cbSize = sizeof(wcl);
+			wcl.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+			wcl.lpfnWndProc = wndproc;
+			wcl.cbClsExtra = 0;
+			wcl.cbWndExtra = 0;
+			wcl.hInstance = GetModuleHandle(NULL);
+			wcl.hIcon = LoadIcon(0, IDI_APPLICATION);
+			wcl.hCursor = LoadCursor(0, IDC_ARROW);
+			wcl.hbrBackground = 0;
+			wcl.lpszMenuName = 0;
+			wcl.lpszClassName = "DepthBaseWindow";
+			wcl.hIconSm = 0;
+
+			return errs(RegisterClassEx(&wcl) != 0, "class registering");
+		}
 
 		bool set_display(int width, int height, int bpp) {
 			static DEVMODE screen;						

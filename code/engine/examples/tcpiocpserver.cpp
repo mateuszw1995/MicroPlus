@@ -1,4 +1,4 @@
-#include "..\../db/db.h"
+#include "db.h"
 #include "redirectio.h"
 
 // dopracowac shutting down
@@ -79,13 +79,13 @@ int work(db::threads::iocp* io) {
 }
 
 
-int db::main() {
+int main() {
 	
 	network::errlog.open("network.txt");
 	threads::errlog.open("threads.txt");
 	
 	
-	RedirectIOToConsole();
+	//RedirectIOToConsole();
 	if(network::init()) 
 	{	
 		using namespace network;

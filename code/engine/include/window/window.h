@@ -11,7 +11,6 @@
 #include "timer.h"
 
 namespace db {
-	extern int main();
 	namespace window {
 		extern db::error errlog;
 
@@ -64,7 +63,8 @@ namespace db {
 			int (*resize)(glwindow&); /* resize function */
 			bool limit_resize; /* should we limit window resizing to arbitrary rect_wh's (see set_minimum/maximum_size */
 			unsigned triple_click_delay; /* maximum delay time for the next click (after doubleclick) to be considered tripleclick (in miliseconds) */
-
+			
+			static bool init();
 			glwindow(const char* name, bool limit_resize);
 			
 			void resize_func(int (*)(glwindow&));

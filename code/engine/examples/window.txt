@@ -1,0 +1,85 @@
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 412
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::init
+error 183: Cannot create a file when that file already exists.
+
+message: class registering
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 206
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::create
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 314
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::set_window_rect
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 315
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::set_window_rect
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 316
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::set_window_rect
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 222
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::create
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 225
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::create
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 226
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::create
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 229
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::create
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 254
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::current
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 237
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::create
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 38
+file: c:\users\anonymous\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::wndproc
+error 0: The operation completed successfully.
+
+

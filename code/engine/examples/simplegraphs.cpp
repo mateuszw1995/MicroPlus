@@ -1,4 +1,4 @@
-#include "../include/db.h"
+#include "db.h"
 
 using namespace db::window;
 using namespace db::graphics;
@@ -12,7 +12,7 @@ struct vertex_button : public gui::rect {
 	}
 };
 
-int db::main() {
+int main() {
 	glwindow gl("GL Window", false);
 	gl.create(math::rect_xywh(40, 40, 400, 400), 1, glwindow::ALL, 24); 
 	gl.set_show(gl.SHOW);
