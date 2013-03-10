@@ -1,5 +1,4 @@
-﻿#include "../include/db.h"
-#include "customgui/gui1.h"
+﻿#include "customgui/gui1.h"
 #include <ctime>
 
 int resizer(glwindow& gl) {

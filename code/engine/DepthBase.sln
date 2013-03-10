@@ -6,6 +6,12 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DepthBase Test", "DepthBase Test.vcxproj", "{B49D7303-DD89-4739-B427-A3020DF6CC52}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D983A311-7041-491C-89AF-4B15E1249C21} = {D983A311-7041-491C-89AF-4B15E1249C21}
+		{611BFCB7-7016-47EA-BA49-02118A477ED3} = {611BFCB7-7016-47EA-BA49-02118A477ED3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DepthBase SDK", "examples\DepthBase SDK.vcxproj", "{611BFCB7-7016-47EA-BA49-02118A477ED3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D983A311-7041-491C-89AF-4B15E1249C21} = {D983A311-7041-491C-89AF-4B15E1249C21}
 	EndProjectSection
 EndProject
 Global
@@ -22,6 +28,10 @@ Global
 		{B49D7303-DD89-4739-B427-A3020DF6CC52}.Debug|Win32.Build.0 = Debug|Win32
 		{B49D7303-DD89-4739-B427-A3020DF6CC52}.Release|Win32.ActiveCfg = Release|Win32
 		{B49D7303-DD89-4739-B427-A3020DF6CC52}.Release|Win32.Build.0 = Release|Win32
+		{611BFCB7-7016-47EA-BA49-02118A477ED3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{611BFCB7-7016-47EA-BA49-02118A477ED3}.Debug|Win32.Build.0 = Debug|Win32
+		{611BFCB7-7016-47EA-BA49-02118A477ED3}.Release|Win32.ActiveCfg = Release|Win32
+		{611BFCB7-7016-47EA-BA49-02118A477ED3}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
