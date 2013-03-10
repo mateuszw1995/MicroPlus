@@ -10,108 +10,6 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <ProjectGuid>{E6D4CE70-15DD-4E33-8840-DFA6DC12A8DD}</ProjectGuid>
-    <RootNamespace>DepthBase</RootNamespace>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)lib\</OutDir>
-    <TargetName>$(ProjectName)d</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>$(ProjectName)r</TargetName>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-    </ClCompile>
-    <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32.lib;glu32.lib;OpenGL32.lib;Ws2_32.lib;SOIL.lib;dwmapi.lib;freetype.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
-    <Lib />
-    <Lib>
-      <AdditionalDependencies>glew32.lib;glu32.lib;OpenGL32.lib;Ws2_32.lib;SOIL.lib;dwmapi.lib;freetype.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(SolutionDir)lib\DepthBased.lib</OutputFile>
-    </Lib>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-    </ClCompile>
-    <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glew32.lib;glu32.lib;OpenGL32.lib;Ws2_32.lib;SOIL.lib;dwmapi.lib;freetype.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <Lib>
-      <OutputFile>$(SolutionDir)lib\DepthBaser.lib</OutputFile>
-      <AdditionalDependencies>glew32.lib;glu32.lib;OpenGL32.lib;Ws2_32.lib;SOIL.lib;dwmapi.lib;freetype.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Lib>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
-  </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="include\config.cpp" />
-    <ClCompile Include="include\error\error.cpp" />
-    <ClCompile Include="include\graphics\graphics.cpp" />
-    <ClCompile Include="include\graphics\gui\font.cpp" />
-    <ClCompile Include="include\graphics\gui\rect.cpp" />
-    <ClCompile Include="include\graphics\gui\scroll.cpp" />
-    <ClCompile Include="include\graphics\gui\system.cpp" />
-    <ClCompile Include="include\graphics\gui\text.cpp" />
-    <ClCompile Include="include\graphics\gui\textbox.cpp" />
-    <ClCompile Include="include\graphics\io\image.cpp" />
-    <ClCompile Include="include\graphics\io\mesh.cpp" />
-    <ClCompile Include="include\graphics\io\texture.cpp" />
-    <ClCompile Include="include\graphics\io\vbo.cpp" />
-    <ClCompile Include="include\graphics\pixel.cpp" />
-    <ClCompile Include="include\math\math.cpp" />
-    <ClCompile Include="include\math\rectpack.cpp" />
-    <ClCompile Include="include\misc\stream.cpp" />
-    <ClCompile Include="include\misc\value_animator.cpp" />
-    <ClCompile Include="include\network\network.cpp" />
-    <ClCompile Include="include\network\tcp.cpp" />
-    <ClCompile Include="include\network\udp.cpp" />
-    <ClCompile Include="include\threads\iocp.cpp" />
-    <ClCompile Include="include\threads\overlapped.cpp" />
-    <ClCompile Include="include\threads\threads.cpp" />
-    <ClCompile Include="include\window\timer.cpp" />
-    <ClCompile Include="include\window\window.cpp" />
-  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.h" />
     <ClInclude Include="include\db.h" />
@@ -144,6 +42,104 @@
     <ClInclude Include="include\window\timer.h" />
     <ClInclude Include="include\window\window.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="include\config.cpp" />
+    <ClCompile Include="include\error\error.cpp" />
+    <ClCompile Include="include\graphics\graphics.cpp" />
+    <ClCompile Include="include\graphics\gui\font.cpp" />
+    <ClCompile Include="include\graphics\gui\rect.cpp" />
+    <ClCompile Include="include\graphics\gui\scroll.cpp" />
+    <ClCompile Include="include\graphics\gui\system.cpp" />
+    <ClCompile Include="include\graphics\gui\text.cpp" />
+    <ClCompile Include="include\graphics\gui\textbox.cpp" />
+    <ClCompile Include="include\graphics\io\image.cpp" />
+    <ClCompile Include="include\graphics\io\mesh.cpp" />
+    <ClCompile Include="include\graphics\io\texture.cpp" />
+    <ClCompile Include="include\graphics\io\vbo.cpp" />
+    <ClCompile Include="include\graphics\pixel.cpp" />
+    <ClCompile Include="include\math\math.cpp" />
+    <ClCompile Include="include\math\rectpack.cpp" />
+    <ClCompile Include="include\misc\stream.cpp" />
+    <ClCompile Include="include\misc\value_animator.cpp" />
+    <ClCompile Include="include\network\network.cpp" />
+    <ClCompile Include="include\network\tcp.cpp" />
+    <ClCompile Include="include\network\udp.cpp" />
+    <ClCompile Include="include\threads\iocp.cpp" />
+    <ClCompile Include="include\threads\overlapped.cpp" />
+    <ClCompile Include="include\threads\threads.cpp" />
+    <ClCompile Include="include\window\timer.cpp" />
+    <ClCompile Include="include\window\window.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D983A311-7041-491C-89AF-4B15E1249C21}</ProjectGuid>
+    <RootNamespace>DepthBase</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)lib\</OutDir>
+    <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)lib\</OutDir>
+    <TargetName>$(ProjectName)r</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>glew32.lib;glu32.lib;OpenGL32.lib;Ws2_32.lib;SOIL.lib;dwmapi.lib;freetype.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>glew32.lib;glu32.lib;OpenGL32.lib;Ws2_32.lib;SOIL.lib;dwmapi.lib;freetype.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

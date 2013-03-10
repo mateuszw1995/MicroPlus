@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B5A7B0C3-5179-48E2-9EAA-3EEA08B18DCB}</ProjectGuid>
+    <ProjectGuid>{B49D7303-DD89-4739-B427-A3020DF6CC52}</ProjectGuid>
     <RootNamespace>DepthBaseTest</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -45,7 +45,6 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Users\Anonymous\Documents\GitHub\MicroPlus\code\engine\include;C:\Users\Anonymous\Documents\GitHub\MicroPlus\code\engine;C:\Users\Anonymous\Documents\GitHub\MicroPlus\code\engine\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -63,21 +62,15 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>gtest-md.lib;gtest_main-md.lib;DepthBaser.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="tests\testmain.cpp" />
+    <ProjectReference Include="DepthBase.vcxproj">
+      <Project>{d983a311-7041-491c-89af-4b15e1249c21}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="DepthBase.vcxproj">
-      <Project>{e6d4ce70-15dd-4e33-8840-dfa6dc12a8dd}</Project>
-      <Private>false</Private>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
-    </ProjectReference>
+    <ClCompile Include="tests\testmain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
