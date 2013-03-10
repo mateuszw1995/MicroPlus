@@ -1,0 +1,7 @@
+z -md dajesz jak linkujesz dynamicznie 
+czyli normalnie 
+a bez -md to statyczne czyli jak wkompilowujesz wszystkie dlle
+
+przyk³adowo dla debug:
+gtest-mdd.lib
+gtest_main-mdd.lib

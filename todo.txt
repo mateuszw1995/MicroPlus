@@ -1,0 +1,27 @@
+MicroPlus
+=========
+TODO list
+
+
+WA¯NE W CHUJ, PODSTAWA:
+	- zdecydowaæ siê w koñcu na 2D albo 3D oraz czy styl pixel artowy (mechanika.txt)
+	- rozbudowaæ graf struktur
+	- zaplanowaæ co robimy dalej
+
+TRZEBA ZROBIÆ:
+	- miejsce pracy
+		- jak bêdê w domu; pokompilowaæ wszystkie depenedencies dla Debug/Release i zrobiæ zbiorek dependencies na repozytorium ¿eby nie ganiaæ zawsze za tym
+			wpierdalamy wszystkie liby do jednego i robimy dbd.lib i dbr.lib
+	- silnik:
+		math.h/.cpp:
+			- klasa generyczna grafu, szczegó³y w graph.h
+			- muszê dodaæ do klasy matematycznej wektory, kwaterniony i macierze które mam w poprzedniej wersji silnika i muszê tylko przepisaæ na aktualny interfejs
+			- potem trzeba bêdzie dodaæ jakieœ proste kolizje typu odcinek/prostok¹t (axis aligned) (np. pociski uderzaj¹ce w œcianê)
+		network:
+			- poprawiæ warningi
+
+
+OPCJONALNE, PÓNIEJSZE:
+	- fabu³a
+		- rozbudowaæ graf uniwersum
+		- concept/storyline.txt, coœ tam mo¿e dopiszê ale trzeba bêdzie to rozbudowaæ, uspójniæ, urozmaiciæ

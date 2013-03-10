@@ -1,0 +1,18 @@
+- o ile chcemy czyste 2D to gra bêdzie generowaæ quady/triangle do wektora z którymi potem zrobimy co chcemy i tu bêdzie siê dzia³a ca³a mechanika niezale¿nie od sprzêtu; 
+Teraz bêdzie jeden tylko w moment hardware-dependent: jeœli wykryjemy ¿e kompa jest chujowa, to iterujemy po ca³ym wektorze i dajemy po kolei glVertex, a jeœli kompa jest lepsza 
+to wpierdalamy od razu do glDrawArrays czy innych glDrawElements.
+tutaj nastêpny dylemat: tile-based czy zwyk³y?
+i tak trzeba bêdzie u¿yæ quadtree
+
+
+natomiast, jeœli chcemy pisaæ grê 3D, to oczywiœcie musimy zadecydowaæ, zapewne u¿yjemy shaderów, a wiêc wchodzi w grê wy³¹cznie GL 2.0+
+
+- widok top-down; wszystko na bazie axis-aligned rectangli (czyli obroty tylko o 90 stopni), to u³atwi sprawdzanie kolizji na pocz¹tek
+- ekran porusza siê za graczem który jest na œrodku; prawdopodobnie kamera lekko siê rusza przy biegu, do tego u¿yjê db::misc::animator
+- behawior gui/eq podobny do tibijskiego (nied³ugo wrzucê concept art)
+- crosshair ruszaj¹cy siê za pomoc¹ myszki; wciœniêcie PPM sprawia, ¿e crosshair leci na koniec ekranu w linii na któr¹ wskazywa³ (pocz¹tek wektora w œrodku ekranu - gracz) 
+i teraz ruszaj¹c nim mo¿na poruszaæ siê kamer¹ po niewidocznych miejscach, to jak daleko mo¿na dolecieæ zale¿y od rodzaju broni (np. czy ma scope)
+- okreœlony field of vision, ale bardzo du¿y, np. 180 stopni
+- occlusion culling ¿eby nie by³o widaæ tego co jest schowane za czymœ
+
+czuj wolnym by modyfikowaæ, ale z tym trzeba siê spieszyæ, to mo¿na bardzo zmieniaæ ale dopóki siê nie zacznie programowaæ w³aœciwej gry bo potem ju¿ ciê¿ej

@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{EB4FE3DF-0BCE-48B2-8E96-73FFB50E539F}</ProjectGuid>
+    <RootNamespace>MicroPlus</RootNamespace>
+    <ProjectName>DepthBase</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glew32.lib;glu32.lib;OpenGL32.lib;Ws2_32.lib;SOIL.lib;dwmapi.lib;freetype.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>glew32.lib;glu32.lib;OpenGL32.lib;Ws2_32.lib;SOIL.lib;freetyper.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="db\config.cpp" />
+    <ClCompile Include="db\db.cpp" />
+    <ClCompile Include="db\error\error.cpp" />
+    <ClCompile Include="db\graphics\graphics.cpp" />
+    <ClCompile Include="db\graphics\gui\font.cpp" />
+    <ClCompile Include="db\graphics\gui\system.cpp" />
+    <ClCompile Include="db\graphics\gui\rect.cpp" />
+    <ClCompile Include="db\graphics\gui\scroll.cpp" />
+    <ClCompile Include="db\graphics\gui\text.cpp" />
+    <ClCompile Include="db\graphics\gui\textbox.cpp" />
+    <ClCompile Include="db\graphics\io\image.cpp" />
+    <ClCompile Include="db\graphics\io\mesh.cpp" />
+    <ClCompile Include="db\graphics\io\texture.cpp" />
+    <ClCompile Include="db\graphics\io\vbo.cpp" />
+    <ClCompile Include="db\graphics\pixel.cpp" />
+    <ClCompile Include="db\math\math.cpp" />
+    <ClCompile Include="db\math\rectpack.cpp" />
+    <ClCompile Include="db\misc\stream.cpp" />
+    <ClCompile Include="db\misc\value_animator.cpp" />
+    <ClCompile Include="db\network\network.cpp" />
+    <ClCompile Include="db\network\tcp.cpp" />
+    <ClCompile Include="db\network\udp.cpp" />
+    <ClCompile Include="db\threads\iocp.cpp" />
+    <ClCompile Include="db\threads\overlapped.cpp" />
+    <ClCompile Include="db\threads\threads.cpp" />
+    <ClCompile Include="db\window\timer.cpp" />
+    <ClCompile Include="db\window\window.cpp" />
+    <ClCompile Include="sdk\customgui\gui1.cpp" />
+    <ClCompile Include="microplus\level.cpp" />
+    <ClCompile Include="sdk\examples\simplegraphs.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="db\config.h" />
+    <ClInclude Include="db\db.h" />
+    <ClInclude Include="db\error\errmacro.h" />
+    <ClInclude Include="db\error\error.h" />
+    <ClInclude Include="db\graphics\graphics.h" />
+    <ClInclude Include="db\graphics\gui\font.h" />
+    <ClInclude Include="db\graphics\gui\system.h" />
+    <ClInclude Include="db\graphics\gui\rect.h" />
+    <ClInclude Include="db\graphics\gui\scroll.h" />
+    <ClInclude Include="db\graphics\gui\text.h" />
+    <ClInclude Include="db\graphics\io\image.h" />
+    <ClInclude Include="db\graphics\io\mesh.h" />
+    <ClInclude Include="db\graphics\io\renderer.h" />
+    <ClInclude Include="db\graphics\io\texture.h" />
+    <ClInclude Include="db\graphics\io\vbo.h" />
+    <ClInclude Include="db\graphics\pixel.h" />
+    <ClInclude Include="db\math\graph.h" />
+    <ClInclude Include="db\math\math.h" />
+    <ClInclude Include="db\misc\container\circular_buffer.h" />
+    <ClInclude Include="db\misc\container\circular_buffer.hpp" />
+    <ClInclude Include="db\misc\container\registry.h" />
+    <ClInclude Include="db\misc\stream.h" />
+    <ClInclude Include="db\misc\undoredo.h" />
+    <ClInclude Include="db\misc\value_animator.h" />
+    <ClInclude Include="db\network\network.h" />
+    <ClInclude Include="db\options.h" />
+    <ClInclude Include="db\threads\threads.h" />
+    <ClInclude Include="db\event.h" />
+    <ClInclude Include="db\window\timer.h" />
+    <ClInclude Include="db\window\window.h" />
+    <ClInclude Include="sdk\customgui\gui1.h" />
+    <ClInclude Include="microplus\drawable.h" />
+    <ClInclude Include="microplus\entity.h" />
+    <ClInclude Include="microplus\level.h" />
+    <ClInclude Include="microplus\microplus.h" />
+    <ClInclude Include="microplus\tile.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

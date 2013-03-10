@@ -1,0 +1,13 @@
+int windowborder 0
+	int resizable 1
+		int limit_resize 1
+			int min_resw 200
+			int min_resh 30
+			int max_resw 400
+			int max_resh 400
+int window_x 30
+int window_y 0
+int resolution_w 800 
+int resolution_h 800
+int doublebuffer 1
+int bpp 24

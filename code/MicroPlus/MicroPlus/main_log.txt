@@ -1,0 +1,65 @@
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 46
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: loading texteditor/settings.png
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 47
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: loading texteditor/bold.png
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 48
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: loading texteditor/italics.png
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 49
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: loading texteditor/middlescroll.png
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 56
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: freetype initialization
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 60
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: texteditor/arial.ttf
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 61
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: texteditor/arialbd.ttf
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 62
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: texteditor/ariali.ttf
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 63
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: texteditor/arialbi.ttf
+
+line: 64
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: freetype deinitialization
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 71
+file: c:\users\anonymous\documents\github\microplus\code\microplus\microplus\sdk\examples\texteditor.cpp
+func: db::main
+message: atlas packing
+

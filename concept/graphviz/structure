@@ -1,0 +1,9 @@
+digraph g {
+tile->walkable;
+tile->wall;
+entity->character;
+character->npc;
+character->player;
+entity->item;
+
+}

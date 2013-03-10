@@ -1,0 +1,41 @@
+digraph g {
+Antagonizm [style=filled, color = red];
+Agresja [color = red];
+Psychopatia [color = red];
+Obrzydzenie [color = red];
+"Uniwersum\nMicroPlus"->Przestrzeñ;
+"Uniwersum\nMicroPlus"->"Czas";
+Przestrzeñ->Ziemia;
+"Czas"->"Transhumanizm\nPostrakokalipsa";
+Ziemia->Byty;
+Ziemia->Œrodowiska;
+Œrodowiska->Podziemia;
+Œrodowiska->Powierzchnia;
+Byty->Frakcje;
+Frakcje->Kreatury;
+Kreatury->Patole;
+Kreatury->Agresja [color=red];
+Agresja->Antagonizm [color = red];
+Frakcje->Normalcioty;
+Frakcje->"Postanony\nwielu czanów";
+"Postanony\nwielu czanów"->Karachan;
+"Postanony\nwielu czanów"->Vichan;
+
+"Niæ porozumienia" [style=filled, color=lightblue]
+"Wspólni wrogowie\nPodobny los" [color=lightblue]
+"Ró¿nice ideowe" [color=red]
+
+Karachan->"Wspólni wrogowie\nPodobny los" [color=lightblue];
+Vichan->"Wspólni wrogowie\nPodobny los"[color=lightblue];
+Karachan->"Ró¿nice ideowe"[color=red];
+Vichan->"Ró¿nice ideowe"[color=red];
+"Ró¿nice ideowe"->Antagonizm[color=red];
+"Wspólni wrogowie\nPodobny los"->"Niæ porozumienia"[color=lightblue];
+Podziemia->"Postanony\nwielu czanów";
+"Postanony\nwielu czanów"->Psychopatia [color = "red"];
+Psychopatia->Antagonizm  [color = "red"];
+Normalcioty->Obrzydzenie[color = "red"];
+Obrzydzenie->Antagonizm [color = "red"];
+Powierzchnia->Normalcioty;
+
+}

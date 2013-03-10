@@ -1,0 +1,2 @@
+git reset --hard <old-commit-id>
+git push -f
