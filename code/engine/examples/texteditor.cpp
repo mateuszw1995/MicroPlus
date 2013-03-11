@@ -28,7 +28,7 @@ int main() {
 	
 	glwindow::init();
 	glwindow gl("Conspiracy", 0);
-	gl.create(math::rect_xywh(20, 20, 1500, 500), true);
+	gl.create(math::rect_xywh(20, 20, 800, 800), true);
 	gl.resize_func(resizer);
 	gl.set_show(gl.SHOW); 
 	gl.current();

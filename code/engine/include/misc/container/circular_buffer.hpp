@@ -1,6 +1,6 @@
 #pragma once
 template<typename T>
-circular_buffer<T>::circular_buffer(int max_size) : maxlen(max_size+1), begin(0), end(0) {
+circular_buffer<T>::circular_buffer(int max_size) : maxlen(max_size), begin(0), end(0) {
 	q = (T*)malloc(sizeof(T)*maxlen);
 }
 

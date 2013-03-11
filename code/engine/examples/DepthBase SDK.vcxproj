@@ -71,7 +71,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="customgui\gui1.cpp" />
-    <ClCompile Include="udpmain.cpp" />
+    <ClCompile Include="simplegraphs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="customgui\gui1.h" />

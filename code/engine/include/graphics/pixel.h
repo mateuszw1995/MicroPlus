@@ -18,7 +18,6 @@ namespace db {
 		struct pixel_32 {
 			color r, g, b, a;
 			pixel_32(color red = 255, color green = 255, color blue = 255, color alpha = 255);
-
 		};
 	}
 }

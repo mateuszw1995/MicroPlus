@@ -1,7 +1,8 @@
 #include "db.h"
 
-using namespace db::window;
-using namespace db::graphics;
+using namespace db;
+using namespace window;
+using namespace graphics;
 
 struct vertex_button : public gui::rect {
 	vertex_button(const rect& r) : rect(r) {}
@@ -13,6 +14,7 @@ struct vertex_button : public gui::rect {
 };
 
 int main() {
+	glwindow::init();
 	glwindow gl("GL Window", false);
 	gl.create(math::rect_xywh(40, 40, 400, 400), 1, glwindow::ALL, 24); 
 	gl.set_show(gl.SHOW);

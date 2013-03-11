@@ -8,6 +8,7 @@ int main() {
 
 	config cfg(L"config.txt");
 
+	glwindow::init();
 	glwindow gl("MicroPlus",	int(cfg["limit_resize"]) > 0);
 	gl.create(math::rect_xywh(		cfg["window_x"], 
 									cfg["window_y"], 

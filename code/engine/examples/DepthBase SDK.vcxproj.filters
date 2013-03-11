@@ -18,7 +18,7 @@
     <ClCompile Include="customgui\gui1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="udpmain.cpp">
+    <ClCompile Include="simplegraphs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
