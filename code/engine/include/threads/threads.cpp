@@ -72,7 +72,7 @@ namespace db {
 			adder = t;
 			t->open_works = 2;
 			EnterCriticalSection(&q_cs);
-				tasks.push(t);
+				tasks.push_back(t);
 			LeaveCriticalSection(&q_cs);
 		}		
 		
@@ -106,7 +106,7 @@ namespace db {
 		void pool::queue_task(task* t) {
 			t->open_works = 1;
 			EnterCriticalSection(&q_cs);
-				tasks.push(t);
+				tasks.push_back(t);
 			LeaveCriticalSection(&q_cs);
 		}
 
@@ -114,7 +114,7 @@ namespace db {
 			EnterCriticalSection(&q_cs);
 			for(int i = 0; i < n; ++i) {
 				t[i]->open_works = 1;
-				tasks.push(t[i]);
+				tasks.push_back(t[i]);
 			}
 			LeaveCriticalSection(&q_cs);
 		}
@@ -134,7 +134,7 @@ namespace db {
 					EnterCriticalSection(&q_cs);
 					if(!tasks.empty()) {
 						mytask = tasks.front();
-						tasks.pop();
+						tasks.pop_front();
 					} else mytask = 0;
 					LeaveCriticalSection(&q_cs);
 
@@ -148,7 +148,7 @@ namespace db {
 						for(unsigned i = 0; i < lobby.size(); ++i)
 							if(lobby[i]->dependency->completed()) {
 								EnterCriticalSection(&q_cs);
-								tasks.push(lobby[i]);
+								tasks.push_back(lobby[i]);
 								LeaveCriticalSection(&q_cs);
 								std::swap(lobby.back(), *(lobby.begin()+i)); 
 								lobby.pop_back();
@@ -165,7 +165,7 @@ namespace db {
 					EnterCriticalSection(&q_cs);
 					if(!tasks.empty()) {
 						mytask = tasks.front();
-						tasks.pop();
+						tasks.pop_front();
 					} else mytask = 0;
 					LeaveCriticalSection(&q_cs);
 
@@ -179,7 +179,7 @@ namespace db {
 						for(unsigned i = 0; i < lobby.size(); ++i)
 							if(lobby[i]->dependency->completed()) {
 								EnterCriticalSection(&q_cs);
-								tasks.push(lobby[i]);
+								tasks.push_back(lobby[i]);
 								LeaveCriticalSection(&q_cs);
 								std::swap(lobby.back(), *(lobby.begin()+i)); 
 								lobby.pop_back();
@@ -195,7 +195,7 @@ namespace db {
 					EnterCriticalSection(&q_cs);
 					if(!tasks.empty()) {
 						mytask = tasks.front();
-						tasks.pop();
+						tasks.pop_front();
 					} else mytask = 0;
 					LeaveCriticalSection(&q_cs);
 

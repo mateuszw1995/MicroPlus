@@ -30,13 +30,13 @@ circular_buffer<T>& circular_buffer<T>::operator=(const circular_buffer<T>& b) {
 }
 
 template<typename T>
-void circular_buffer<T>::push(const T& v){
+void circular_buffer<T>::push_back(const T& v){
 	memcpy(q+end, &v, sizeof(T));
 	end = (end == maxlen-1) ? 0 : (end + 1);
 }
 
 template<typename T>
-void circular_buffer<T>::push(T* v, int n){
+void circular_buffer<T>::push_back(T* v, int n){
 	if(end+n-1 <= maxlen-1) {
 		memcpy(q+end, v, sizeof(T)*n);
 		end += n; 
@@ -49,7 +49,7 @@ void circular_buffer<T>::push(T* v, int n){
 }
 
 template<typename T>
-void circular_buffer<T>::pop() {
+void circular_buffer<T>::pop_front() {
 	begin = (begin == maxlen-1) ? 0 : (begin + 1);
 }
 
@@ -80,7 +80,7 @@ T& circular_buffer<T>::front() const {
 
 template<typename T>
 T& circular_buffer<T>::back() const {
-	return q[end];
+	return q[end-1 < 0 ? maxlen-1 : end-1];
 }
 
 template<typename T>
@@ -89,13 +89,8 @@ void circular_buffer<T>::clear() {
 }
 
 template<typename T>
-T* circular_buffer<T>::get_ptr() {
-	return q+begin;
-}
-
-template<typename T>
 T& circular_buffer<T>::operator[](int n) {
-	return q[begin+n];
+	return q[begin+n < maxlen ? begin+n : begin+n-maxlen];
 }
 
 template<typename T>

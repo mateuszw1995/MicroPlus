@@ -13,14 +13,12 @@ namespace db {
 				circular_buffer(const circular_buffer&);
 				circular_buffer& operator=(const circular_buffer&);
 				
-				void push(const T&), push(T*, int n), pop(), pop_back();
+				void push_back(const T&), push_back(T*, int n), pop_front(), pop_back();
 				bool empty() const;
 				int size() const, capacity() const;
 				T& front() const, &back() const;
 
 				void clear();
-
-				T* get_ptr();
 				T& operator[](int);
 
 				~circular_buffer();
