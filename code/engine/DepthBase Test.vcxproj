@@ -74,8 +74,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tests\circular_buffer.cpp" />
+    <ClCompile Include="tests\circular_buffer_test.cpp" />
+    <ClCompile Include="tests\stream_test.cpp" />
     <ClCompile Include="tests\testmain.cpp" />
+    <ClCompile Include="tests\text_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests\header.h" />

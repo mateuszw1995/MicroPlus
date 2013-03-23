@@ -7,6 +7,18 @@
 namespace db {
 	using namespace window;
 	using namespace math;
+	namespace misc {
+		std::wstring wstr(const graphics::gui::fstr& f) {
+			size_t l = f.size();
+			std::wstring ww;
+			ww.reserve(l);
+			for(size_t i = 0; i < l; ++i)
+				ww += f[i].c;
+
+			return ww;
+		}
+	}
+
 	namespace graphics {
 		using namespace io::input;
 		namespace gui {

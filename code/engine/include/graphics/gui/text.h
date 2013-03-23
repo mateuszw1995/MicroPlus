@@ -131,6 +131,7 @@ namespace db {
 				misc::undoredo<action> edit;
 
 				/* define word function for CTRL+arrow traversal, 0 sets default */
+				/* USER INTERFACE FUNCTIONS */
 				void is_word_func(bool (*)(wchar_t, bool) = 0),
 					 set_caret(unsigned pos, bool select = false),
 					 

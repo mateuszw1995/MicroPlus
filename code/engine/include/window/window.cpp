@@ -409,7 +409,7 @@ namespace db {
 			wcl.lpszClassName = "DepthBaseWindow";
 			wcl.hIconSm = 0;
 
-			return errs(RegisterClassEx(&wcl) != 0, "class registering");
+			return errs(RegisterClassEx(&wcl) != 0, "class registering") != 0;
 		}
 
 		bool set_display(int width, int height, int bpp) {

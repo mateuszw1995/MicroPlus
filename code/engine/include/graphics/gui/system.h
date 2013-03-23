@@ -104,17 +104,7 @@ namespace db {
 		}
 	}
 	namespace misc {
-		template <class T>
-		std::wstring wstr(const graphics::gui::fstr& f) {
-			size_t l = f.size();
-			std::wstring ww;
-			ww.reserve(l);
-			for(size_t i = 0; i < l; ++i)
-				ww += f[i].c;
-
-			return ww;
-		}
-
+		extern std::wstring wstr(const graphics::gui::fstr& f);
 		template <class T>
 		T wnum(const graphics::gui::fstr& f) {
 			std::wistringstream ss(wstr(f));

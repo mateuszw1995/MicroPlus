@@ -18,7 +18,13 @@
     <ClCompile Include="tests\testmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tests\circular_buffer.cpp">
+    <ClCompile Include="tests\text_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\circular_buffer_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\stream_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
