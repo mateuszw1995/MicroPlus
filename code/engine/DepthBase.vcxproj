@@ -21,7 +21,10 @@
     <ClInclude Include="include\graphics\gui\rect.h" />
     <ClInclude Include="include\graphics\gui\scroll.h" />
     <ClInclude Include="include\graphics\gui\system.h" />
-    <ClInclude Include="include\graphics\gui\text.h" />
+    <ClInclude Include="include\graphics\gui\textbox.h" />
+    <ClInclude Include="include\graphics\gui\text_interface.h" />
+    <ClInclude Include="include\graphics\gui\text_printer.h" />
+    <ClInclude Include="include\graphics\gui\word_separator.h" />
     <ClInclude Include="include\graphics\io\image.h" />
     <ClInclude Include="include\graphics\io\mesh.h" />
     <ClInclude Include="include\graphics\io\renderer.h" />
@@ -50,8 +53,10 @@
     <ClCompile Include="include\graphics\gui\rect.cpp" />
     <ClCompile Include="include\graphics\gui\scroll.cpp" />
     <ClCompile Include="include\graphics\gui\system.cpp" />
-    <ClCompile Include="include\graphics\gui\text.cpp" />
+    <ClCompile Include="include\graphics\gui\text_printer.cpp" />
     <ClCompile Include="include\graphics\gui\textbox.cpp" />
+    <ClCompile Include="include\graphics\gui\text_interface.cpp" />
+    <ClCompile Include="include\graphics\gui\word_separator.cpp" />
     <ClCompile Include="include\graphics\io\image.cpp" />
     <ClCompile Include="include\graphics\io\mesh.cpp" />
     <ClCompile Include="include\graphics\io\texture.cpp" />

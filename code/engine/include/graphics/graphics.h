@@ -18,7 +18,8 @@ namespace db {
 	#include "gui/system.h"
 	#include "gui/rect.h"
 	#include "gui/scroll.h"
-	#include "gui/text.h"
+	#include "gui/text_interface.h"
+	#include "gui/textbox.h"
 	#include "gui/font.h"
 // gui
 

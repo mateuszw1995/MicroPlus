@@ -32,18 +32,18 @@ void cbackground::draw_proc(const draw_info& in) {
 
 void ccolortickbox::update_mat() {
 	mat.color = inactive;
-	for(size_t  i = 0; i < label.str().size(); ++i)
-		label.str()[i].set(set ? labels_active : labels_inactive, set ? active : white);
+	for(size_t  i = 0; i < label.size(); ++i)
+		label[i].set(set ? labels_active : labels_inactive, set ? active : white);
 }
 
 ccolortickbox::ccolortickbox(wchar_t* label_str, const rect& r, bool& set, pixel_32 active, pixel_32 inactive) 
-	: rect(r), set(set), active(active), inactive(inactive), label(labels_inactive, pixel_32()) {
-		if(label_str) label.set_str(label_str, formatted_char());
+	: rect(r), set(set), active(active), inactive(inactive), label_p(&label) {
+		if(label_str) label = formatted_text(label_str, labels_inactive, pixel_32());
 		update_mat();
 		stroke.set_width(1);
 		stroke.set_material(material(null_texture, inactive));
 		clip = false;
-		if(label_str) print = &label;
+		if(label_str) print = &label_p;
 }
 
 void ccolortickbox::event_proc(event m) {
@@ -63,8 +63,8 @@ void ccolortickbox::event_proc(event m) {
 
 void ccolortickbox::update_proc(gui::system& in) {
 	if(!print) return;
-	rc.r = max(200, label.get_bbox().w());
-	rc.h(label.get_bbox().h());
+	rc.r = max(200, label_p.get_bbox().w());
+	rc.h(label_p.get_bbox().h());
 }
 
 void ccolortickbox::draw_proc(const draw_info& in) {
@@ -93,7 +93,7 @@ void ctext_modifier::event_proc(event m) {
 
 void ctext_modifier::draw_proc(const draw_info& in) {
 	rect::draw_proc(in);
-	auto& t = *mytext->print;
+	auto& t = *mytext->editor;
 	stroke.draw(*this, in);
 	if(_type == BOLDEN)
 		mat.color = t.get_bold_status() ? ltblue : white;

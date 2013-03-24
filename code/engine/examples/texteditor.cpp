@@ -83,22 +83,21 @@ int main() {
 	gui::system sys(&gl.events);
 	cbackground background(rect(rect_xywh(0, 0, gl.get_window_rect().w-20, gl.get_window_rect().h-20), material(gui::null_texture, pixel_32(6, 5, 20, 255))));
 	
-	text mytext(fonts + 0, white);
+	text_interface mytext(text_printer::style(fonts + 0, white));
 	ctextbox  mytextbox(textbox(rect_xywh(), material(gui::null_texture, white), &mytext));
 	
-	mytext.blink.blink = true;
-	mytext.blink.interval_ms = 500;
-	mytext.str().clear();
-	mytext.kerning = false;
-	mytext.select.bg_mat.color = pixel_32(128, 255, 255, 120);
-	mytext.select.inactive_bg_mat.color = pixel_32(128, 255, 255, 40);
-	mytext.highlight_mat = material(gui::null_texture, pixel_32(15, 15, 15, 255)); 
-	mytext.highlight_current_line = false;
-	mytext.highlight_during_selection = true;
-	mytext.wrap_width = 0;
-	mytext.align_caret_height = true;
-	mytext.caret_width = 1;
-	mytext.caret_mat.color = pixel_32(255,255,255,255);
+	mytext.printer.blink.blink = true;
+	mytext.printer.blink.interval_ms = 500;
+	mytext.printer.kerning = false;
+	mytext.printer.selection_bg_mat.color = pixel_32(128, 255, 255, 120);
+	mytext.printer.selection_inactive_bg_mat.color = pixel_32(128, 255, 255, 40);
+	mytext.printer.highlight_mat = material(gui::null_texture, pixel_32(15, 15, 15, 255)); 
+	mytext.printer.highlight_current_line = false;
+	mytext.printer.highlight_during_selection = true;
+	mytext.printer.wrap_width = 0;
+	mytext.printer.align_caret_height = true;
+	mytext.printer.caret_width = 1;
+	mytext.printer.caret_mat.color = pixel_32(255,255,255,255);
 	//mytext.whitelist = L"0123456789.";
 	//mytext.max_characters = 15;
 	mytextbox.mat.color = darkgray;
@@ -111,8 +110,8 @@ int main() {
 	ccolortickbox::labels_active = fonts + 1;
 	ccolortickbox::labels_inactive = fonts + 0;
 	ccolortickbox  settings(0, rect(rect_xywh(background.rc.r - 15, 0, 15, 15),material(textures+1)), settings_active, ltblue, pixel_32(180, 180, 180, 255));
-	ccolortickbox  highlight(L" Highlight current line", rect(rect_xywh(20, 17, 200, 15),material(gui::null_texture)), mytext.highlight_current_line);
-	ccolortickbox  kerning(L" Kerning", rect(rect_xywh(20, 47, 200, 15),material(gui::null_texture)), mytext.kerning);
+	ccolortickbox  highlight(L" Highlight current line", rect(rect_xywh(20, 17, 200, 15),material(gui::null_texture)), mytext.printer.highlight_current_line);
+	ccolortickbox  kerning(L" Kerning", rect(rect_xywh(20, 47, 200, 15),material(gui::null_texture)), mytext.printer.kerning);
 	ccolortickbox  word_wrap(L" Word wrapping", rect(rect_xywh(20, 77, 200, 15),material(gui::null_texture)), word_wrapping);
 	
 	cslider   sl(scrollarea::slider(20, material(gui::null_texture, pixel_32(104, 104, 104, 255))));
@@ -179,11 +178,11 @@ int main() {
 			mytextbox.rc.t += settings_active ? 100 : 17;
 			mytextbox.rc.r -= 10;
 			if(!word_wrapping) {
-				mytext.wrap_width = 0;
+				mytext.printer.wrap_width = 0;
 				mytextbox.rc.b -= 10;
 			}
 			else {
-				mytext.wrap_width = mytextbox.rc.w();
+				mytext.printer.wrap_width = mytextbox.rc.w();
 			}
 			settings.rc = rect_xywh(background.rc.r - 15, 0, 15, 15);
 			myscrtx.align();

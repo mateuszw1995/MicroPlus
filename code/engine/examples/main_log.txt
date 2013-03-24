@@ -1,65 +1,65 @@
 OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
 line: 47
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: loading resources/texteditor/settings.png
 
 OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
 line: 48
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: loading resources/texteditor/bold.png
 
 OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
 line: 49
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: loading resources/texteditor/italics.png
 
 OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
 line: 50
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: loading resources/texteditor/middlescroll.png
 
 OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
 line: 57
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: freetype initialization
 
 OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
 line: 61
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: resources/texteditor/arial.ttf
 
 OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
 line: 62
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: resources/texteditor/arialbd.ttf
 
 OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
 line: 63
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: resources/texteditor/ariali.ttf
 
 OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
 line: 64
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: resources/texteditor/arialbi.ttf
 
 line: 65
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: freetype deinitialization
 
 OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
 line: 72
-file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
+file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: atlas packing
 

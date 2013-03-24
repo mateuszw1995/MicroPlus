@@ -43,7 +43,7 @@ namespace db {
 			private:
 //				font_file(const font_file&) = delete;
 				friend struct font;
-				friend class text;
+				friend class text_printer;
 				int ascender, descender;
 				std::vector<glyph> glyphs;
 				unsigned pt;
@@ -72,7 +72,7 @@ namespace db {
 				font* get_bold(bool flag);
 				font* get_italics(bool flag);
 			private:
-				friend class text;
+				friend class text_printer;
 				glyph *glyphs;
 				font_file* parent;
 			};

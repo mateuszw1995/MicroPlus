@@ -1,12 +1,12 @@
 #include "header.h"
 
 TEST(Text, IsInitiallyEmpty) {
-	gui::text tx(0, pixel_32());
+	gui::text_interface tx(gui::text_printer::style(0, pixel_32()));
 	EXPECT_TRUE(tx.get_str().empty());
 }
 
 TEST(Text, WhiteList) {
-	gui::text tx(0, pixel_32());
+	gui::text_interface tx(gui::text_printer::style(0, pixel_32()));
 	tx.whitelist = L"1234567890.";
 	tx.insert(gui::formatted_text(L"myip:abhgdjshgfjshg2dsadas5dasda5g  dsf s s d .     2or+++5--5.   255.sdadasdasdasd255"));
 	std::wstring myip(L"255.255.255.255"), 

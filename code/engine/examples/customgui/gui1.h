@@ -34,7 +34,8 @@ struct ccolortickbox : public rect, public dynamic_border {
 	static font* labels_inactive;
 	bool& set;
 	pixel_32 active, inactive;
-	text label;
+	fstr label;
+	text_printer label_p;
 	rect_wh size;
 
 	ccolortickbox(wchar_t* label_str, const rect& r, bool& set, pixel_32 active = ltblue, pixel_32 inactive = darkgray) ;

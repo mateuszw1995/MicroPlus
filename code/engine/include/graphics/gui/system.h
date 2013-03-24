@@ -96,7 +96,8 @@ namespace db {
 				void default_update   ();
 			};
 
-			extern std::wostringstream& operator<<(std::wostringstream& stream, const fstr&);
+			extern unsigned get_left_word (const fstr&, unsigned left,  unsigned at, bool (*is_word)(wchar_t));
+			extern unsigned get_right_word(const fstr&, unsigned right, unsigned at, bool (*is_word)(wchar_t));
 			extern void formatted_text(const wchar_t*, fstr&, font* = 0, const pixel_32& = pixel_32());
 			extern fstr formatted_text(const wchar_t*, font* = 0, const pixel_32& = pixel_32());
 			extern void paste_clipboard(fstr& out, formatted_char = formatted_char());

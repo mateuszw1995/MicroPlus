@@ -4,7 +4,7 @@
 namespace db {
 	namespace graphics {
 		namespace gui {
-			class text;
+			class text_printer;
 			struct rect {
 				struct draw_info {
 					system& owner;
@@ -76,7 +76,7 @@ namespace db {
 
 				material mat;
 
-				text* print; /* text to be printed inside */
+				text_printer* print; /* text to be printed inside */
 				rect* parent; 
 
 				std::vector<rect*> children;

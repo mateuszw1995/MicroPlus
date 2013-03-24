@@ -72,7 +72,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="customgui\gui1.cpp" />
-    <ClCompile Include="simplegraphs.cpp" />
+    <ClCompile Include="texteditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="customgui\gui1.h" />

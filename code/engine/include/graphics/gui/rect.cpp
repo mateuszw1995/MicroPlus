@@ -1,6 +1,6 @@
 #pragma once
 #include "rect.h"
-#include "text.h"
+#include "text_printer.h"
 
 namespace db {
 	namespace graphics {

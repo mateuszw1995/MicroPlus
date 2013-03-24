@@ -23,6 +23,44 @@ namespace db {
 		using namespace io::input;
 		namespace gui {
 			io::input::texture* null_texture = 0;
+			
+			void formatted_text(const wchar_t* _str, fstr& out, font* f, const pixel_32& p) {
+				out.clear();
+				formatted_char ch;
+				int len = wcslen(_str);
+				for(int i = 0; i < len; ++i) {
+					ch.set(_str[i], f, p);
+					out.append(1, ch);
+				}
+			}
+
+			fstr formatted_text(const wchar_t* _str, font* f, const pixel_32& p) {
+				fstr out;	
+
+				formatted_char ch;
+				ch.font_used = f;
+				int len = wcslen(_str);
+
+				//out.reserve(len);
+				for(int i = 0; i < len; ++i) {
+					ch.set(_str[i], f, p);
+					out.append(1, ch);
+				}
+
+				return out;
+			}
+
+			void scale_virtual_res(rect_wh vres, rect_wh display, vector<quad>& quads) {
+				float x_mult = display.w/float(vres.w);
+				float y_mult = display.h/float(vres.h);
+
+				for(size_t i = 0; i < quads.size(); ++i) {
+					for(int q = 0; q < 4; ++q) {
+						quads[i].p[q].x = int(float(quads[i].p[q].x)*x_mult);
+						quads[i].p[q].y = int(float(quads[i].p[q].y)*y_mult);
+					}
+				}
+			}
 
 			material::material(io::input::texture* tex, const pixel_32& color) : tex(tex), color(color) {}
 
