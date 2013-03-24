@@ -55,6 +55,15 @@ namespace db {
 				void set(wchar_t, font* = 0, const pixel_32& = pixel_32());
 				void set(font* = 0, const pixel_32& = pixel_32());
 			};
+			
+			struct style {
+				font* f;
+				pixel_32 color;
+				style(font*, pixel_32);
+				style(const formatted_char&);
+				operator formatted_char();
+			};
+
 			typedef std::basic_string<formatted_char> fstr;
 
 			struct rect;
@@ -96,10 +105,8 @@ namespace db {
 				void default_update   ();
 			};
 
-			extern unsigned get_left_word (const fstr&, unsigned left,  unsigned at, bool (*is_word)(wchar_t));
-			extern unsigned get_right_word(const fstr&, unsigned right, unsigned at, bool (*is_word)(wchar_t));
-			extern void formatted_text(const wchar_t*, fstr&, font* = 0, const pixel_32& = pixel_32());
-			extern fstr formatted_text(const wchar_t*, font* = 0, const pixel_32& = pixel_32());
+			extern void formatted_text(const wchar_t*, fstr&, style);
+			extern fstr formatted_text(const wchar_t*, style);
 			extern void paste_clipboard(fstr& out, formatted_char = formatted_char());
 			extern void scale_virtual_res(rect_wh vres, rect_wh display, vector<quad>& quads);
 		}

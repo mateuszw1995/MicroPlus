@@ -64,16 +64,6 @@ namespace db {
 				return upper_bound(lines.begin(), lines.end(), l, [](const line& x, const line& y){return x.begin < y.begin;}) - lines.begin() - 1;
 			}
 
-			text_printer::style::style(font* f, pixel_32 c) : f(f), color(c) {}
-			
-			text_printer::style::style(const formatted_char& c) : f(c.font_used), color(pixel_32(c.r, c.g, c.b, c.a)) {}
-
-			text_printer::style::operator formatted_char() {
-				formatted_char c;
-				c.set(f, color);
-				return c;
-			}
-
 			text_printer::caret_info::caret_info(style default_style) : default_style(default_style), line(0), pos(0), selection_offset(0) {}
 
 			text_printer::text_printer(fstr* source, caret_info* caret)

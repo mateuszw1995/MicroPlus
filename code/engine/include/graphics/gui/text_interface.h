@@ -4,6 +4,8 @@
 #include "../../misc/undoredo.h"
 #include "word_separator.h"
 
+/* if any bugs, recheck the caret_line/get_line policy */
+
 namespace db {
 	namespace graphics {
 		namespace gui {
@@ -57,7 +59,7 @@ namespace db {
 				pixel_32 global_color;
 				misc::undoredo<action> edit;
 
-				text_interface(text_printer::style default_style);
+				text_interface(style default_style);
 
 				/* editor */
 
@@ -95,14 +97,14 @@ namespace db {
 					 select_word(unsigned at),
 					 select_line(unsigned at),
 					 bold(),
-					 italics(),
-					 undo(),
-					 redo();
+					 italics();
+				bool undo(),
+				     redo();
 
 				const fstr& get_str() const;
 				
-				text_printer::style get_neighbor_style(); /* gets formatting template that will be applied to subsequent characters, includes forced bolds/italics */ 
-				text_printer::style get_current_style(); /* same as get_neighbor_style, yet it takes forced bolds/italics into consideration, actually used function */ 
+				style get_neighbor_style(); /* gets formatting template that will be applied to subsequent characters, includes forced bolds/italics */ 
+				style get_current_style(); /* same as get_neighbor_style, yet it takes forced bolds/italics into consideration, actually used function */ 
 
 				/* whether bold/italics is forced (button B or I is pressed) */
 				bool get_bold_status();

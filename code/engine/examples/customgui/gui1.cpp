@@ -38,7 +38,7 @@ void ccolortickbox::update_mat() {
 
 ccolortickbox::ccolortickbox(wchar_t* label_str, const rect& r, bool& set, pixel_32 active, pixel_32 inactive) 
 	: rect(r), set(set), active(active), inactive(inactive), label_p(&label) {
-		if(label_str) label = formatted_text(label_str, labels_inactive, pixel_32());
+		if(label_str) label = formatted_text(label_str, style(labels_inactive, pixel_32()));
 		update_mat();
 		stroke.set_width(1);
 		stroke.set_material(material(null_texture, inactive));

@@ -83,7 +83,7 @@ int main() {
 	gui::system sys(&gl.events);
 	cbackground background(rect(rect_xywh(0, 0, gl.get_window_rect().w-20, gl.get_window_rect().h-20), material(gui::null_texture, pixel_32(6, 5, 20, 255))));
 	
-	text_interface mytext(text_printer::style(fonts + 0, white));
+	text_interface mytext(style(fonts + 0, white));
 	ctextbox  mytextbox(textbox(rect_xywh(), material(gui::null_texture, white), &mytext));
 	
 	mytext.printer.blink.blink = true;

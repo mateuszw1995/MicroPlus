@@ -24,7 +24,7 @@ namespace db {
 				caret.selection_offset = 0;
 			}
 
-			text_interface::text_interface(text_printer::style default_style)
+			text_interface::text_interface(style default_style)
 				: printer(text_printer(&_str, &caret)), caret(default_style), anchor(0),
 				bold_bound(false),
 				italics_bound(false),
@@ -279,13 +279,14 @@ namespace db {
 				if(at && ((separator.is_newline(_str[at].c) && !separator.is_newline(_str[at-1].c)) || at == _str.length())) --at;
 				bool alpha = separator.is_word(_str[at].c, true);
 
-				int left = at, right = at;
-				for(int i = at; i >= 0; --i)
-					if(!separator.is_newline(_str[i].c) && separator.is_word(_str[i].c, alpha)) left = i;
-					else break;
-				for(unsigned i = at; i < _str.length(); ++i)
-					if(!separator.is_newline(_str[i].c) && separator.is_word(_str[i].c, alpha)) right = i;
-					else break;
+				int left = separator.get_left_word(_str, 0, at), right = separator.get_right_word(_str, _str.length(), at);
+				//for(int i = at; i >= 0; --i)
+				//	if(!separator.is_newline(_str[i].c) && separator.is_word(_str[i].c, alpha)) left = i;
+				//	else break;
+				//for(unsigned i = at; i < _str.length(); ++i)
+				//	if(!separator.is_newline(_str[i].c) && separator.is_word(_str[i].c, alpha)) right = i;
+				//	else break;
+
 
 				// always the same line
 				caret.pos = min(right+1u, _str.length());
@@ -361,12 +362,12 @@ namespace db {
 						italics_bound = !get_neighbor_style().f->is_italicsed();
 			}
 
-			void text_interface::undo() {
-				edit.undo();
+			bool text_interface::undo() {
+				return edit.undo();
 			}
 
-			void text_interface::redo() {
-				edit.redo();
+			bool text_interface::redo() {
+				return edit.redo();
 			}
 			
 			void text_interface::caret_up(bool s) {
@@ -505,15 +506,15 @@ namespace db {
 				forced_bold = forced_italics = false;
 			}
 			
-			text_printer::style text_interface::get_current_style() {
-				text_printer::style ch = get_neighbor_style();
+			style text_interface::get_current_style() {
+				style ch = get_neighbor_style();
 				if(forced_bold)    ch.f = ch.f->get_bold(bold_bound);
 				if(forced_italics) ch.f = ch.f->get_italics(italics_bound);
 				return ch;
 
 			}
 
-			text_printer::style text_interface::get_neighbor_style() {
+			style text_interface::get_neighbor_style() {
 				if(!_str.empty()) return (caret.pos ? _str[caret.pos-1] : _str[0]);
 				else return caret.default_style;
 			}

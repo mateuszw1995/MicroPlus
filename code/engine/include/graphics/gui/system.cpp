@@ -24,26 +24,26 @@ namespace db {
 		namespace gui {
 			io::input::texture* null_texture = 0;
 			
-			void formatted_text(const wchar_t* _str, fstr& out, font* f, const pixel_32& p) {
+			void formatted_text(const wchar_t* _str, fstr& out, style s) {
 				out.clear();
 				formatted_char ch;
 				int len = wcslen(_str);
 				for(int i = 0; i < len; ++i) {
-					ch.set(_str[i], f, p);
+					ch.set(_str[i], s.f, s.color);
 					out.append(1, ch);
 				}
 			}
 
-			fstr formatted_text(const wchar_t* _str, font* f, const pixel_32& p) {
+			fstr formatted_text(const wchar_t* _str, style s) {
 				fstr out;	
 
 				formatted_char ch;
-				ch.font_used = f;
+				ch.font_used = s.f;
 				int len = wcslen(_str);
 
 				//out.reserve(len);
 				for(int i = 0; i < len; ++i) {
-					ch.set(_str[i], f, p);
+					ch.set(_str[i], s.f, s.color);
 					out.append(1, ch);
 				}
 
@@ -146,6 +146,16 @@ namespace db {
 			void formatted_char::set(font* f, const pixel_32& p) {
 				font_used = f;
 				memcpy(&r, &p, sizeof(pixel_32));
+			}
+			
+			style::style(font* f, pixel_32 c) : f(f), color(c) {}
+			
+			style::style(const formatted_char& c) : f(c.font_used), color(pixel_32(c.r, c.g, c.b, c.a)) {}
+
+			style::operator formatted_char() {
+				formatted_char c;
+				c.set(f, color);
+				return c;
 			}
 
 			system::system(event::state* events) : events(events), own_copy(false), own_clip(false), fetch_clipboard(true), focus(0), lholded(0), rholded(0) {

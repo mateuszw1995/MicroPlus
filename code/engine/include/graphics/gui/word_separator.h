@@ -14,10 +14,10 @@ namespace db {
 				word_separator(bool (*is_word)(wchar_t, bool) = 0); /* 0 - default comparator */
 
 				void set_default();
-				unsigned get_left_word(const fstr&, unsigned max_left, unsigned at) const;
-				unsigned get_left_word(const wchar_t*, unsigned max_left, unsigned at) const;
-				unsigned get_right_word(const fstr&, unsigned max_right, unsigned at) const;
-				unsigned get_right_word(const wchar_t*, unsigned max_right, unsigned at) const;
+				unsigned get_left_word(const fstr&, unsigned max_left, int at) const;
+				unsigned get_left_word(const wchar_t*, unsigned max_left, int at) const;
+				unsigned get_right_word(const fstr&, unsigned max_right, int at) const;
+				unsigned get_right_word(const wchar_t*, unsigned max_right, int at) const;
 			};
 		}
 	}

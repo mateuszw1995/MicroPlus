@@ -21,11 +21,12 @@ namespace db {
 					if(is_word == 0) set_default();
 				}
 
-				unsigned word_separator::get_left_word(const fstr& _str, unsigned max_left, unsigned at) const {
+				unsigned word_separator::get_left_word(const fstr& _str, unsigned max_left, int at) const {
+					if(_str.empty() || at <= int(max_left)) return 0;
 					bool alpha = is_word(_str[at ? at-1 : 0].c, true);
 
 					int offset = 0;
-					while(--at >= max_left) {
+					while((--at) >= max_left) {
 						if(!is_newline(_str[at].c) && is_word(_str[at].c, alpha)) ++offset;
 						else break;
 					}
@@ -34,11 +35,12 @@ namespace db {
 					return offset;
 				}
 
-				unsigned word_separator::get_left_word(const wchar_t* _str, unsigned max_left, unsigned at) const {
+				unsigned word_separator::get_left_word(const wchar_t* _str, unsigned max_left, int at) const {
+					if(!_str[0] || at <= int(max_left)) return 0;
 					bool alpha = is_word(_str[at ? at-1 : 0], true);
 
 					int offset = 0;
-					while(--at >= max_left) {
+					while((--at) >= max_left) {
 						if(!is_newline(_str[at]) && is_word(_str[at], alpha)) ++offset;
 						else break;
 					}
@@ -47,7 +49,8 @@ namespace db {
 					return offset;
 				}
 
-				unsigned word_separator::get_right_word(const fstr& _str, unsigned max_right, unsigned at) const {
+				unsigned word_separator::get_right_word(const fstr& _str, unsigned max_right, int at) const {
+					if(_str.empty()) return 0;
 					bool alpha = is_word(_str[at].c, true);
 
 					int offset = 0;
@@ -62,7 +65,8 @@ namespace db {
 					return offset;
 				}
 
-				unsigned word_separator::get_right_word(const wchar_t* _str, unsigned max_right, unsigned at) const {
+				unsigned word_separator::get_right_word(const wchar_t* _str, unsigned max_right, int at) const {
+					if(!_str[0]) return 0;
 					bool alpha = is_word(_str[at], true);
 
 					int offset = 0;

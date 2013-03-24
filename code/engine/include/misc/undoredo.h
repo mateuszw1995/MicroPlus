@@ -15,18 +15,22 @@ namespace db {
 			std::vector<command> actions;
 			undoredo() : level(0) {}
 
-			void undo() {
+			bool undo() {
 				if(next_to_undo() >= 0) {
 					actions[next_to_undo()].execute(true);
 					++level;
+					return true;
 				}
+				return false;
 			}
 
-			void redo() {
+			bool redo() {
 				if(next_to_redo() < int(actions.size())) {
 					actions[next_to_redo()].execute(false);
 					--level;
+					return true;
 				}
+				return false;
 			} 
 			
 			/* perform action and push it on stack */

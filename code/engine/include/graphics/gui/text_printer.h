@@ -46,14 +46,6 @@ namespace db {
 					void reset();
 				};
 
-				struct style {
-					font* f;
-					pixel_32 color;
-					style(font*, pixel_32);
-					style(const formatted_char&);
-					operator formatted_char();
-				};
-
 				struct caret_info {
 					unsigned pos, line;
 					int selection_offset;
