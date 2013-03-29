@@ -24,17 +24,20 @@ TEST(Text, WhiteList) {
 TEST(Text, WordJumping) {
 	gui::word_separator wsep;
 	gui::fstr fs = gui::formatted_text(L"Abhjfh ds. fdsf df. dgf .dfg sdfgs.d", gui::style(0, pixel_32()));
-	EXPECT_EQ(0, wsep.get_left_word(wstr(fs).c_str(), 0, 0));
-	EXPECT_EQ(1, wsep.get_left_word(fs, 0, 1));
-	EXPECT_EQ(2, wsep.get_left_word(wstr(fs).c_str(), 0, 2));
-	EXPECT_EQ(3, wsep.get_left_word(fs, 0, 3));
-	EXPECT_EQ(4, wsep.get_left_word(wstr(fs).c_str(), 0, 4));
-	EXPECT_EQ(5, wsep.get_left_word(fs, 0, 5));
-	EXPECT_EQ(6, wsep.get_left_word(wstr(fs).c_str(), 0, 6));
-	EXPECT_EQ(1, wsep.get_left_word(fs, 0, 7));
-	EXPECT_EQ(4, wsep.get_right_word(wstr(fs).c_str(), wstr(fs).length(), 11));
-	EXPECT_EQ(1, wsep.get_right_word(fs, wstr(fs).length(), 14));
-	EXPECT_EQ(6, wsep.get_right_word(fs, wstr(fs).length(), 0));
+	EXPECT_EQ(0, wsep.get_left_word(fs, 0));
+	EXPECT_EQ(1, wsep.get_left_word(fs, 1));
+	EXPECT_EQ(2, wsep.get_left_word(fs, 2));
+	EXPECT_EQ(3, wsep.get_left_word(fs, 3));
+	EXPECT_EQ(4, wsep.get_left_word(fs, 4));
+	EXPECT_EQ(5, wsep.get_left_word(fs, 5));
+	EXPECT_EQ(6, wsep.get_left_word(fs, 6));
+	EXPECT_EQ(1, wsep.get_left_word(fs, 7));
+	EXPECT_EQ(4, wsep.get_right_word(fs, 11));
+	EXPECT_EQ(1, wsep.get_right_word(fs, 14));
+	EXPECT_EQ(6, wsep.get_right_word(fs, 0));
+	EXPECT_EQ(0, wsep.get_right_word(fs, fs.length()));
+	EXPECT_EQ(1, wsep.get_right_word(fs, fs.length()-1));
+	EXPECT_EQ(1, wsep.get_right_word(fs, fs.length()-2));
 }
 
 std::wstring random_wstr(int len) {

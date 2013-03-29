@@ -42,8 +42,8 @@ namespace db {
 				void free_images(), destroy();
 			private:
 //				font_file(const font_file&) = delete;
+				friend class text::drafter;
 				friend struct font;
-				friend class text_printer;
 				int ascender, descender;
 				std::vector<glyph> glyphs;
 				unsigned pt;
@@ -71,8 +71,9 @@ namespace db {
 				bool is_italicsed();
 				font* get_bold(bool flag);
 				font* get_italics(bool flag);
+
 			private:
-				friend class text_printer;
+				friend struct text::drafter;
 				glyph *glyphs;
 				font_file* parent;
 			};

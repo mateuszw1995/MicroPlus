@@ -4,6 +4,10 @@
 namespace db {
 	namespace graphics {
 		namespace gui {
+			struct scroll::XXX {
+				int a;
+			};
+
 			scroll::scroll() : vel_mult(1.f) {
 				stop();
 			}

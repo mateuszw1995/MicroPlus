@@ -105,13 +105,16 @@
     <ClInclude Include="include\graphics\gui\textbox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\graphics\gui\text_interface.h">
+    <ClInclude Include="include\graphics\gui\text\word_separator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\graphics\gui\text_printer.h">
+    <ClInclude Include="include\graphics\gui\text\ui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\graphics\gui\word_separator.h">
+    <ClInclude Include="include\graphics\gui\text\printer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\gui\text\drafter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -191,13 +194,16 @@
     <ClCompile Include="include\config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="include\graphics\gui\text_interface.cpp">
+    <ClCompile Include="include\graphics\gui\text\word_separator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="include\graphics\gui\text_printer.cpp">
+    <ClCompile Include="include\graphics\gui\text\ui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="include\graphics\gui\word_separator.cpp">
+    <ClCompile Include="include\graphics\gui\text\printer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\graphics\gui\text\drafter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
