@@ -29,15 +29,31 @@ namespace db {
 						void set(int y, int asc, int desc);
 					};
 					
+					struct source_info {
+						const gui::fstr& source;
+						const drafter::caret_info* target_caret;
+						/* is not const because its bounding box is expanded */
+						rect* clipper;
+						source_info(const gui::fstr& source, const drafter::caret_info* target_caret = 0, rect* clipper = 0);
+					private:
+						friend struct drafter;
+						void find_ascdesc(int i, int j, int&, int&) const;
+						int get_kern(const drafter&, unsigned code1, unsigned code2) const;
+						font* getf(unsigned i) const;
+					};
+
 					std::vector<font::glyph*> cached;
 					std::vector<line> lines;
 					std::vector<int> sectors;
 					rect_ltrb caret_rect;
 
+					pointf pos;
+
 					word_separator word_wrapper_separator;
 
 					unsigned wrap_width;
 					bool kerning;
+					int first_line_visible, last_line_visible, max_x;
 
 					drafter();
 
@@ -46,16 +62,10 @@ namespace db {
 					unsigned map_mouse(const point& mouse);
 					rect_ltrb get_bbox(); /* absolute */
 				
-					void draw(const fstr&);
+					void draw(const source_info&);
 					
 					/* -1: there's no line visible */
 					int get_first_line_visible(), get_last_line_visible();
-				
-				private:
-					int max_x;
-					void find_ascdesc(const gui::fstr& source, int i, int j, int&, int&) const;
-					int get_kern(const gui::fstr& source, unsigned code1, unsigned code2) const;
-					font* getf(const gui::fstr& source, unsigned i) const;
 				};
 			}
 		}
