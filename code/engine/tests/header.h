@@ -7,3 +7,6 @@ using namespace graphics;
 using namespace misc;
 using namespace container;
 using namespace math;
+
+
+extern std::wstring random_wstr(int len);

@@ -1,10 +1,10 @@
 #pragma once
 #include "system.h"
+#include "text\printer.h"
 
 namespace db {
 	namespace graphics {
 		namespace gui {
-			class text_printer;
 			struct rect {
 				struct draw_info {
 					system& owner;
@@ -75,8 +75,6 @@ namespace db {
 				pointf pen /* scrolls content */;
 
 				material mat;
-
-				text_printer* print; /* text to be printed inside */
 				rect* parent; 
 
 				std::vector<rect*> children;
@@ -90,11 +88,10 @@ namespace db {
 				virtual void draw_proc(const draw_info&);
 				virtual void on_focus(bool);
 				void draw_rect(const draw_info& in), 
-					 draw_text(const draw_info& in), 
 					 draw_children(const draw_info& in);
 
 				/* push this rect to quad vector */
-				static rect_ltrb add_quad(const material&, const rect_ltrb& origin, rect* clipper, std::vector<quad>& v);
+				static rect_ltrb add_quad(const material&, const rect_ltrb& origin, const rect* clipper, std::vector<quad>& v);
 
 				bool is_pen_aligned(); /*   is pen valid */
 				void align_pen(),      /* make pen valid */

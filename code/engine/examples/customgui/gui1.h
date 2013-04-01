@@ -29,20 +29,24 @@ struct cbackground : public rect, public dynamic_border {
 	void draw_proc(const draw_info& in);
 };
 
-struct ccolortickbox : public rect, public dynamic_border {
-	static font* labels_active;
-	static font* labels_inactive;
+struct ctickbox : public rect, public dynamic_border {
 	bool& set;
-	pixel_32 active, inactive;
-	fstr label;
-	text_printer label_p;
-	rect_wh size;
-
-	ccolortickbox(wchar_t* label_str, const rect& r, bool& set, pixel_32 active = ltblue, pixel_32 inactive = darkgray) ;
-	void update_mat();
+	material active, inactive;
+	ctickbox(const rect& r, material active, material inactive, bool& set);
 	void event_proc(event m);
-	void update_proc(gui::system& in);
 	void draw_proc(const draw_info& in);
+};
+
+struct clabel_tickbox : public rect, public dynamic_border {
+	bool& set;
+	
+	clabel_tickbox(const rect& r, std::wstring label, style active, style inactive, bool& set);
+	void event_proc(event m);
+	void draw_proc(const draw_info& in);
+private:
+	void update_rc();
+	text::printer print;
+	fstr active, inactive;
 };
 
 struct ctext_modifier : public rect, public dynamic_border {

@@ -27,6 +27,7 @@ namespace db {
 				io::input::texture* tex;
 				pixel_32 color;
 				material(io::input::texture* = null_texture, const pixel_32& = pixel_32()); 
+				material(const pixel_32&); 
 			};
 			
 			struct vertex {

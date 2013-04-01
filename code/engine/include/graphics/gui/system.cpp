@@ -63,6 +63,8 @@ namespace db {
 			}
 
 			material::material(io::input::texture* tex, const pixel_32& color) : tex(tex), color(color) {}
+			
+			material::material(const pixel_32& color) : tex(gui::null_texture), color(color) {}
 
 			quad::quad() {}
 			quad::quad(const rect_ltrb& rc, const material& mat, const rect_texture& t) {

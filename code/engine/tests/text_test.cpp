@@ -1,14 +1,25 @@
 #include "header.h"
 
+std::wstring random_wstr(int len) {
+	std::wstring rand_wstr;
+	rand_wstr.resize(len);
+	
+	for(int i = 0; i < len; ++i)
+		rand_wstr[i] = rand();
+
+	return rand_wstr;
+}
+
 TEST(Text, IsInitiallyEmpty) {
-	gui::text_interface tx(gui::style(0, pixel_32()));
+	gui::controls::textbox tx(rect_xywh(), gui::material(), gui::style(0, pixel_32()));
 	EXPECT_TRUE(tx.get_str().empty());
 }
 
 TEST(Text, WhiteList) {
-	gui::text_interface tx(gui::style(0, pixel_32()));
+	gui::font f;
+	gui::controls::textbox tx(rect_xywh(), gui::material(), gui::style(&f, pixel_32()));
 	tx.whitelist = L"1234567890.";
-	tx.insert(gui::formatted_text(L"myip:abhgdjshgfjshg2dsadas5dasda5g  dsf s s d .     2or+++5--5.   255.sdadasdasdasd255", gui::style(0, pixel_32())));
+	tx.insert(gui::formatted_text(L"myip:abhgdjshgfjshg2dsadas5dasda5g  dsf s s d .     2or+++5--5.   255.sdadasdasdasd255", gui::style(&f, pixel_32())));
 	std::wstring myip(L"255.255.255.255"), 
 		otherstr(L" returns an iterator just past this element"),
 		badstr(L" 43253r534e5.,/.,/?><?tu213r4ns56 a56n456 7it//////////erator /42;][];['];[]just 123132131\\|||p|\"|\"|\"|:\"as4234t 55this element");
@@ -23,7 +34,8 @@ TEST(Text, WhiteList) {
 
 TEST(Text, WordJumping) {
 	gui::word_separator wsep;
-	gui::fstr fs = gui::formatted_text(L"Abhjfh ds. fdsf df. dgf .dfg sdfgs.d", gui::style(0, pixel_32()));
+	gui::font f;
+	gui::fstr fs = gui::formatted_text(L"Abhjfh ds. fdsf df. dgf .dfg sdfgs.d", gui::style(&f, pixel_32()));
 	EXPECT_EQ(0, wsep.get_left_word(fs, 0));
 	EXPECT_EQ(1, wsep.get_left_word(fs, 1));
 	EXPECT_EQ(2, wsep.get_left_word(fs, 2));
@@ -40,24 +52,20 @@ TEST(Text, WordJumping) {
 	EXPECT_EQ(1, wsep.get_right_word(fs, fs.length()-2));
 }
 
-std::wstring random_wstr(int len) {
-	std::wstring rand_wstr;
-	rand_wstr.resize(len);
-	
-	for(int i = 0; i < len; ++i)
-		rand_wstr[i] = rand();
-
-	return rand_wstr;
-}
 
 TEST(Text, UndoRedo) {
+	gui::font f;
+	gui::font_file ff;
+	ff.create(make_pair(0, 10));
+	f.build(&ff);
+	gui::controls::textbox tx(rect_xywh(), gui::material(), gui::style(&f, pixel_32()));
+	
 	srand(time(0));
-	gui::text_interface tx(gui::style(0, pixel_32()));
-	gui::fstr initial_fstr = gui::formatted_text(random_wstr(rand()).c_str(), gui::style(0, pixel_32(212, 100, 0, 192)));
+	gui::fstr initial_fstr = gui::formatted_text(random_wstr(rand()).c_str(), gui::style(&f, pixel_32(212, 100, 0, 192)));
 	tx.insert(initial_fstr);
 
-	for(int i = 0; i < 10000; ++i) {
-		gui::style rand_style = gui::style(0, pixel_32(rand()%256, rand()%256, rand()%256, rand()%256));
+	for(int i = 0; i < 10; ++i) {
+		gui::style rand_style = gui::style(&f, pixel_32(rand()%256, rand()%256, rand()%256, rand()%256));
 		switch(rand()%6) {
 		case 0: tx.insert(gui::formatted_text(random_wstr(rand()%100).c_str(), rand_style)); break;
 		case 1: rand()%2 ? tx.caret_left(rand()%20+10, true)  : tx.caret_left_word(true); tx.insert(gui::formatted_text(random_wstr(rand()%50).c_str(), rand_style)); break;
@@ -69,10 +77,112 @@ TEST(Text, UndoRedo) {
 	}
 	gui::fstr end_fstr = tx.get_str();
 
-	for(int i = 0; i < 100; ++i) {
+	for(int i = 0; i < 2; ++i) {
 		while(tx.undo()) {}
-		EXPECT_EQ(wstr(tx.get_str()), wstr(initial_fstr));
+		EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
 		while(tx.redo()) {}
-		EXPECT_EQ(wstr(tx.get_str()), wstr(end_fstr));
+		EXPECT_EQ(wstr(end_fstr), wstr(tx.get_str()));
 	}
+}
+
+TEST(Text, BoundsCheck) {
+	gui::font f;
+	gui::font_file ff;
+	ff.create(make_pair(0, 10));
+	f.build(&ff);
+	gui::controls::textbox tx(rect_xywh(), gui::material(), gui::style(&f, pixel_32()));
+	
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.select_all();
+	tx.backspace();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.select_all();
+	tx.del();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.select_all();
+	tx.character(L'L');
+	EXPECT_EQ(wstring(L"L"), wstr(tx.get_str()));
+	tx.select_all();
+	tx.backspace();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	
+	tx.select_word(0);
+	tx.backspace();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.select_word(0);
+	tx.del();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.select_word(0);
+	tx.character(L'L');
+	EXPECT_EQ(wstring(L"L"), wstr(tx.get_str()));
+	tx.select_word(0);
+	tx.backspace();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+
+	
+	tx.select_line(0);
+	tx.backspace();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.select_line(0);
+	tx.del();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.select_line(0);
+	tx.character(L'L');
+	EXPECT_EQ(wstring(L"L"), wstr(tx.get_str()));
+	tx.select_line(0);
+	tx.backspace();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+
+	tx.backspace();
+	tx.select_all();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.del();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.del();
+	tx.caret_left(4234, false);
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.caret_right(321, true);
+	tx.character(L'L');
+	EXPECT_EQ(wstring(L"L"), wstr(tx.get_str()));
+	tx.backspace();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.del();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.backspace();
+	tx.character(L'L');
+	EXPECT_EQ(wstring(L"L"), wstr(tx.get_str()));
+	tx.del();
+	EXPECT_EQ(wstring(L"L"), wstr(tx.get_str()));
+	tx.del();
+	tx.del();
+	tx.character(L'A');
+	EXPECT_EQ(wstring(L"LA"), wstr(tx.get_str()));
+	tx.backspace();
+	EXPECT_EQ(wstring(L"L"), wstr(tx.get_str()));
+	tx.del();
+	tx.del();
+	tx.backspace();
+	tx.character(L'L');
+	tx.backspace();
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.backspace();
+	tx.backspace();
+	tx.insert(gui::formatted_text(L"ABCDEFGHABCDEFGHABCDEFGH", gui::style(&f, pixel_32())));
+	while(tx.undo());
+	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	while(tx.redo());
+	EXPECT_EQ(wstring(L"ABCDEFGHABCDEFGHABCDEFGH"), wstr(tx.get_str()));
+	tx.caret_right(321, true);
+	tx.caret_right_word(true);
+	tx.caret_left(2, false);
+	tx.caret_right(23, true);
+	tx.del();
+	EXPECT_EQ(wstring(L"ABCDEFGHABCDEFGHABCDEF"), wstr(tx.get_str()));
+	tx.end(true);
+	tx.caret_left(3, false);
+	tx.home(true);
+	tx.home(true);
+	tx.home(true);
+	tx.insert(gui::formatted_text(L"abc", gui::style(&f, pixel_32())));
+	EXPECT_EQ(wstring(L"abcDEF"), wstr(tx.get_str()));
 }

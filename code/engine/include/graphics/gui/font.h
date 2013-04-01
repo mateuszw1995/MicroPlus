@@ -8,6 +8,10 @@
 namespace db {
 	namespace graphics {
 		namespace gui {
+			namespace text {
+				struct drafter;
+			}
+
 			class font_in {
 				FT_Library library;
 				friend struct font_file;
@@ -22,17 +26,31 @@ namespace db {
 			struct font_file {
 				struct glyph {
 					io::image img;
-					int adv, bear_x, bear_y, width, height;
+					int adv, bear_x, bear_y;
+					math::rect_wh size;
+
 					std::vector<std::pair<unsigned, int> > kerning;
+					
+					glyph();
+					glyph(int adv, int bear_x, int bear_y, rect_wh size);
+					glyph(const FT_Glyph_Metrics&);
 				private:
 					friend struct font_file;
 					FT_UInt index, unicode;
 				};
+				
+				std::vector<glyph> glyphs;
+				std::unordered_map<unsigned, unsigned> unicode;
 
 				font_file();
 				
+				typedef std::vector<std::pair<wchar_t, wchar_t> > charset;
+				void create(std::pair<wchar_t, wchar_t> range);
+				void create(const charset& ranges);
+				void create(const std::wstring& characters);
+				 
 				bool open(font_in&, const char* filename, unsigned pt, std::pair<wchar_t, wchar_t> range);
-				bool open(font_in&, const char* filename, unsigned pt, std::vector<std::pair<wchar_t, wchar_t> > ranges);
+				bool open(font_in&, const char* filename, unsigned pt, const charset& ranges);
 
 				bool open(font_in&, const char* filename, unsigned _pt, const std::wstring& characters);
 				
@@ -42,12 +60,11 @@ namespace db {
 				void free_images(), destroy();
 			private:
 //				font_file(const font_file&) = delete;
-				friend class text::drafter;
+				charset to_charset(const std::wstring&);
+				friend struct text::drafter;
 				friend struct font;
 				int ascender, descender;
-				std::vector<glyph> glyphs;
 				unsigned pt;
-				std::unordered_map<unsigned, unsigned> unicode;
 			};
 			
 			struct font {

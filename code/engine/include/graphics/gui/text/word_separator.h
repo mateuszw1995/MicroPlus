@@ -1,5 +1,5 @@
 #pragma once
-#include "system.h"
+#include "../system.h"
 
 namespace db {
 	namespace graphics {

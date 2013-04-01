@@ -23,7 +23,6 @@
     <ClInclude Include="include\graphics\gui\system.h" />
     <ClInclude Include="include\graphics\gui\textbox.h" />
     <ClInclude Include="include\graphics\gui\text\drafter.h" />
-    <ClInclude Include="include\graphics\gui\text\ui.h" />
     <ClInclude Include="include\graphics\gui\text\printer.h" />
     <ClInclude Include="include\graphics\gui\text\word_separator.h" />
     <ClInclude Include="include\graphics\io\image.h" />
@@ -57,7 +56,7 @@
     <ClCompile Include="include\graphics\gui\text\drafter.cpp" />
     <ClCompile Include="include\graphics\gui\text\printer.cpp" />
     <ClCompile Include="include\graphics\gui\textbox.cpp" />
-    <ClCompile Include="include\graphics\gui\text\ui.cpp" />
+    <ClCompile Include="include\graphics\gui\textbox_ui.cpp" />
     <ClCompile Include="include\graphics\gui\text\word_separator.cpp" />
     <ClCompile Include="include\graphics\io\image.cpp" />
     <ClCompile Include="include\graphics\io\mesh.cpp" />
@@ -117,6 +116,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

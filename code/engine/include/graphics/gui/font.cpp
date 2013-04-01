@@ -29,28 +29,64 @@ namespace db {
 
 			font_file::font_file() : pt(0) {}
 			
+			font_file::charset font_file::to_charset(const std::wstring& str) {
+				charset ranges;
+				ranges.reserve(str.size());
+
+				for(unsigned i = 0; i < str.size(); ++i)
+					ranges.push_back(pair<wchar_t, wchar_t>(str[i], str[i]+1));
+
+				return ranges;
+			}
+
+			void font_file::create(std::pair<wchar_t, wchar_t> range) {
+				charset ranges;
+				ranges.push_back(range);
+				return create(ranges);
+			}
+
+			void font_file::create(const std::wstring& str) {
+				return create(to_charset(str));
+			}
+
+			void font_file::create(const charset& ranges) {
+				for(unsigned i = 0; i < ranges.size(); ++i) {
+					for(unsigned j = ranges[i].first; j < ranges[i].second; ++j) { 
+						glyphs.push_back(glyph());
+						glyph& g = *glyphs.rbegin();
+						g.unicode = j;
+
+						unicode[j] = glyphs.size()-1;
+					}
+				}
+
+				glyphs.shrink_to_fit();
+			}
+
 			bool font_file::open(font_in& f, const char* filename, unsigned pt, std::pair<wchar_t, wchar_t> range) {
-				std::vector<std::pair<wchar_t, wchar_t> > ranges;
+				charset ranges;
 				ranges.push_back(range);
 				return open(f, filename, pt, ranges);
 			}
 
-			bool font_file::open(font_in& f, const char* filename, unsigned pt, std::vector<std::pair<wchar_t, wchar_t> > ranges) {
-				std::basic_string<wchar_t> characters;
-				for(unsigned i = 0; i < ranges.size(); ++i) {
-					characters.reserve(characters.capacity() + ranges[i].second - ranges[i].first);
+			bool font_file::open(font_in& f, const char* filename, unsigned pt, const std::wstring& str) {
+				return open(f, filename, pt, to_charset(str));
+			}
+			
+			font_file::glyph::glyph()
+				: adv(0), bear_x(0), bear_y(0) {}
 
-					for(unsigned l = ranges[i].first; l < ranges[i].second; ++l) 
-						characters.append(1, l);
-				}
+			font_file::glyph::glyph(int adv, int bear_x, int bear_y, rect_wh size)
+				: adv(adv), bear_x(bear_x), bear_y(bear_y), size(size) {}
 
-				return open(f, filename, pt, characters);
+			font_file::glyph::glyph(const FT_Glyph_Metrics& m) 
+				: adv(m.horiAdvance), bear_x(m.horiBearingX), bear_y(m.horiBearingY), size(m.width, m.height)  {
 			}
 
-			bool font_file::open(font_in& fin, const char* filename, unsigned _pt, const std::wstring& characters) {
+			bool font_file::open(font_in& fin, const char* filename, unsigned _pt, const charset& ranges) {
 				pt = _pt;
 				FT_Face face;
-				int f = 1, error = FT_New_Face(fin.library, filename, 0, &face );
+				int f = 1, error = FT_New_Face(fin.library, filename, 0, &face);
 				
 				errsf(error != FT_Err_Unknown_File_Format, "font format unsupported", f);
 				errsf(!error, "coulnd't open font file", f);
@@ -62,42 +98,29 @@ namespace db {
 				ascender = face->size->metrics.ascender >> 6;
 				descender = face->size->metrics.descender >> 6;
 
-				//glyphs.reserve(characters.size());
-				//unicode.reserve(characters.size());
-
 				FT_UInt g_index;
-				glyph* g;
 
-				for(unsigned i = 0; i < characters.size(); ++i) {
-					g_index = FT_Get_Char_Index(face, characters[i]);
+				for(unsigned i = 0; i < ranges.size(); ++i) {
+					for(unsigned j = ranges[i].first; j < ranges[i].second; ++j) { 
+						g_index = FT_Get_Char_Index(face, j);
 
-					if(g_index) {
-						glyphs.push_back(glyph());
-						g = &glyphs[glyphs.size()-1];
+						if(g_index) {
+							errsf(!FT_Load_Glyph(face, g_index, FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM), "couldn't load glyph", f);
+							errsf(!FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL), "couldn't render glyph", f);
 
-						g->index = g_index;
-						g->unicode = characters[i];
+							glyphs.push_back(glyph(face->glyph->metrics));
+							glyph& g = *glyphs.rbegin();
 
-						if(characters[i] == 0x00A0) {
-							int asda;
-							asda = 32;
+							g.index = g_index;
+							g.unicode = j;
+
+							if(face->glyph->bitmap.width)
+								g.img.copy(face->glyph->bitmap.buffer, 1, face->glyph->bitmap.pitch, math::rect_wh(face->glyph->bitmap.width, face->glyph->bitmap.rows));
+
+							unicode[j] = glyphs.size()-1;
 						}
-
-						errsf(!FT_Load_Glyph(face, g_index, FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM), "couldn't load glyph", f);
-						errsf(!FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL), "couldn't render glyph", f);
-
-						if(face->glyph->bitmap.width)
-							g->img.copy(face->glyph->bitmap.buffer, 1, face->glyph->bitmap.pitch, math::rect_wh(face->glyph->bitmap.width, face->glyph->bitmap.rows));
-						
-						g->adv = face->glyph->metrics.horiAdvance >> 6;
-						g->bear_x = face->glyph->metrics.horiBearingX >> 6;
-						g->bear_y = face->glyph->metrics.horiBearingY >> 6;
-						g->width = face->glyph->metrics.width >> 6;
-						g->height = face->glyph->metrics.height >> 6;
-						unicode[characters[i]] = glyphs.size()-1;
 					}
 				}
-
 
 				FT_Vector delta;
 				if(FT_HAS_KERNING(face)) {
@@ -107,11 +130,11 @@ namespace db {
 							if(delta.x) 
 								glyphs[i].kerning.push_back(std::pair<unsigned, int>(glyphs[j].unicode, delta.x >> 6));
 						}
-
 						glyphs[i].kerning.shrink_to_fit();
 					}
 				}
 				
+				glyphs.shrink_to_fit();
 				FT_Done_Face(face);
 				return f != 0;
 			}

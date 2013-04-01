@@ -1,7 +1,8 @@
 #pragma once
-#include "../rect.h"
+#include "../system.h"
 #include "drafter.h"
-
+// draw with flag whether DRAFT or RENDER or just two alternative functions
+// got to revise gui systems in terms of rectangle update'ing
 namespace db {
 	namespace graphics {
 		namespace gui {
@@ -23,20 +24,42 @@ namespace db {
 						void reset();
 					};
 
-					blinker blink;
 					drafter draft;
-
+					blinker blink;
 					pixel_32 selected_text_color;
+					
+					unsigned caret_width; 
+					
+					bool active, kerning, 
+						align_caret_height, /* whether caret should be always of line height */
+						highlight_current_line, 
+						highlight_during_selection;
+					
 					material caret_mat, 
 						highlight_mat, 
 						selection_bg_mat,
 						selection_inactive_bg_mat; /* material for line highlighting */
 
-					printer(const drafter&);
+					printer();
 
-					void draw_quads(std::vector<quad>& v, rect* clipper);
+					void draw_quads(const drafter::source_info&, std::vector<quad>& v);
 					int get_quads_begin(), get_quads_end(), get_selection_begin(), get_selection_end(), get_caret_quad();
 		 		};
+				
+				/* returns text's bounding box */
+
+				rect_xywh quick_print(std::vector<quad>& v,
+										const fstr& str, 
+										point pos, 
+										unsigned wrapping_width = 0,
+										rect* clipper = 0);
+
+				rect_xywh quick_print(std::vector<quad>& v,
+										const std::wstring& wstr,
+										gui::style style,
+										point pos, 
+										unsigned wrapping_width = 0,
+										rect* clipper = 0);
 			}
 		}
 	}

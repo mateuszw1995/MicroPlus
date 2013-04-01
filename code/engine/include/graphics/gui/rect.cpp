@@ -1,6 +1,5 @@
 #pragma once
 #include "rect.h"
-#include "text_printer.h"
 
 namespace db {
 	namespace graphics {
@@ -54,50 +53,41 @@ namespace db {
 			rect::draw_info::draw_info(system& owner, std::vector<quad>& v) : owner(owner), v(v) {}
 
 			rect::rect(const rect_xywh& rc, const material& mat) 
-				: rc(rc), mat(mat), print(0), parent(0), 
+				: rc(rc), mat(mat), parent(0), 
 				draw(true), q(0), was_hovered(false), fetch_wheel(false), clip(true), scrollable(true), bounding_box(rect_xywh()), rc_clipped(rect_xywh()) {
 			}
 			
 			void rect::update_rectangles() {
+				/* init later to be processed absolute and clipped with local rc */
 				absolute_xy = rc_clipped = rc;
 
+				/* if we've got parent */
 				if(parent) {
+					/* we have to save our global coordinates in absolute_xy */
 					absolute_xy = parent->absolute_xy + point(rc) - parent->pen;
+					/* and we have to clip by parent's rc */
  					rc_clipped  = rect_xywh(absolute_xy.x, absolute_xy.y, rc.w(), rc.h());
 				}
-
+					
+				/* init the bounding box */
 				bounding_box = rect_ltrb();
-				for(size_t i = 0; i < children.size(); ++i) { 
-					/* enlarge the bounding box */
+				
+				/* enlarge the bounding box by every children */
+				for(size_t i = 0; i < children.size(); ++i)
 					if(children[i]->draw)
 				 		bounding_box.contain(children[i]->rc);
-				}
-				
-				if(print)
-				   print->update_rectangles(this);
 
-				bool needs_rebuild = !is_pen_aligned();
-				align_pen();
-
-				for(size_t i = 0; i < children.size(); ++i) { 
+				/* do the same for every children */
+				for(size_t i = 0; i < children.size(); ++i) {
 					children[i]->parent = this;
-					if(children[i]->draw) {
+					if(children[i]->draw)
 					   children[i]->update_rectangles();
-					}
 				}
-				
-				if(print && needs_rebuild)
-				   print->update_rectangles(this);
 			}
 			
 			void rect::draw_rect(const draw_info& in) {
 				q = in.v.size();
 				rc_clipped = add_quad(mat, rc_clipped, parent, in.v);
-			}
-
-			void rect::draw_text(const draw_info& in) {
-				if(print) 
-				   print->draw_proc(in.v, this);
 			}
 
 			void rect::draw_children(const draw_info& in) {
@@ -117,7 +107,6 @@ namespace db {
 
 			void rect::draw_proc(const draw_info& in) {
 				draw_rect(in);
-				draw_text(in);
 				draw_children(in);
 			}
 			
@@ -279,7 +268,7 @@ namespace db {
 				}
 			}
 
-			rect_ltrb rect::add_quad(const material& mat, const rect_ltrb& origin, rect* p, std::vector<quad>& v) {
+			rect_ltrb rect::add_quad(const material& mat, const rect_ltrb& origin, const rect* p, std::vector<quad>& v) {
 				rect_ltrb rc = origin;
 				if(p && p->clip && !rc.clip(p->rc_clipped)) return rc;
 

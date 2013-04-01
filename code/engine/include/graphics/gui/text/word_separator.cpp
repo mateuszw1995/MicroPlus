@@ -30,7 +30,7 @@ namespace db {
 
 					unsigned offset = 1;
 					while(at > max_left) {
-						if(!is_newline(_str[at].c) && is_word(_str[at].c, alpha)) {
+						if(!is_newline(_str[at ? at - 1 : 0].c) && is_word(_str[at ? at - 1 : 0].c, alpha)) {
 							++offset;
 							--at;
 						}

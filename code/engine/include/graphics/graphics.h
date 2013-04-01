@@ -15,10 +15,13 @@ namespace db {
 }
 
 // gui
+	// text
+		#include "gui/text/drafter.h"
+		#include "gui/text/printer.h"
+	// text
 	#include "gui/system.h"
 	#include "gui/rect.h"
 	#include "gui/scroll.h"
-	#include "gui/text_interface.h"
 	#include "gui/textbox.h"
 	#include "gui/font.h"
 // gui

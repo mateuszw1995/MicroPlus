@@ -1,7 +1,7 @@
 #pragma once
 #include "gui1.h"
 
-dynamic_border::dynamic_border() : stroke(1, material(null_texture, ltblue), rect::solid_stroke::OUTSIDE) {}
+dynamic_border::dynamic_border() : stroke(1, material(gui::null_texture, ltblue), rect::solid_stroke::OUTSIDE) {}
 
 int dynamic_border::poll_border(rect::event m) {
 	if(m == rect::event::hout || m == rect::event::lup || m == rect::event::loutup) {
@@ -30,52 +30,73 @@ void cbackground::draw_proc(const draw_info& in) {
 	stroke.draw(*this, in);
 }
 
-void ccolortickbox::update_mat() {
-	mat.color = inactive;
-	for(size_t  i = 0; i < label.size(); ++i)
-		label[i].set(set ? labels_active : labels_inactive, set ? active : white);
+ctickbox::ctickbox(const rect& r, material active, material inactive, bool& set) : rect(r), active(active), inactive(inactive), set(set) {
+	mat = set ? active : inactive;
+	stroke.set_width(1);
+	stroke.set_material(set ? ltblue : gray);
 }
 
-ccolortickbox::ccolortickbox(wchar_t* label_str, const rect& r, bool& set, pixel_32 active, pixel_32 inactive) 
-	: rect(r), set(set), active(active), inactive(inactive), label_p(&label) {
-		if(label_str) label = formatted_text(label_str, style(labels_inactive, pixel_32()));
-		update_mat();
-		stroke.set_width(1);
-		stroke.set_material(material(null_texture, inactive));
-		clip = false;
-		if(label_str) print = &label_p;
-}
-
-void ccolortickbox::event_proc(event m) {
-	auto& ms = in->owner.events->mouse;
+void ctickbox::event_proc(event m) {
 	if(m == rect::event::lclick) {
 		set = !set;
-		update_mat();
+		mat = set ? active : inactive;
 	}
+	
 	if(poll_border(m) == 0) {
 		stroke.set_width(1);
-		stroke.set_material(material(null_texture, inactive));
+		stroke.set_material(set ? ltblue : gray);
 	}
-	else stroke.set_material(material(null_texture, active));
+	else {
+		stroke.set_material(white);
+	}
 
 	if(m == event::wheel || m == event::mdown) rect::event_proc(m);
 }
 
-void ccolortickbox::update_proc(gui::system& in) {
-	if(!print) return;
-	rc.r = max(200, label_p.get_bbox().w());
-	rc.h(label_p.get_bbox().h());
-}
-
-void ccolortickbox::draw_proc(const draw_info& in) {
-	//rect::draw_proc(in);
-	draw_rect(in);
-	draw_children(in);
-	draw_text(in);
+void ctickbox::draw_proc(const draw_info& in) {
+	rect::draw_proc(in);
 	stroke.draw(*this, in);
 }
-font* ccolortickbox::labels_active = 0;
-font* ccolortickbox::labels_inactive = 0;
+
+clabel_tickbox::clabel_tickbox(const rect& r, std::wstring label, style act, style inact, bool& set) 
+	: rect(r), set(set), active(formatted_text(label.c_str(), act)), inactive(formatted_text(label.c_str(), inact)) {
+		stroke.set_width(1);
+		stroke.set_material(set ? ltblue : gray);
+		update_rc();
+}
+
+void clabel_tickbox::event_proc(event m) {
+	if(m == rect::event::lclick) {
+		set = !set;
+		update_rc();
+	}
+	
+	if(poll_border(m) == 0) {
+		stroke.set_width(1);
+		stroke.set_material(set ? ltblue : gray);
+	}
+	else {
+		stroke.set_material(white);
+	}
+
+	if(m == event::wheel || m == event::mdown) rect::event_proc(m);
+}
+
+void clabel_tickbox::update_rc() {
+	print.draft.draw(text::drafter::source_info(set ? active : inactive, 0, 0));
+	rc.w(print.draft.get_bbox().w() + 4);
+	rc.h(print.draft.get_bbox().h() + 2);
+}
+
+void clabel_tickbox::draw_proc(const draw_info& in) {
+	print.draft.pos = point(2, 1);
+	
+	text::drafter::source_info src(set ? active : inactive, 0, this);
+	print.draft.draw(src);
+	print.draw_quads(src, in.v);
+	stroke.draw(*this, in);
+
+}
 
 ctext_modifier::ctext_modifier(const rect& r, textbox* mytext, type _type) : _type(_type), mytext(mytext), rect(r) {
 }
@@ -93,7 +114,7 @@ void ctext_modifier::event_proc(event m) {
 
 void ctext_modifier::draw_proc(const draw_info& in) {
 	rect::draw_proc(in);
-	auto& t = *mytext->editor;
+	auto& t = *mytext;
 	stroke.draw(*this, in);
 	if(_type == BOLDEN)
 		mat.color = t.get_bold_status() ? ltblue : white;
