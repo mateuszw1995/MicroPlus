@@ -106,7 +106,7 @@ namespace db {
 					:  wrap_width(0), 
 					kerning(true), align_caret_height(true), caret_width(0),
 					highlight_current_line(false),
-					highlight_during_selection(false), active(false),  max_x(0)
+					highlight_during_selection(false), active(false), first_line_visible(-1), last_line_visible(-1), max_x(0)
 				{
 					lines.push_back(line());
 				}
@@ -142,14 +142,21 @@ namespace db {
 					return (*it).hover(p.x, sectors);
 				}
 
-				void drafter::draw(const fstr& source) {
+				void drafter::draw(const source_info& in) {
+					/* shortcuts */
+					auto& source = in.source;
+					auto* target_caret = in.target_caret;
+					auto* clipper = in.clipper;
+
 					/* whole structural data clears */
 					cached.clear();
 					lines.clear();
 					sectors.clear();
+					first_line_visible = -1;
+					last_line_visible = -1;
 					max_x = 0;
 
-					if(source.empty()) return; /* we have nothing to draw */
+					if(!target_caret && source.empty()) return; /* we have nothing to draw, even caret */
 
 					/* reserve enough space to avoid reallocation */
 					cached.reserve(source.size());
