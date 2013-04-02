@@ -114,6 +114,12 @@
     <ClInclude Include="include\graphics\gui\text\drafter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\graphics\gui\text\ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\gui\text\caret.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\error\error.cpp">
@@ -200,7 +206,10 @@
     <ClCompile Include="include\graphics\gui\text\drafter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="include\graphics\gui\textbox_ui.cpp">
+    <ClCompile Include="include\graphics\gui\text\ui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\graphics\gui\text\caret.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

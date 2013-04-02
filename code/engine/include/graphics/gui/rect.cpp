@@ -58,26 +58,33 @@ namespace db {
 			}
 			
 			void rect::update_rectangles() {
-				/* init later to be processed absolute and clipped with local rc */
+				/* init; later to be processed absolute and clipped with local rc */
 				absolute_xy = rc_clipped = rc;
 
-				/* if we've got parent */
+				/* if we have parent */
 				if(parent) {
 					/* we have to save our global coordinates in absolute_xy */
 					absolute_xy = parent->absolute_xy + point(rc) - parent->pen;
-					/* and we have to clip by parent's rc */
  					rc_clipped  = rect_xywh(absolute_xy.x, absolute_xy.y, rc.w(), rc.h());
+					
+					/* and we have to clip by parent's rc 
+						DONE WHEN DRAWING
+					*/
+				    rc_clipped.clip(parent->rc_clipped);
 				}
 					
 				/* init the bounding box */
 				bounding_box = rect_ltrb();
 				
-				/* enlarge the bounding box by every children */
+				/* enlarge the bounding box by every child */
 				for(size_t i = 0; i < children.size(); ++i)
 					if(children[i]->draw)
 				 		bounding_box.contain(children[i]->rc);
 
-				/* do the same for every children */
+				/* align pen only to be positive and not to exceed bounding box */
+				align_pen();
+
+				/* do the same for every child */
 				for(size_t i = 0; i < children.size(); ++i) {
 					children[i]->parent = this;
 					if(children[i]->draw)
@@ -87,7 +94,8 @@ namespace db {
 			
 			void rect::draw_rect(const draw_info& in) {
 				q = in.v.size();
-				rc_clipped = add_quad(mat, rc_clipped, parent, in.v);
+				add_quad(mat, rc_clipped, 0, in.v);
+				// rc_clipped = add_quad(mat, rc_clipped, parent, in.v);
 			}
 
 			void rect::draw_children(const draw_info& in) {
@@ -268,37 +276,22 @@ namespace db {
 				}
 			}
 
+			rect_ltrb rect::local_add(const material& mat, const rect_ltrb& origin, std::vector<quad>& v) const {
+				return add_quad(mat, origin+get_absolute_xy()+pen, this, v);
+			}
+			
 			rect_ltrb rect::add_quad(const material& mat, const rect_ltrb& origin, const rect* p, std::vector<quad>& v) {
-				rect_ltrb rc = origin;
-				if(p && p->clip && !rc.clip(p->rc_clipped)) return rc;
-
-				static rect_texture diff;
-				static float tw, th;
-				static quad q;
-
-				tw = 1.0f / origin.w();
-				th = 1.0f / origin.h();
-
-				diff = rect_texture(((q.p[0].x = q.p[3].x = rc.l) - origin.l) * tw,
-					((q.p[0].y = q.p[1].y = rc.t) - origin.t) * th,
-					((q.p[1].x = q.p[2].x = rc.r) - origin.r) * tw + 1.0f,
-					((q.p[2].y = q.p[3].y = rc.b) - origin.b) * th + 1.0f);
-
-				q.p[0].col = q.p[1].col = q.p[2].col = q.p[3].col = mat.color;
-
-				mat.tex->get_uv(diff.u1, diff.v1, q.p[0].u,  q.p[0].v);
-				mat.tex->get_uv(diff.u2, diff.v1, q.p[1].u,  q.p[1].v);
-				mat.tex->get_uv(diff.u2, diff.v2, q.p[2].u,  q.p[2].v);
-				mat.tex->get_uv(diff.u1, diff.v2, q.p[3].u,  q.p[3].v);
-
-				v.push_back(q);
-				return rc;
+				return gui::add_quad(mat, origin, ((p && p->clip) ? &p->rc_clipped : nullptr), v); 
 			}
 			
 			const rect_ltrb& rect::get_clipped_rect() const {
 				return rc_clipped;
 			}
 			
+			rect_ltrb rect::get_local_clipper() const {
+				return rect_ltrb(rect_wh(rc)) + pen;
+			}
+				
 			rect_ltrb rect::get_rect_absolute() const {
 				return rect_xywh(absolute_xy.x, absolute_xy.y, rc.w(), rc.h());
 			}

@@ -105,7 +105,13 @@ namespace db {
 				void update_array     ();
 				void default_update   ();
 			};
-
+				
+			/* 
+			clips and pushes origin to quad vector
+			clipper = 0 means no clipping
+				returns clipped rectangle
+			*/
+			extern rect_ltrb add_quad(const material&, const rect_ltrb& origin, const rect_ltrb* clipper, std::vector<quad>& v);
 			extern void formatted_text(const wchar_t*, fstr&, style);
 			extern fstr formatted_text(const wchar_t*, style);
 			extern void paste_clipboard(fstr& out, formatted_char = formatted_char());

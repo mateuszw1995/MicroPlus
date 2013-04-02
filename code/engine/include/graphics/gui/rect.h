@@ -90,8 +90,8 @@ namespace db {
 				void draw_rect(const draw_info& in), 
 					 draw_children(const draw_info& in);
 
-				/* push this rect to quad vector */
 				static rect_ltrb add_quad(const material&, const rect_ltrb& origin, const rect* clipper, std::vector<quad>& v);
+				rect_ltrb local_add(const material&, const rect_ltrb& origin, std::vector<quad>& v) const;
 
 				bool is_pen_aligned(); /*   is pen valid */
 				void align_pen(),      /* make pen valid */
@@ -99,6 +99,7 @@ namespace db {
 				const rect_ltrb& get_clipped_rect() const;
 				rect_ltrb get_rect_absolute() const;
 				const point& get_absolute_xy() const;
+				rect_ltrb get_local_clipper() const;
 
 				int get_quad() const; /* get this quad's index in rectangle vector */
 

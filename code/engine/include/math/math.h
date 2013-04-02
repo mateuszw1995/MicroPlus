@@ -43,7 +43,7 @@ namespace db {
 			pointf(const rect_xywh&);
 			pointf(float x = 0.f, float y = 0.f);
 			void normalize();
-			float length();
+			float length() const;
 			
 			pointf operator-(const point&) const;
 			pointf operator-(const pointf&) const;
@@ -69,7 +69,7 @@ namespace db {
 			void stick_relative(const rect_ltrb& content, pointf& pen) const;
 			bool is_sticked(const rect_ltrb& content, pointf& pen) const;
 
-			bool good();
+			bool good() const;
 			rect_wh operator*(float) const;
 		};
 		
@@ -88,14 +88,14 @@ namespace db {
 			bool stick_x(const rect_ltrb& bigger);
 			bool stick_y(const rect_ltrb& bigger);
 			
-			pointf center();
+			pointf center() const;
 			void center_x(int x);
 			void center_y(int y);
 			void center(const point&);
 
 			int l, t, r, b, w() const, h() const, area() const, perimeter() const, max_side() const; // false - null rectangle
 			void x(int), y(int), w(int), h(int);
-			bool good();
+			bool good() const;
 
 			template <class P>
 			rect_ltrb& operator+=(const P& p) {

@@ -107,6 +107,33 @@ namespace db {
 				return q;
 			}
 			
+			rect_ltrb gui::add_quad(const material& mat, const rect_ltrb& origin, const rect_ltrb* p, std::vector<quad>& v) {
+				rect_ltrb rc = origin;
+				if((p && !rc.clip(*p)) || !rc.good()) return rc;
+
+				static rect_texture diff;
+				static float tw, th;
+				static quad q;
+
+				tw = 1.0f / origin.w();
+				th = 1.0f / origin.h();
+
+				diff = rect_texture(((q.p[0].x = q.p[3].x = rc.l) - origin.l) * tw,
+					((q.p[0].y = q.p[1].y = rc.t) - origin.t) * th,
+					((q.p[1].x = q.p[2].x = rc.r) - origin.r) * tw + 1.0f,
+					((q.p[2].y = q.p[3].y = rc.b) - origin.b) * th + 1.0f);
+
+				q.p[0].col = q.p[1].col = q.p[2].col = q.p[3].col = mat.color;
+
+				mat.tex->get_uv(diff.u1, diff.v1, q.p[0].u,  q.p[0].v);
+				mat.tex->get_uv(diff.u2, diff.v1, q.p[1].u,  q.p[1].v);
+				mat.tex->get_uv(diff.u2, diff.v2, q.p[2].u,  q.p[2].v);
+				mat.tex->get_uv(diff.u1, diff.v2, q.p[3].u,  q.p[3].v);
+
+				v.push_back(q);
+				return rc;
+			}
+
 			void quad::move(const point& v) {
 				for(int i = 0; i < 4; ++i) {
 					p[i].x += v.x;

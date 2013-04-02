@@ -1,0 +1,17 @@
+gdy jest problem z zawieraniem jednej klasy w drugiej i dublowaniem zawartoœci (diamond dependency),
+tak jak to by³o z ui, textboxem, drafterem i printerem,
+nale¿y rozwa¿yæ:
+- dziedziczenie problematycznych klas
+- dodaæ do problematycznych klas membery typu f(klasa&) lub f(klasa* = 0)
+
+unikaæ u¿ywania pointerów/referencji jako member fieldów!
+co jeœli wskazywane miejsce w pamiêci zostanie zrealokowane miêdzy dwoma wywo³aniami?
+(podobny problem by³ gdy ui mia³ pocz¹tkowo ustawiany
+dobry pointer na draftera ale rysowa³ zupe³nie co innego (czyli nic))
+lepiej dodaæ kolejny argument do membera aby za ka¿dym wywo³aniem adres by³ œwie¿y.
+
+jeœli chcesz mieæ publiczny sk³adnik prywatnej zagnie¿d¿onej klasy albo na odwrót, to mo¿e byæ 
+znak ¿e t¹ w³aœnie zagnie¿d¿on¹ klasê nale¿y "odgnieŸdziæ" 
+(patrz: caret_info który by³ publicznym memberem ui, 
+a u¿ywany prywatnie przez ui jako sk³adnik i publicznie przez printer jako
+argument rysowania)

@@ -250,7 +250,7 @@ namespace db {
 			return offset.y == 0;
 		}
 		
-		pointf rect_ltrb::center() {
+		pointf rect_ltrb::center() const {
 			return pointf(l + w()/2.f, t + h()/2.f); 
 		}
 
@@ -298,11 +298,11 @@ namespace db {
 			b = t+hh;
 		}
 
-		bool rect_ltrb::good() {
+		bool rect_ltrb::good() const {
 			return w() > 0 && h() > 0;
 		}
 		
-		bool rect_wh::  good() {
+		bool rect_wh::  good() const {
 			return w   > 0 && h   > 0;
 		}
 

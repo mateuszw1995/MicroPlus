@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
-#include "../rect.h"
+#include "ui.h"
+#include "drafter.h"
 #include "printer.h"
 #include "../../../window/window.h"
 
@@ -12,15 +13,23 @@ namespace db {
 		using namespace io::input;
 		namespace gui {
 			namespace text {
-				printer::printer() : 
-					q_begin(0), q_end(0), s_begin(0), s_end(0), caret_quad(0),
-					caret_mat(material(null_texture, pixel_32(0, 0, 0, 255))) 
-				{}
+				printer::printer(const rect& r) : rect(r), 
+					caret_mat(material(null_texture, pixel_32(0, 0, 0, 255))),
+					align_caret_height(true), caret_width(0),
+					highlight_current_line(false),
+					highlight_during_selection(false), active(false), 
+				{
+					auto& q = quad_indices;	
+					q.first_character = q.last_character, 
+							selections_first, selections_last,
+							highlight,
+							caret;
+				}
 
 				printer::blinker::blinker() : blink(false), interval_ms(250), blink_func(regular_blink) {
 					reset();
 				}
-
+				
 				void printer::blinker::regular_blink(blinker& b, quad& caret) {
 					for(int i = 0; i < 4; ++i)
 						caret.p[i].col.a = b.caret_visible ? 255 : 0;
@@ -38,42 +47,85 @@ namespace db {
 					timer.microseconds();
 					caret_visible = true;
 				}
-
-				void printer::draw_quads(const drafter::source_info& s, std::vector<quad>& v) {
-					auto& d = draft;
-					auto* caret			= s.target_caret;
+				
+				void printer::draw_text(const draw_info& in, const ui& u) const {
+					draw_text(in, u.draft, u.get_str(), &u.caret);
+				}
+				
+				void printer::draw_text(const draw_info& in, 
+						const drafter& d, 
+						const fstr& colors, 
+						const caret_info* caret) const {
+					/* shortcuts */
 					auto& lines			= d.lines;
 					auto& sectors		= d.sectors;
-					const rect* clipper		= s.clipper;
-					if(lines.empty() || sectors.empty()) return;
-					v.reserve(v.size() + d.cached.size() + (s.target_caret != nullptr)); // one for caret
+					auto& v = in.v;
+					
+					/* validations */
+					if(lines.empty() || sectors.empty() || (clip && !get_clipped_rect().good())) return;
+					
+					/* reserve enough space to avoid reallocation, add one for caret */
+					v.reserve(v.size() + d.cached.size() + (caret != nullptr));
 
 					bool selecting = false;
-					unsigned select_left = 0, select_right = 0, caret_line = 0;
 					rect_ltrb selector;
 					vector<quad> selects;
 
-					if(caret) {
-						select_left = select_right = caret->pos;
-						(caret->selection_offset < 0 ? select_left : select_right) += caret->selection_offset;
+					auto visible = d.get_line_visibility(get_local_clipper());
+					
+					/* shouldn't happen */
+					if(visible.first == -1) return;
 
-						if(d.active && d.highlight_current_line)
-							rect::add_quad(highlight_mat, rect_ltrb(sectors[0], lines[caret_line].top, numeric_limits<int>::max(), lines[caret_line].bottom()), clipper, selects);
+					if(caret) {
+						/* here we manage selections */
+						
+						unsigned select_left, select_right, select_left_line, select_right_line, caret_line;
+						
+						caret_line = d.get_line(caret->pos);
+						select_left = caret->get_left_selection();
+						select_right = caret->get_right_selection();
+						select_left_line =   d.get_line(select_left);
+						select_right_line =  d.get_line(select_right);
+
+						if(select_right_line >= visible.first || select_left_line <= visible.second) {
+							for(int i = visible.first; i <= visible.second; ++i) {
+								if(i == select_left_line) {
+
+								}
+								else if(i == select_right_line) {
+
+								}
+							}
+						}
+						
+						/*
+						select_left_line =  max(unsigned(visible.first),  d.get_line(select_left));
+						select_right_line = min(unsigned(visible.second), d.get_line(select_right));*/
+						
+						
+
+						/* here we highlight the line caret is currently on */
+						if(active && highlight_current_line)
+							local_add(highlight_mat, rect_ltrb(0, lines[caret_line].top, rc.w(), lines[caret_line].bottom()), selects);
+					
+					
 					}
 
-					q_begin = v.size();
+					size_t i = 0, l = d.lines;
 
-					size_t i = 0, l = d.first_line_visible;
 
+					/* since we're */
 					if(caret && lines[l].begin > select_left && lines[l].begin < select_right) {
 						selector = rect_xywh(sectors[lines[l].begin], lines[l].top, 0, lines[l].height());
 						selecting = true;
 					}
 
+					/* for every visible line */
 					for(;l <= unsigned(d.last_line_visible); ++l) {
 						if(caret && selecting)
 							selector = rect_xywh(sectors[lines[l].begin], lines[l].top, 0, lines[l].height());
 
+						/* for every character in line */
 						for(i = lines[l].begin; i < lines[l].end && i < d.cached.size(); ++i) {
 
 							if(caret) {
@@ -109,8 +161,18 @@ namespace db {
 						}
 					}
 
-					q_end = v.size();
 					if(caret) {
+
+						/* IF LINE IS EMPTY (BEGIN == END) WE HAVE TO SNAP CARET'S HEIGHT TO DEFAULT STYLE!!! */
+
+						if(align_caret_height)
+							caret_rect = rect_xywh(sectors[target_caret->pos], lines[caret_line].top, caret_width, lines[caret_line].height());
+						else {
+							int pos = max(1u, target_caret->pos);
+							caret_rect = rect_xywh(sectors[target_caret->pos], lines[caret_line].top + lines[caret_line].asc - getf(source, pos-1)->parent->ascender, 
+								caret_width, getf(source, pos-1)->parent->ascender - getf(source, pos-1)->parent->descender);
+						}
+
 						v.insert(v.begin() + q_begin, selects.begin() + (d.active && d.highlight_current_line && !d.highlight_during_selection && selects.size() > 1), selects.end());
 						s_begin = q_begin;
 
@@ -146,6 +208,7 @@ namespace db {
 					return caret_quad;
 				}
 				
+				
 				rect_xywh quick_print(std::vector<quad>& v,
 										const fstr& str, 
 										point pos, 
@@ -173,6 +236,22 @@ namespace db {
 					p.draw_quads(source, v);
 					return p.draft.get_bbox();
 				}
+			}
+			
+			text_rect::text_rect(const rect& r) : printer(r), update_str(true) {}
+
+			void text_rect::update_rectangles() {
+				rect::update_rectangles();
+				bounding_box.contain(draft.get_bbox());
+			}
+
+			void text_rect::draw_proc(const draw_info& in) {
+				rect::draw_proc(in);
+				if(update_str) {
+					draft.draw(str);
+					update_str = false;
+				}
+				draw_text(in, draft, str);
 			}
 		}
 	}
