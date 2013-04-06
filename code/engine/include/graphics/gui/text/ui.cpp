@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm>
 #include "ui.h"
-#include "../../window/window.h"
+#include "../../../window/window.h"
 
 #undef min
 #undef max
@@ -38,13 +38,9 @@ namespace db {
 
 				void ui::guarded_redraw() {
 					if(redraw) {
-						print.draft.draw(get_source_info());
+						draft.draw(_str);
 						redraw = false;
 					}
-				}
-					
-				text::drafter::source_info ui::get_source_info() {
-					return text::drafter::source_info (_str, &caret, this);
 				}
 
 				const fstr& ui::get_str() const {
@@ -296,7 +292,7 @@ namespace db {
 					if(at && ((separator.is_newline(_str[at].c) && !separator.is_newline(_str[at-1].c)) || at == _str.length())) --at;
 					bool alpha = separator.is_word(_str[at].c, true);
 
-					auto& line = print.draft.lines[print.draft.get_line(caret.pos)];
+					auto& line = draft.lines[draft.get_line(caret.pos)];
 					int left = separator.get_left_word(_str, at, line.begin),
 						right = separator.get_right_word(_str, at, line.end);
 
@@ -308,9 +304,9 @@ namespace db {
 				void ui::select_line(unsigned at) {
 					guarded_redraw();
 					if(_str.empty()) return;
-					auto& line = print.draft.lines[print.draft.get_line(caret.pos)];
+					auto& line = draft.lines[draft.get_line(caret.pos)];
 					caret.pos = line.begin;
-					caret.selection_offset = -int(line.end - line.begin);
+					caret.selection_offset = int(line.end - line.begin);
 					anchor();
 				}
 
@@ -378,9 +374,9 @@ namespace db {
 						caret.pos = get_left_selection();
 					}
 
-					int line = print.draft.get_line(caret.pos);
+					int line = draft.get_line(caret.pos);
 					if(line > 0) {
-						auto c = print.draft.lines[line-1].anchor(print.draft.sectors[min(print.draft.sectors.size()-1, anchor_pos)], print.draft.sectors);
+						auto c = draft.lines[line-1].hover(draft.sectors[min(draft.sectors.size()-1, anchor_pos)], draft.sectors);
 						caret.selection_offset += caret.pos - c;
 						caret.pos = c;
 					}
@@ -394,9 +390,9 @@ namespace db {
 						caret.pos = get_right_selection();
 					}
 
-					unsigned line = print.draft.get_line(caret.pos);
-					if(line < print.draft.lines.size() - 1) {
-						auto c = print.draft.lines[line+1].anchor(print.draft.sectors[min(print.draft.sectors.size()-1, anchor_pos)], print.draft.sectors);
+					unsigned line = draft.get_line(caret.pos);
+					if(line < draft.lines.size() - 1) {
+						auto c = draft.lines[line+1].hover(draft.sectors[min(draft.sectors.size()-1, anchor_pos)], draft.sectors);
 						caret.selection_offset -= c - caret.pos;
 						caret.pos = c;
 					}
@@ -406,12 +402,12 @@ namespace db {
 
 				void ui::home(bool s) {
 					guarded_redraw();
-					set_caret(print.draft.lines[print.draft.get_line(caret.pos)].begin, s);
+					set_caret(draft.lines[draft.get_line(caret.pos)].begin, s);
 				}
 
 				void ui::end(bool s) {
 					guarded_redraw();
-					set_caret(print.draft.lines[print.draft.get_line(caret.pos)].end-1, s);
+					set_caret(draft.lines[draft.get_line(caret.pos)].end, s);
 				}
 
 				ui::action::action(ui& subject, int where, const formatted_char& ch) 

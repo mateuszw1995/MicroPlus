@@ -8,12 +8,14 @@ using namespace db::math;
 using namespace pack;
 using namespace std;
 
-// zrobic w klasie texture atlasu dodawanie tekstur i generowanie in place, potem do poszczegolnych interfejsow uzytkownik sam daje wskaznik do atlasu == elastycznosc i mozliwosc all in one
-// + statyczna funkcja na multiple atlas distribution
-// jeszcze taka opcja ze do texture atlas funkcja pack() zeby mozna bylo robic cos w stylu online packing
-// najlepiej jakby przyjmowal image's i zwracal jakies info typu rect_texture dla kazdego
-// kurwa po ludzku musi to wygladac
-// tekstura NIE MUSI wiedziec do jakiego atlasu nalezy, interfejsy maja wiedziec and thats sufficient
+/* zrobic w klasie texture atlasu dodawanie tekstur i generowanie in place, potem do poszczegolnych interfejsow uzytkownik sam daje wskaznik do atlasu == elastycznosc i mozliwosc all in one
+ + statyczna funkcja na multiple atlas distribution
+ jeszcze taka opcja ze do texture atlas funkcja pack() zeby mozna bylo robic cos w stylu online packing
+ najlepiej jakby przyjmowal image's i zwracal jakies info typu rect_texture dla kazdego
+ kurwa po ludzku musi to wygladac
+ tekstura NIE MUSI wiedziec do jakiego atlasu nalezy, interfejsy maja wiedziec and thats sufficient 
+ 
+ */
 
 namespace db {
 	namespace graphics {

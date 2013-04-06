@@ -154,6 +154,10 @@ namespace db {
 			unsigned font_file::get_pt() const {
 				return pt;
 			}
+			
+			unsigned font_file::get_height() const {
+				return ascender - descender;
+			}
 
 			void font_file::free_images() {
 					for(unsigned i = 0; i < glyphs.size(); ++i)

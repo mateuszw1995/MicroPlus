@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 	}
 	gui::fstr end_fstr = tx.get_str();*/
 	::testing::FLAGS_gtest_catch_exceptions = false;
-	::testing::FLAGS_gtest_break_on_failure = true;
+//	::testing::FLAGS_gtest_break_on_failure = true;
 	auto result = RUN_ALL_TESTS();
 	std::cin >> aa;
 	return result;

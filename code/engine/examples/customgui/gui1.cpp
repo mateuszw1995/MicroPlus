@@ -63,6 +63,9 @@ clabel_tickbox::clabel_tickbox(const rect& r, std::wstring label, style act, sty
 		stroke.set_width(1);
 		stroke.set_material(set ? ltblue : gray);
 		update_rc();
+		print.pen = -point(2, 1);
+	//	print.clip = false;
+		children.push_back(&print);
 }
 
 void clabel_tickbox::event_proc(event m) {
@@ -83,19 +86,15 @@ void clabel_tickbox::event_proc(event m) {
 }
 
 void clabel_tickbox::update_rc() {
-	print.draft.draw(text::drafter::source_info(set ? active : inactive, 0, 0));
-	rc.w(print.draft.get_bbox().w() + 4);
-	rc.h(print.draft.get_bbox().h() + 2);
+	print.draft.draw(set ? active : inactive);
+	print.update_str = false;
+	rc.w(print.draft.get_bbox().w + 4);
+	rc.h(print.draft.get_bbox().h + 2);
 }
 
 void clabel_tickbox::draw_proc(const draw_info& in) {
-	print.draft.pos = point(2, 1);
-	
-	text::drafter::source_info src(set ? active : inactive, 0, this);
-	print.draft.draw(src);
-	print.draw_quads(src, in.v);
+	rect::draw_children(in);
 	stroke.draw(*this, in);
-
 }
 
 ctext_modifier::ctext_modifier(const rect& r, textbox* mytext, type _type) : _type(_type), mytext(mytext), rect(r) {
@@ -120,6 +119,8 @@ void ctext_modifier::draw_proc(const draw_info& in) {
 		mat.color = t.get_bold_status() ? ltblue : white;
 	else 
 		mat.color = t.get_italics_status() ? ltblue : white;
+
+	t.need_redraw();
 }
 
 ctextbox::ctextbox(const textbox& r) : textbox(r) {}

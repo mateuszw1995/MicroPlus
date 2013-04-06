@@ -10,6 +10,7 @@ namespace db {
 		namespace gui {
 			namespace text {
 				struct drafter;
+				struct printer;
 			}
 
 			class font_in {
@@ -55,13 +56,14 @@ namespace db {
 				bool open(font_in&, const char* filename, unsigned _pt, const std::wstring& characters);
 				
 				glyph* get_glyphs(), *get_glyph(unsigned unicode);
-				unsigned get_count() const, get_pt() const;
+				unsigned get_count() const, get_pt() const, get_height() const;
 
 				void free_images(), destroy();
 			private:
 //				font_file(const font_file&) = delete;
 				charset to_charset(const std::wstring&);
 				friend struct text::drafter;
+				friend struct text::printer;
 				friend struct font;
 				int ascender, descender;
 				unsigned pt;
@@ -91,6 +93,7 @@ namespace db {
 
 			private:
 				friend struct text::drafter;
+				friend struct text::printer;
 				glyph *glyphs;
 				font_file* parent;
 			};

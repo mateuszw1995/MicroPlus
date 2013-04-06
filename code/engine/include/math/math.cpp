@@ -8,12 +8,17 @@ namespace db {
 		double deg2rad(double a) {
 			return a*0.01745329251994329576923690768489;
 		}
-		
+
+		point point::operator-() const {
+			return operator*(-1);
+		}
+
 		point::point(int x, int y) : x(x), y(y) {}
 		
 		point::point(const pointf& p) : x(int(p.x)), y(int(p.y)) {} 
 		point::point(const rect_xywh& p) : x(int(p.x)), y(int(p.y)) {} 
 		point::point(const rect_ltrb& p) : x(int(p.l)), y(int(p.t)) {} 
+		
 		
 		point point::operator-(const point& p) const {
 			return point(x - p.x, y - p.y);
@@ -86,7 +91,7 @@ namespace db {
 		
 		pointf::pointf(float x, float y) : x(x), y(y) {}
 			
-		float pointf::length() {
+		float pointf::length() const {
 			return sqrt(x*x + y*y);
 		}
 
@@ -180,6 +185,7 @@ namespace db {
 		rect_ltrb::rect_ltrb(const rect_wh& rr) : l(0), t(0), r(rr.w), b(rr.h) {}
 		rect_ltrb::rect_ltrb(const rect_xywh& rr) : l(rr.x), t(rr.y), r(rr.x+rr.w), b(rr.y+rr.h) {}
 		rect_ltrb::rect_ltrb(int l, int t, int r, int b) : l(l), t(t), r(r), b(b) {}
+		rect_ltrb::rect_ltrb(const point& p, const rect_wh& s) : l(p.x), t(p.y), r(p.x + s.w), b(p.y + s.h) {}
 
 		int rect_ltrb::w() const {
 			return r-l;
@@ -202,6 +208,7 @@ namespace db {
 		}
 		
 		void rect_ltrb::contain(const rect_ltrb& rc) {
+			if(!good()) *this = rc;
 			l = min(l, rc.l);
 			t = min(t, rc.t);
 			r = max(r, rc.r);

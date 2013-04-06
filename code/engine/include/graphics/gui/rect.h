@@ -1,11 +1,23 @@
 #pragma once
 #include "system.h"
-#include "text\printer.h"
 
 namespace db {
 	namespace graphics {
 		namespace gui {
 			struct rect {
+
+				/* 
+				index_info structure tells the index of a particular rectangle in the quad vector.
+
+				If any child class overrides draw_proc to draw additional content, 
+				it should derive index_info and quad_indices at the same names and add its own members.
+				
+				-1 means "not drawn" and "not in the vector"
+				*/
+				struct index_info {
+					int background;
+				} quad_indices;
+
 				struct draw_info {
 					system& owner;
 					std::vector<quad>& v;
@@ -68,19 +80,20 @@ namespace db {
 					loutdrag
 				};
 
-				bool draw, clip, fetch_wheel, scrollable;
+				bool draw, clip, fetch_wheel, scrollable, snap_scroll_to_bbox;
 				point drag_origin;
 				rect_ltrb rc, /* actual rectangle */ 
 					bounding_box; /* content's (children) bounding box */
-				pointf pen /* scrolls content */;
+				pointf pen; /* scrolls content */
 
 				material mat;
 				rect* parent; 
 
 				std::vector<rect*> children;
 				
-				rect(const math::rect_xywh& rc, const material&);
+				rect(const math::rect_xywh& rc = math::rect_xywh(), const material& = material());
 				
+				virtual rect_ltrb get_bounding_box() const;
 				virtual void update_rectangles();
 				virtual void event_proc(      event); /* event listener */
 				virtual void event_proc(const info&); /* event generator */
@@ -101,13 +114,10 @@ namespace db {
 				const point& get_absolute_xy() const;
 				rect_ltrb get_local_clipper() const;
 
-				int get_quad() const; /* get this quad's index in rectangle vector */
-
 			private:
 				rect_ltrb rc_clipped;
 				point absolute_xy;
 
-				int q;
 				bool was_hovered;
 			};
 		}

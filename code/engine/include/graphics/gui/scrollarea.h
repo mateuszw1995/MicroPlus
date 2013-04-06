@@ -5,14 +5,6 @@
 namespace db {
 	namespace graphics {
 		namespace gui {
-			struct scroll {
-				float vel[2], vel_mult;
-				scroll();
-				void stop();
-				void move(pointf&);
-				void drag(const point& mouse, const rect_ltrb&);
-			};
-
 			namespace controls {
 				class scrollarea : public rect {
 					void update_pen_x();

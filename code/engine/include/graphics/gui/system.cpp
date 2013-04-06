@@ -24,7 +24,7 @@ namespace db {
 		namespace gui {
 			io::input::texture* null_texture = 0;
 			
-			void formatted_text(const wchar_t* _str, fstr& out, style s) {
+			void formatted_text(const wchar_t* _str, style s, fstr& out) {
 				out.clear();
 				formatted_char ch;
 				int len = wcslen(_str);
@@ -49,6 +49,33 @@ namespace db {
 
 				return out;
 			}
+
+			void formatted_text(const std::wstring& _str, style s, fstr& out) {
+				out.clear();
+				formatted_char ch;
+				int len = _str.length();
+				for(int i = 0; i < len; ++i) {
+					ch.set(_str[i], s.f, s.color);
+					out.append(1, ch);
+				}
+			}
+
+			fstr formatted_text(const std::wstring& _str, style s) {
+				fstr out;	
+
+				formatted_char ch;
+				ch.font_used = s.f;
+				int len = _str.length();
+
+				//out.reserve(len);
+				for(int i = 0; i < len; ++i) {
+					ch.set(_str[i], s.f, s.color);
+					out.append(1, ch);
+				}
+
+				return out;
+			}
+
 
 			void scale_virtual_res(rect_wh vres, rect_wh display, vector<quad>& quads) {
 				float x_mult = display.w/float(vres.w);

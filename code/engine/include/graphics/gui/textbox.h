@@ -1,5 +1,5 @@
 #pragma once
-#include "scroll.h"
+#include "dragger.h"
 #include "text\printer.h"
 #include "text\ui.h"
 #include "../../misc/undoredo.h"
@@ -7,7 +7,7 @@ namespace db {
 	namespace graphics {
 		namespace gui {
 			namespace controls {
-				class textbox : private text::printer, public text::ui {
+				class textbox : public text::printer, public text::ui {
 					point local_mouse();
 				public:
 					virtual void on_caret_left(bool select);
@@ -38,14 +38,14 @@ namespace db {
 					virtual void on_del(bool);
 					virtual void on_drag();
 
-					virtual void update_rectangles();
+					// virtual void update_rectangles();
 					virtual void event_proc(rect::event);
 					virtual void draw_proc(const draw_info&);
 					virtual void update_proc(system&);
 					virtual void on_focus(bool);
 
 					bool view_caret, blink_reset;
-					scroll scroller;
+					dragger scroller;
 
 					textbox(const rect&, style default_style);
 				};

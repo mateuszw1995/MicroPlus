@@ -43,14 +43,13 @@ namespace db {
 					unsigned anchor_pos;
 					bool redraw, forced_bold, forced_italics, bold_bound, italics_bound;
 
-					friend class printer;
+					friend struct printer;
 					caret_info caret;
 
 					void unbind_styles();
 					void anchor();
 					void clean_selection();
 
-					void need_redraw();
 				public:
 
 					drafter draft;
@@ -100,6 +99,7 @@ namespace db {
 					bool undo(),
 						redo();
 
+					void need_redraw();
 					void guarded_redraw();
 					virtual const fstr& get_str() const;
 

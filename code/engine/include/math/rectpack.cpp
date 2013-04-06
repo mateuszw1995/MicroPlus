@@ -116,11 +116,11 @@ namespace db {
 				int pass = SQUARE;
 
 				// just add a function name to execute more heuristics
-				bool (*cmpf[])(rect_xywhf*, rect_xywhf*) = { 
+
+				const int funcs = 5;
+				bool (*cmpf[funcs])(rect_xywhf*, rect_xywhf*) = { 
 					area, perimeter, max_side, max_width, max_height
 				};
-
-				const int funcs = (sizeof(cmpf)/sizeof(bool (*)(rect_xywhf*, rect_xywhf*)));
 
 				rect_xywhf** order[funcs];
 
@@ -245,11 +245,11 @@ namespace db {
 				return rect2D(v, n, max_s, bins, -1);
 			}
 
-			int rect2D(rect_xywhf* const * v, int n, int max_s, vector<bin>& bins, unsigned max_bins) {
-				rect_wh _rect(max_s, max_s);
+			int rect2D(rect_xywhf* const * v, int n, int max_s, vector<bin>& bins, int max_bins) {
+				rect_wh bin_rc(max_s, max_s);
 
 				for(int i = 0; i < n; ++i) 
-					if(!v[i]->fits(_rect)) return 2;
+					if(!v[i]->fits(bin_rc)) return 2;
 
 				vector<rect_xywhf*> vec[2], *p[2] = { vec, vec+1 };
 				vec[0].resize(n);
@@ -268,7 +268,7 @@ namespace db {
 					p[0]->clear();
 
 					if(!p[1]->size()) break;
-					else if(max_bins > -1 && bins.size() <= max_bins) 
+					else if(max_bins > -1 && int(bins.size()) >= max_bins) 
 						return 1; 
 
 					std::swap(p[0], p[1]);

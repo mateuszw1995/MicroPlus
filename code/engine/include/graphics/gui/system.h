@@ -112,7 +112,9 @@ namespace db {
 				returns clipped rectangle
 			*/
 			extern rect_ltrb add_quad(const material&, const rect_ltrb& origin, const rect_ltrb* clipper, std::vector<quad>& v);
-			extern void formatted_text(const wchar_t*, fstr&, style);
+			extern fstr formatted_text(const std::wstring&, style);
+			extern void formatted_text(const std::wstring&, style, fstr&);
+			extern void formatted_text(const wchar_t*, style, fstr&);
 			extern fstr formatted_text(const wchar_t*, style);
 			extern void paste_clipboard(fstr& out, formatted_char = formatted_char());
 			extern void scale_virtual_res(rect_wh vres, rect_wh display, vector<quad>& quads);

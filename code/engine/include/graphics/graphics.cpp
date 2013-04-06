@@ -1,6 +1,7 @@
 #pragma once
 #include "graphics.h"
 #include <gl/glew.h>
+#include <Windows.h>
 #include <gdiplus.h>
 #include "../error/errmacro.h"
 

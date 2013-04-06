@@ -19,12 +19,14 @@
     <ClInclude Include="include\graphics\graphics.h" />
     <ClInclude Include="include\graphics\gui\font.h" />
     <ClInclude Include="include\graphics\gui\rect.h" />
-    <ClInclude Include="include\graphics\gui\scroll.h" />
+    <ClInclude Include="include\graphics\gui\dragger.h" />
+    <ClInclude Include="include\graphics\gui\scrollarea.h" />
     <ClInclude Include="include\graphics\gui\system.h" />
     <ClInclude Include="include\graphics\gui\textbox.h" />
     <ClInclude Include="include\graphics\gui\text\caret.h" />
     <ClInclude Include="include\graphics\gui\text\drafter.h" />
     <ClInclude Include="include\graphics\gui\text\printer.h" />
+    <ClInclude Include="include\graphics\gui\text\text_rect.h" />
     <ClInclude Include="include\graphics\gui\text\ui.h" />
     <ClInclude Include="include\graphics\gui\text\word_separator.h" />
     <ClInclude Include="include\graphics\io\image.h" />
@@ -53,7 +55,8 @@
     <ClCompile Include="include\graphics\graphics.cpp" />
     <ClCompile Include="include\graphics\gui\font.cpp" />
     <ClCompile Include="include\graphics\gui\rect.cpp" />
-    <ClCompile Include="include\graphics\gui\scroll.cpp" />
+    <ClCompile Include="include\graphics\gui\dragger.cpp" />
+    <ClCompile Include="include\graphics\gui\scrollarea.cpp" />
     <ClCompile Include="include\graphics\gui\system.cpp" />
     <ClCompile Include="include\graphics\gui\text\caret.cpp" />
     <ClCompile Include="include\graphics\gui\text\drafter.cpp" />

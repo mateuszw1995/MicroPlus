@@ -5,3 +5,17 @@ func: db::window::glwindow::wndproc
 error 0: The operation completed successfully.
 
 
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 38
+file: c:\users\admin\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::wndproc
+error 0: The operation completed successfully.
+
+
+OPERATION HAS COMPLETED SUCCESSFULLY! This message's been generated only because of "log_succesfull" flag set to true.
+line: 38
+file: c:\users\admin\documents\github\microplus\code\engine\include\window\window.cpp
+func: db::window::glwindow::wndproc
+error 0: The operation completed successfully.
+
+

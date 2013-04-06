@@ -13,8 +13,13 @@ namespace db {
 				void textbox::draw_proc(const draw_info& in) {
 					rect::draw_proc(in);
 					guarded_redraw();
-					draw_text(in, draft, get_str());
+					draw_text(in.v, *this);
 				}
+				
+				//void textbox::update_rectangles() {
+				//	rect::update_rectangles();
+				//	guarded_redraw();
+				//}
 		
 				void textbox::update_proc(system& owner) {
 					scroller.move(pen);
@@ -42,8 +47,8 @@ namespace db {
 					int li = draft.get_line_visibility(get_local_clipper()).first;
 					auto& l = draft.lines[li];
 
-					if(pen.y != l.get_rect().y)
-					   pen.y  = l.get_rect().y;
+					if(int(pen.y) != l.get_rect().y)
+					   pen.y  = float(l.get_rect().y);
 					else if(li > 0) 
 						pen.y -= float(draft.lines[li-1].get_rect().h);  
 				
@@ -54,9 +59,9 @@ namespace db {
 					int li = draft.get_line_visibility(get_local_clipper()).second;
 					auto& l = draft.lines[li];
 
-					if(pen.y != l.get_rect().b - rc.h())
-					   pen.y  = l.get_rect().b - rc.h();
-					else if(li < draft.lines.size()) 
+					if(int(pen.y) != l.get_rect().b() - rc.h())
+					   pen.y  = float(l.get_rect().b() - rc.h());
+					else if(li < int(draft.lines.size())) 
 						pen.y += float(draft.lines[li+1].get_rect().h);  
 				
 				}

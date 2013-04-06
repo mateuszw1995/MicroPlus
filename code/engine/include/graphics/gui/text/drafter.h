@@ -21,6 +21,7 @@ namespace db {
 						line();
 						void set(int y, int asc, int desc);
 						void adjust(font*);
+						bool empty() const;
 					};
 
 					std::vector<font::glyph*> cached;
@@ -39,13 +40,17 @@ namespace db {
 					/* returns offset that clipper must be moved to show whole caret */
 					point view_caret(unsigned caret_pos, const rect_ltrb& clipper) const; 
 					unsigned get_line(unsigned caret_pos) const;
+					
+					/* note: point is taken LOCALLY.*/
 					unsigned map_to_line(const point&) const;
 					unsigned map_to_caret_pos(const point&) const;
-					rect_ltrb get_bbox() const;
+				
+					/* returns text's bounding box */
+					rect_wh get_bbox() const;
 				
 					void draw(const fstr&);
 
-					/* if any is -1, there's no line visible */
+					/* if any in the pair is -1, there's no line visible */
 					pair<int, int> get_line_visibility(const rect_ltrb& clipper) const;
 				private:
 					int max_x;

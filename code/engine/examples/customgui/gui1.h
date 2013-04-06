@@ -45,7 +45,7 @@ struct clabel_tickbox : public rect, public dynamic_border {
 	void draw_proc(const draw_info& in);
 private:
 	void update_rc();
-	text::printer print;
+	text::text_rect print;
 	fstr active, inactive;
 };
 

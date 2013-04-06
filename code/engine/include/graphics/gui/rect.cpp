@@ -54,9 +54,23 @@ namespace db {
 
 			rect::rect(const rect_xywh& rc, const material& mat) 
 				: rc(rc), mat(mat), parent(0), 
-				draw(true), q(0), was_hovered(false), fetch_wheel(false), clip(true), scrollable(true), bounding_box(rect_xywh()), rc_clipped(rect_xywh()) {
+				draw(true), was_hovered(false), fetch_wheel(false), clip(true), scrollable(true), bounding_box(rect_xywh()), rc_clipped(rect_xywh()) 
+			{
+				quad_indices.background = -1;
 			}
 			
+			rect_ltrb rect::get_bounding_box() const {
+				/* init the bounding box */
+				rect_ltrb bbox = rect_ltrb(0, 0, 0, 0);
+				
+				/* enlarge the bounding box by every child */
+				for(size_t i = 0; i < children.size(); ++i)
+					if(children[i]->draw)
+				 		bbox.contain(children[i]->rc);
+				
+				return bbox;
+			}
+
 			void rect::update_rectangles() {
 				/* init; later to be processed absolute and clipped with local rc */
 				absolute_xy = rc_clipped = rc;
@@ -73,14 +87,9 @@ namespace db {
 				    rc_clipped.clip(parent->rc_clipped);
 				}
 					
-				/* init the bounding box */
-				bounding_box = rect_ltrb();
+				/* update bbox */
+				bounding_box = this->get_bounding_box();
 				
-				/* enlarge the bounding box by every child */
-				for(size_t i = 0; i < children.size(); ++i)
-					if(children[i]->draw)
-				 		bounding_box.contain(children[i]->rc);
-
 				/* align pen only to be positive and not to exceed bounding box */
 				align_pen();
 
@@ -93,8 +102,8 @@ namespace db {
 			}
 			
 			void rect::draw_rect(const draw_info& in) {
-				q = in.v.size();
-				add_quad(mat, rc_clipped, 0, in.v);
+				quad_indices.background = in.v.size();
+				if(!add_quad(mat, rc_clipped, 0, in.v).good()) quad_indices.background = -1;
 				// rc_clipped = add_quad(mat, rc_clipped, parent, in.v);
 			}
 
@@ -298,10 +307,6 @@ namespace db {
 
 			const point& rect::get_absolute_xy() const {
 				return absolute_xy;
-			}
-
-			int rect::get_quad() const {
-				return q;
 			}
 		}
 	}

@@ -19,6 +19,7 @@ namespace db {
 			point(const rect_ltrb&);
 			point(const rect_xywh&);
 			point(const pointf&);
+			point operator-() const;
 			point operator-(const point&) const;
 			pointf operator-(const pointf&) const;
 			point operator+(const point&) const;
@@ -78,6 +79,7 @@ namespace db {
 			rect_ltrb(const rect_wh&);
 			rect_ltrb(const rect_xywh&);
 			rect_ltrb(int left, int top, int right, int bottom);
+			rect_ltrb(const point&, const rect_wh&);
 
 			void contain(const rect_ltrb& smaller);
 			bool clip(const rect_ltrb& bigger);
@@ -123,6 +125,7 @@ namespace db {
 			rect_xywh(const rect_ltrb&);
 			rect_xywh(int x, int y, int width, int height);
 			rect_xywh(int x, int y, const rect_wh&);
+			rect_xywh(const point&, const rect_wh&);
 			
 			bool clip(const rect_xywh& bigger); // false - null rectangle
 			bool hover(const point& mouse);
@@ -169,13 +172,13 @@ namespace db {
 			
 			/*
 			0 - succesful
-			1 - rect too large
-			2 - couldn't pack into max_bins/one bin
+			1 - couldn't pack into max_bins/one bin
+			2 - rect larger than bin exists
 			*/
 			
 			int rect2D(rect_xywhf* const * v, int n, int max_side, bin& out_bin);
 			int rect2D(rect_xywhf* const * v, int n, int max_side, vector<bin>& bins);
-			int rect2D(rect_xywhf* const * v, int n, int max_side, vector<bin>& bins, unsigned max_bins); 
+			int rect2D(rect_xywhf* const * v, int n, int max_side, vector<bin>& bins, int max_bins); 
 		}
 
 		

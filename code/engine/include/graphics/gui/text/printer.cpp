@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include "ui.h"
+#include "text_rect.h"
 #include "drafter.h"
 #include "printer.h"
 #include "../../../window/window.h"
@@ -17,13 +18,15 @@ namespace db {
 					caret_mat(material(null_texture, pixel_32(0, 0, 0, 255))),
 					align_caret_height(true), caret_width(0),
 					highlight_current_line(false),
-					highlight_during_selection(false), active(false), 
+					highlight_during_selection(false), 
+					active(false) 
 				{
-					auto& q = quad_indices;	
-					q.first_character = q.last_character, 
-							selections_first, selections_last,
-							highlight,
-							caret;
+					quad_indices.first_character = 
+					quad_indices.last_character =  
+					quad_indices.selections_first = 
+					quad_indices.selections_last = 
+					quad_indices.highlight = 
+					quad_indices.caret = -1;
 				}
 
 				printer::blinker::blinker() : blink(false), interval_ms(250), blink_func(regular_blink) {
@@ -48,210 +51,183 @@ namespace db {
 					caret_visible = true;
 				}
 				
-				void printer::draw_text(const draw_info& in, const ui& u) const {
-					draw_text(in, u.draft, u.get_str(), &u.caret);
+				void printer::draw_text(std::vector<quad>& out, const ui& u) const {
+					draw_text(out, u.draft, u.get_str(), &u.caret);
 				}
-				
-				void printer::draw_text(const draw_info& in, 
-						const drafter& d, 
-						const fstr& colors, 
-						const caret_info* caret) const {
+
+				void printer::draw_text(std::vector<quad>& out, 
+					const drafter& d, 
+					const fstr& colors, 
+					const caret_info* caret) const 
+				{
 					/* shortcuts */
 					auto& lines			= d.lines;
 					auto& sectors		= d.sectors;
-					auto& v = in.v;
+					auto& v = out;
+
+					/* we'll draw caret at the very end of procedure so we have to declare this variable here */
+					rect_xywh caret_rect(0, 0, 0, 0);
 					
 					/* validations */
-					if(lines.empty() || sectors.empty() || (clip && !get_clipped_rect().good())) return;
-					
-					/* reserve enough space to avoid reallocation, add one for caret */
-					v.reserve(v.size() + d.cached.size() + (caret != nullptr));
+					/* return if we want to clip but the clipper is not a valid rectangle */
+					if(clip && !get_clipped_rect().good()) return; 
 
-					bool selecting = false;
-					rect_ltrb selector;
-					vector<quad> selects;
+					if(!lines.empty() && !sectors.empty()) {
+						/* only these lines we want to process */
+						auto visible = d.get_line_visibility(get_local_clipper());
 
-					auto visible = d.get_line_visibility(get_local_clipper());
-					
-					/* shouldn't happen */
-					if(visible.first == -1) return;
+						/* if this happens:
+						- check if there is always an empty line
+						- check if we return when clipper is not valid
+						- check if pen is always aligned */
+						if(visible.first == -1) 
+							return;
 
-					if(caret) {
-						/* here we manage selections */
-						
-						unsigned select_left, select_right, select_left_line, select_right_line, caret_line;
-						
-						caret_line = d.get_line(caret->pos);
-						select_left = caret->get_left_selection();
-						select_right = caret->get_right_selection();
-						select_left_line =   d.get_line(select_left);
-						select_right_line =  d.get_line(select_right);
+						/* we'll need these variables later so we declare them here */
+						unsigned select_left  =	0;
+						unsigned select_right =	0;
+						unsigned caret_line = 0;
 
-						if(select_right_line >= visible.first || select_left_line <= visible.second) {
-							for(int i = visible.first; i <= visible.second; ++i) {
-								if(i == select_left_line) {
+						/* if we specified a caret to draw 
+						(which is not always the case when printing static captions for example) */
+						if(caret) {
+							caret_line = d.get_line(caret->pos);
 
-								}
-								else if(i == select_right_line) {
+							/* here we highlight the line caret is currently on */
+							if(active && highlight_current_line)
+								local_add(highlight_mat, rect_ltrb(0, lines[caret_line].top, rc.w(), lines[caret_line].bottom()), v);
 
+							/* let's calculate some values only once */
+							select_left = caret->get_left_selection();
+							select_right = caret->get_right_selection();
+							unsigned select_left_line =  d.get_line(select_left);
+							unsigned select_right_line = d.get_line(select_right);
+							unsigned first_visible_selection = max(select_left_line, unsigned(visible.first));
+							unsigned last_visible_selection	 = min(select_right_line, unsigned(visible.second));
+
+							/* manage selections */
+							for(unsigned i = first_visible_selection; i <= last_visible_selection; ++i) {
+								/* init selection rect on line rectangle;
+								its values won't change if selecting between first and the last line
+								*/
+								rect_ltrb sel_rect = d.lines[i].get_rect();
+
+								/* if it's the first line to process and we can see it, we have to trim its x coordinate */
+								if(i == first_visible_selection && select_left_line >= first_visible_selection)
+									sel_rect.l = d.sectors[select_left];
+
+								/* similiarly with the last one
+								note that with only one line selecting, it is still correct to apply these two conditions
+								*/
+								if(i == last_visible_selection && select_right_line <= last_visible_selection)
+									sel_rect.r = d.sectors[select_right];
+
+								local_add(active ? selection_bg_mat : selection_inactive_bg_mat, sel_rect, v); 
+							}
+						}
+
+						/* for every visible line */
+						for(unsigned l = visible.first;l <= unsigned(visible.second); ++l) {
+							/* for every character in line */
+							for(unsigned i = lines[l].begin; i < lines[l].end; ++i) {
+								/* shortcut */
+								auto& g = *d.cached[i];
+
+								/* if it's not a whitespace */
+								if(g.tex.get_rect().good()) {
+									pixel_32 charcolor = style(colors[i]).color;
+									
+									/* if a character is between selection bounds, we change its color to the one specified in selected_text_color 
+									if there's no caret, this is never true
+									*/
+									if(caret && i > select_left && i < select_right)
+										charcolor = selected_text_color;
+									
+									/* add the resulting character taking bearings into account */
+									local_add(material(&g.tex, charcolor), 
+									rect_xywh (sectors[i] + g.info->bear_x, lines[l].top + lines[l].asc - g.info->bear_y, g.info->size.w, g.info->size.h), 
+									v);
 								}
 							}
 						}
-						
-						/*
-						select_left_line =  max(unsigned(visible.first),  d.get_line(select_left));
-						select_right_line = min(unsigned(visible.second), d.get_line(select_right));*/
-						
-						
 
-						/* here we highlight the line caret is currently on */
-						if(active && highlight_current_line)
-							local_add(highlight_mat, rect_ltrb(0, lines[caret_line].top, rc.w(), lines[caret_line].bottom()), selects);
-					
-					
-					}
-
-					size_t i = 0, l = d.lines;
-
-
-					/* since we're */
-					if(caret && lines[l].begin > select_left && lines[l].begin < select_right) {
-						selector = rect_xywh(sectors[lines[l].begin], lines[l].top, 0, lines[l].height());
-						selecting = true;
-					}
-
-					/* for every visible line */
-					for(;l <= unsigned(d.last_line_visible); ++l) {
-						if(caret && selecting)
-							selector = rect_xywh(sectors[lines[l].begin], lines[l].top, 0, lines[l].height());
-
-						/* for every character in line */
-						for(i = lines[l].begin; i < lines[l].end && i < d.cached.size(); ++i) {
-
-							if(caret) {
-								if(i == select_left && caret->selection_offset && !selecting) {
-									selector = rect_xywh(sectors[i == select_left ? i : lines[l].begin], lines[l].top, 0, lines[l].height());
-									selecting = true;
-								}
-
-								else if(i == select_right && selecting) {
-									selector.r = sectors[i];
-									rect::add_quad(d.active ? selection_bg_mat : selection_inactive_bg_mat, selector, clipper, selects);  
-									selecting = false;
+						if(caret && active) {
+							/* if we can retrieve some sane values */
+							if(!lines[caret_line].empty()) {
+								if(align_caret_height)
+									caret_rect = rect_xywh(0, lines[caret_line].top, caret_width, lines[caret_line].height());
+								else {
+									int pos = max(1u, caret->pos);
+									auto& glyph_font = *colors[pos-1].font_used->parent;
+									caret_rect = rect_xywh(sectors[caret->pos], lines[caret_line].top + lines[caret_line].asc - glyph_font.ascender, 
+										caret_width, glyph_font.get_height());
 								}
 							}
-
-							auto& g = *d.cached[i];
-
-							if(g.tex.get_rect().w) {
-								rect::add_quad(
-									material(&g.tex, 
-									selecting ? selected_text_color : style(s.source[i]).color), 
-									rect_xywh (sectors[i] + g.info->bear_x, lines[l].top+lines[l].asc - g.info->bear_y, g.info->size.w, g.info->size.h), 
-									clipper, v);
-							}
+							/* otherwise set caret's height to default style's height to avoid strange situations */
+							else
+								caret_rect = rect_xywh(0, d.lines[caret_line].top, caret_width, caret->default_style.f->parent->get_height());
 
 						}
-
-						if(caret && selecting) {
-							selector.r = sectors[i-(l+1 != lines.size())] + (l+1 != lines.size())*d.cached[i-1]->info->adv;
-							rect::add_quad(d.active ? selection_bg_mat : selection_inactive_bg_mat, selector, clipper, selects);  
-							if(i == select_right)
-								selecting = false;
-						}
-					}
-
-					if(caret) {
-
-						/* IF LINE IS EMPTY (BEGIN == END) WE HAVE TO SNAP CARET'S HEIGHT TO DEFAULT STYLE!!! */
-
-						if(align_caret_height)
-							caret_rect = rect_xywh(sectors[target_caret->pos], lines[caret_line].top, caret_width, lines[caret_line].height());
-						else {
-							int pos = max(1u, target_caret->pos);
-							caret_rect = rect_xywh(sectors[target_caret->pos], lines[caret_line].top + lines[caret_line].asc - getf(source, pos-1)->parent->ascender, 
-								caret_width, getf(source, pos-1)->parent->ascender - getf(source, pos-1)->parent->descender);
-						}
-
-						v.insert(v.begin() + q_begin, selects.begin() + (d.active && d.highlight_current_line && !d.highlight_during_selection && selects.size() > 1), selects.end());
-						s_begin = q_begin;
-
-						q_begin += selects.size();
-						q_end   += selects.size();
-
-						s_end   = q_begin;
-
-						if(d.active) {
-							caret_quad = q_end;
-							if(rect::add_quad(caret_mat, d.caret_rect, clipper, v).good()) blink.update(*v.rbegin());
-						} else caret_quad = -1;
-					}
+					} 
+					/* there is nothing to draw, but we are still active so we want to draw caret anyway */
+					else if(active && caret)
+						caret_rect = rect_xywh(0, 0, caret_width, caret->default_style.f->parent->get_height());
+					
+//					this->quad_indices.caret = v.size();
+					local_add(caret_mat, caret_rect, v); 
 				}
 
-				int printer::get_selection_begin() {
-					return s_begin;
-				} 
-
-				int printer::get_selection_end() {
-					return s_end;
-				}
-
-				int printer::get_quads_begin() {
-					return q_begin;
-				}
-
-				int printer::get_quads_end() {
-					return q_end;
-				}
-
-				int printer::get_caret_quad() {
-					return caret_quad;
-				}
-				
-				
-				rect_xywh quick_print(std::vector<quad>& v,
+				rect_wh quick_print(std::vector<quad>& v,
 										const fstr& str, 
 										point pos, 
 										unsigned wrapping_width,
-										rect* clipper) 
+										rect_xywh* clipper) 
 				{
-					printer p;
-					drafter::source_info source(str, nullptr, clipper);
-					p.draft.draw(source);
-					p.draw_quads(source, v);
-					return p.draft.get_bbox();
+
+					rect_xywh rc(clipper ? *clipper : rect_xywh());
+					text_rect pr(rect(rc, material(pixel_32(255, 255, 255, 255))));
+					if(!clipper) pr.clip = false;
+					pr.pen = -pos;
+					pr.str = str;
+					pr.draft.wrap_width = wrapping_width;
+					pr.draft.draw(pr.str);
+					pr.draw_text(v, pr.draft, pr.str);
+					return pr.draft.get_bbox();
 				}
 
-				rect_xywh quick_print(std::vector<quad>& v,
+				rect_wh quick_print(std::vector<quad>& v,
 										std::wstring& wstr,
 										gui::style style,
 										point pos, 
 										unsigned wrapping_width,
-										rect* clipper) 
+										rect_xywh* clipper) 
 				{
-					fstr f = gui::formatted_text(wstr.c_str(), style);
-					printer p;
-					drafter::source_info source(f, nullptr, clipper);
-					p.draft.draw(source);
-					p.draw_quads(source, v);
-					return p.draft.get_bbox();
+					rect_xywh rc(clipper ? *clipper : rect_xywh());
+					text_rect pr(rect(rc, material(pixel_32(255, 255, 255, 255))));
+					if(!clipper) pr.clip = false;
+					pr.pen = -pos;
+					pr.str = gui::formatted_text(wstr, style);
+					pr.draft.wrap_width = wrapping_width;
+					pr.draft.draw(pr.str);
+					pr.draw_text(v, pr.draft, pr.str);
+					return pr.draft.get_bbox();
 				}
-			}
-			
-			text_rect::text_rect(const rect& r) : printer(r), update_str(true) {}
 
-			void text_rect::update_rectangles() {
-				rect::update_rectangles();
-				bounding_box.contain(draft.get_bbox());
-			}
+				text_rect::text_rect(const rect& r) : printer(r), update_str(true) {}
 
-			void text_rect::draw_proc(const draw_info& in) {
-				rect::draw_proc(in);
-				if(update_str) {
-					draft.draw(str);
-					update_str = false;
+				void text_rect::update_rectangles() {
+					rect::update_rectangles();
+					bounding_box.contain(draft.get_bbox());
 				}
-				draw_text(in, draft, str);
+
+				void text_rect::draw_proc(const draw_info& in) {
+					rect::draw_proc(in);
+					if(update_str) {
+						draft.draw(str);
+						update_str = false;
+					}
+					draw_text(in.v, draft, str);
+				}
 			}
 		}
 	}

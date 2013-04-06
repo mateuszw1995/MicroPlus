@@ -83,33 +83,37 @@ int main() {
 	gui::system sys(&gl.events);
 	cbackground background(rect(rect_xywh(0, 0, gl.get_window_rect().w-20, gl.get_window_rect().h-20), material(gui::null_texture, pixel_32(6, 5, 20, 255))));
 	
-	ctextbox  mytextbox(textbox(rect_xywh(), white, style(fonts + 0, white)));
-	mytextbox.print.blink.blink = true;
-	mytextbox.print.blink.interval_ms = 500;
-	mytextbox.print.selection_bg_mat.color = pixel_32(128, 255, 255, 120);
-	mytextbox.print.selection_inactive_bg_mat.color = pixel_32(128, 255, 255, 40);
-	mytextbox.print.highlight_mat = material(gui::null_texture, pixel_32(15, 15, 15, 255)); 
-	mytextbox.print.caret_mat.color = pixel_32(255,255,255,255);
-	mytextbox.print.draft.kerning = false;
-	mytextbox.print.draft.highlight_current_line = false;
-	mytextbox.print.draft.highlight_during_selection = true;
-	mytextbox.print.draft.wrap_width = 0;
-	mytextbox.print.draft.align_caret_height = true;
-	mytextbox.print.draft.caret_width = 1;
-	//mytext.whitelist = L"0123456789.";
-	//mytext.max_characters = 15;
-	mytextbox.mat.color = darkgray;
+	ctextbox  mytextbox(textbox(rect(rect_xywh(), material(darkgray)), style(fonts + 0, white)));
+	
+	/* ui settings */
+	mytextbox.whitelist = L"0123456789.";
+	mytextbox.max_characters = 15;
+
+	/* structural settings */
+	mytextbox.draft.wrap_width = 0;
+	mytextbox.draft.kerning = false;
+	
+	/* visual settings */
+	mytextbox.blink.blink = true;
+	mytextbox.blink.interval_ms = 500;
+	mytextbox.selection_bg_mat.color = pixel_32(128, 255, 255, 120);
+	mytextbox.selection_inactive_bg_mat.color = pixel_32(128, 255, 255, 40);
+	mytextbox.highlight_mat = material(gui::null_texture, pixel_32(15, 15, 15, 255)); 
+	mytextbox.caret_mat.color = pixel_32(255, 255, 255, 255);
+	mytextbox.highlight_current_line = true;
+	mytextbox.highlight_during_selection = true;
+	mytextbox.align_caret_height = true;
+	mytextbox.caret_width = 1;;
 	mytextbox.scroller.vel_mult = 100.0;
 	
-
 	ctext_modifier bold_button(rect(rect_xywh (230, 75, 20, 20), textures + 2), &mytextbox, ctext_modifier::BOLDEN);
 	ctext_modifier italics_button(rect(rect_xywh (260, 75, 20, 20), textures + 3), &mytextbox, ctext_modifier::ITALICSEN);
 	
 	gui::style   active(fonts + 1, ltblue);
 	gui::style inactive(fonts + 0, gray);
 	ctickbox  settings(			rect(rect_xywh(20, 47, 200, 15), material()), material(textures + 1, ltblue), material(textures + 1, gray), settings_active);
-	clabel_tickbox  highlight(	rect(rect_xywh(20, 17, 200, 15), material()), L"Highlight current line", active, inactive, mytextbox.print.draft.highlight_current_line);
-	clabel_tickbox  kerning(	rect(rect_xywh(20, 47, 200, 15), material()), L"Kerning", active, inactive, mytextbox.print.draft.kerning);
+	clabel_tickbox  highlight(	rect(rect_xywh(20, 17, 200, 15), material()), L"Highlight current line", active, inactive, mytextbox.highlight_current_line);
+	clabel_tickbox  kerning(	rect(rect_xywh(20, 47, 200, 15), material()), L"Kerning", active, inactive, mytextbox.draft.kerning);
 	clabel_tickbox  word_wrap(	rect(rect_xywh(20, 77, 200, 15), material()), L"Word wrapping", active, inactive, word_wrapping);
 	
 	cslider   sl(scrollarea::slider(20, material(gui::null_texture, pixel_32(104, 104, 104, 255))));
@@ -119,9 +123,9 @@ int main() {
 	
 	background.children.push_back(&bold_button);
 	background.children.push_back(&italics_button);
-	background.children.push_back(&highlight);
-	background.children.push_back(&kerning);
-	background.children.push_back(&word_wrap);
+	//background.children.push_back(&highlight);
+	//background.children.push_back(&kerning);
+	//background.children.push_back(&word_wrap);
 	background.children.push_back(&settings);
 	background.children.push_back(&myscrtx);
 	background.children.push_back(&myscrhtx);
@@ -176,11 +180,11 @@ int main() {
 			mytextbox.rc.t += settings_active ? 100 : 17;
 			mytextbox.rc.r -= 10;
 			if(!word_wrapping) {
-				mytextbox.print.draft.wrap_width = 0;
+				mytextbox.draft.wrap_width = 0;
 				mytextbox.rc.b -= 10;
 			}
 			else {
-				mytextbox.print.draft.wrap_width = mytextbox.rc.w();
+				mytextbox.draft.wrap_width = mytextbox.rc.w();
 			}
 			settings.rc = rect_xywh(background.rc.r - 15, 0, 15, 15);
 			myscrtx.align();

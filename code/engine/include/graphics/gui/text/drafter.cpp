@@ -77,6 +77,10 @@ namespace db {
 					desc = min(desc, f->parent->descender);
 				}
 
+				bool drafter::line::empty() const {
+					return begin == end;
+				}
+
 				unsigned drafter::line::hover(int x, const std::vector<int>& sectors) const {
 					if(end - begin == 0) 
 						return 0; /* obvious if we have no sectors */
@@ -156,8 +160,14 @@ namespace db {
 					lines.clear();
 					sectors.clear();
 					max_x = 0;
+					
+					/* add a new, empty, initial line 
+						there is ALWAYS at least one, even with empty string
+					*/
+					lines.push_back(line());
 
-					if(source.empty()) return; /* we have nothing to draw */
+					/* we have nothing to draw */
+					if(source.empty()) return; 
 
 					/* reserve enough space to avoid reallocation */
 					cached.reserve(source.size());
@@ -166,8 +176,6 @@ namespace db {
 					for(unsigned i = 0; i < source.size(); ++i)
 						cached.push_back(&getf(source, i)->get_glyph(source[i].c));
 
-					/* add a new, empty, initial line */
-					lines.push_back(line());
 
 					unsigned l = 0, i = 0;
 					point pen(0, 0);
@@ -181,7 +189,7 @@ namespace db {
 						/* advance pen taking kerning into consideration */
 						pen.x += get_kern(source,  i, l) + g.info->adv;
 						/* at this point "pen.x" means "where would caret be AFTER placing this character" */
-						bool wrap = (wrap_width > 0 && pen.x >= wrap_width);
+						bool wrap = (wrap_width > 0 && pen.x >= int(wrap_width));
 
 						/* if we have just encountered a newline character or there is need to wrap, we have to break the current line and 
 						create another */
@@ -264,9 +272,9 @@ namespace db {
 					sectors.push_back(pen.x);
 				}
 
-				rect_ltrb drafter::get_bbox() const {
-					if(sectors.empty() || lines.empty()) return rect_ltrb(0,0,0,0);
-					return rect_ltrb(sectors[0], lines[0].top, max_x, lines[lines.size()-1].bottom());
+				rect_wh drafter::get_bbox() const {
+					if(sectors.empty() || lines.empty()) return rect_wh(0,0);
+					return rect_wh(max_x, lines[lines.size()-1].bottom());
 				}
 
 				pair<int, int> drafter::get_line_visibility(const rect_ltrb& clipper) const {
