@@ -7,8 +7,8 @@ namespace db {
 		namespace gui {
 			namespace controls {
 				class scrollarea : public rect {
-					void update_pen_x();
-					void update_pen_y();
+					void update_scroll_x();
+					void update_scroll_y();
 				public:
 					bool disappear_if_fits;
 

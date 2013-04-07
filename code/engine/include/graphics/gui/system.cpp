@@ -214,7 +214,7 @@ namespace db {
 				return c;
 			}
 
-			system::system(event::state* events) : events(events), own_copy(false), own_clip(false), fetch_clipboard(true), focus(0), lholded(0), rholded(0) {
+			system::system(event::state& events) : events(events), own_copy(false), own_clip(false), fetch_clipboard(true), focus(0), lholded(0), rholded(0) {
 				middlescroll.subject = 0;
 				middlescroll.speed_mult = 1.f;
 				middlescroll.size = rect_wh(25, 25);
@@ -235,9 +235,9 @@ namespace db {
 			}
 
 			void system::bind() {
-				glVertexPointer(2, GL_INT, sizeof(vertex), rect_array.data());
-				glTexCoordPointer(2, GL_FLOAT, sizeof(vertex), (char*)(rect_array.data()) + sizeof(int)*2);
-				glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(vertex), (char*)(rect_array.data()) + sizeof(int)*2 + sizeof(float)*2);
+				glVertexPointer(2, GL_INT, sizeof(vertex), quad_array.data());
+				glTexCoordPointer(2, GL_FLOAT, sizeof(vertex), (char*)(quad_array.data()) + sizeof(int)*2);
+				glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(vertex), (char*)(quad_array.data()) + sizeof(int)*2 + sizeof(float)*2);
 			}
 			
 			void system::default_update() {
@@ -248,8 +248,8 @@ namespace db {
 			}
 
 			void system::update_array() {
-				rect_array.clear();
-				rect::draw_info in(*this, rect_array);
+				quad_array.clear();
+				rect::draw_info in(*this, quad_array);
 
 				for(size_t i = 0; i < windows.size(); ++i) {
 					windows[i]->parent = 0;
@@ -259,7 +259,7 @@ namespace db {
 				if(middlescroll.subject) {
 					rect_ltrb scroller = rect_wh(middlescroll.size);
 					scroller.center(middlescroll.pos);
-					rect::add_quad(middlescroll.mat, scroller, 0, rect_array); 
+					rect::add_quad(middlescroll.mat, scroller, 0, quad_array); 
 				}
 			}
 			
@@ -277,8 +277,8 @@ namespace db {
 				}
 
 				if(middlescroll.subject) {
-					point tempp = middlescroll.subject->pen; 
-					middlescroll.subject->pen += (events->mouse.pos - middlescroll.pos) * float(middlescroll.speed_mult*fps->frame_speed());
+					point tempp = middlescroll.subject->scroll; 
+					middlescroll.subject->scroll += (events.mouse.pos - middlescroll.pos) * float(middlescroll.speed_mult*fps->frame_speed());
 				}
 			}
 
@@ -302,7 +302,7 @@ namespace db {
 			}
 
 			void system::poll_events() {
-				event::state& gl = *events;
+				event::state& gl = events;
 				using namespace event::key;
 				rect::info in(*this, gl.msg);
 				bool pass = true;

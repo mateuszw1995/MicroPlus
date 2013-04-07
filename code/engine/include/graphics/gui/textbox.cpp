@@ -22,18 +22,18 @@ namespace db {
 				//}
 		
 				void textbox::update_proc(system& owner) {
-					scroller.move(pen);
+					drag.move(scroll);
 
-					if(scroller.vel[0] != 0.f || scroller.vel[1] != 0.f) {
+					if(drag.vel[0] != 0.f || drag.vel[1] != 0.f) {
 						rect::info _inf(owner, 0);
 						in = &_inf;
 						on_drag();
 					}
-					rect::update_proc(owner);
+					printer::update_proc(owner);
 				}
 				
 				point textbox::local_mouse() {
-					return in->owner.events->mouse.pos + pen - get_absolute_xy();
+					return in->owner.events.mouse.pos + scroll - get_absolute_xy();
 				}
 
 				void textbox::on_caret_left(bool s)			{ caret_left(s);			view_caret = true; blink_reset = true;}
@@ -45,24 +45,26 @@ namespace db {
 				void textbox::on_caret_ctrl_up()			{ 
 					guarded_redraw();
 					int li = draft.get_line_visibility(get_local_clipper()).first;
+					if(li == -1) return;
 					auto& l = draft.lines[li];
 
-					if(int(pen.y) != l.get_rect().y)
-					   pen.y  = float(l.get_rect().y);
+					if(int(scroll.y) != l.get_rect().y)
+					   scroll.y  = float(l.get_rect().y);
 					else if(li > 0) 
-						pen.y -= float(draft.lines[li-1].get_rect().h);  
+						scroll.y -= float(draft.lines[li-1].get_rect().h);  
 				
 				}
 
 				void textbox::on_caret_ctrl_down()			{ 
 					guarded_redraw();
 					int li = draft.get_line_visibility(get_local_clipper()).second;
+					if(li == -1) return;
 					auto& l = draft.lines[li];
 
-					if(int(pen.y) != l.get_rect().b() - rc.h())
-					   pen.y  = float(l.get_rect().b() - rc.h());
-					else if(li < int(draft.lines.size())) 
-						pen.y += float(draft.lines[li+1].get_rect().h);  
+					if(int(scroll.y) != l.get_rect().b() - rc.h())
+					   scroll.y  = float(l.get_rect().b() - rc.h());
+					else if(li < int(draft.lines.size()-1)) 
+						scroll.y += float(draft.lines[li+1].get_rect().h);  
 				
 				}
 
@@ -91,9 +93,9 @@ namespace db {
 				void textbox::on_select_all()		{ select_all();							view_caret = true;						}
 				void textbox::on_home(bool s)		{ home(s);								view_caret = true;						}
 				void textbox::on_end(bool s)		{ end(s);								view_caret = true;						}
-				void textbox::on_pagedown()			{ pen.y += get_rect_absolute().h();												}
-				void textbox::on_pageup()			{ pen.y -= get_rect_absolute().h();												}
-				void textbox::on_character()		{ character(in->owner.events->utf16);	view_caret = true; blink_reset = true;	}	
+				void textbox::on_pagedown()			{ scroll.y += get_rect_absolute().h();												}
+				void textbox::on_pageup()			{ scroll.y -= get_rect_absolute().h();												}
+				void textbox::on_character()		{ character(in->owner.events.utf16);	view_caret = true; blink_reset = true;	}	
 				void textbox::on_cut()				{ cut(in->owner);						view_caret = true;						}	  
 				void textbox::on_bold()				{ bold();								view_caret = true;						}	  
 				void textbox::on_italics()			{ italics();							view_caret = true;						}	  
@@ -106,7 +108,7 @@ namespace db {
 				
 				void textbox::on_drag()	{ 
 						set_caret(draft.map_to_caret_pos(local_mouse()), true);
-						scroller.drag(local_mouse(), get_clipped_rect()); 
+						drag.drag(local_mouse(), get_local_clipper()); 
 						blink_reset = true;
 				}
 	
@@ -115,9 +117,14 @@ namespace db {
 					blink_reset = true;
 				}
 
+				rect_wh textbox::get_content_size() {
+					guarded_redraw();
+					return draft.get_bbox();
+				}
+
 				void textbox::event_proc(rect::event e) {
 					using namespace db::event::keys;
-					auto& w = *in->owner.events;
+					auto& w = in->owner.events;
 					auto* k = w.keys;
 					bool s = k[SHIFT], c = k[CTRL];
 
@@ -174,15 +181,16 @@ namespace db {
 					case rect::event::ldoubleclick: on_select_word(); break;
 					case rect::event::ltripleclick: on_select_line(); break;
 
-					case rect::event::lup:		scroller.stop(); break;
-					case rect::event::hover:	scroller.stop(); break;
-					case rect::event::loutup:	scroller.stop(); break;
+					case rect::event::lup:		drag.stop(); break;
+					case rect::event::hover:	drag.stop(); break;
+					case rect::event::loutup:	drag.stop(); break;
 
 					default: break;
 					}
 
 					if(view_caret) {
-						draft.view_caret(get_caret_pos(), get_local_clipper());
+						guarded_redraw();
+						scroll += draft.view_caret(get_caret_pos(), get_local_clipper());
 						view_caret = false;
 					}
 

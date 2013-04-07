@@ -54,7 +54,7 @@ namespace db {
 				void ui::set_caret(unsigned pos, bool s) {
 					//if(!s) select.type = select.LETTERS;
 					//selection temp = select; 
-					if(caret.pos < pos) {
+					if(caret.pos <= pos) {
 						caret_right(pos - caret.pos, s);
 						//if(select.type == select.WORDS) {
 						//	// caret_right_word(true);
@@ -287,17 +287,21 @@ namespace db {
 				}
 
 				void ui::select_word(unsigned at) {
-					guarded_redraw();
 					if(_str.empty()) return;
-					if(at && ((separator.is_newline(_str[at].c) && !separator.is_newline(_str[at-1].c)) || at == _str.length())) --at;
-					bool alpha = separator.is_word(_str[at].c, true);
 
-					auto& line = draft.lines[draft.get_line(caret.pos)];
-					int left = separator.get_left_word(_str, at, line.begin),
-						right = separator.get_right_word(_str, at, line.end);
+					int left = 0, right = 0;
+					auto chr = _str[min(at, _str.length()-1)].c;
 
-					caret.pos = min(caret.pos+right, _str.length());
-					caret.selection_offset = -int(right - left);
+					if(at >= _str.length() || separator.is_newline(chr))
+						left = separator.get_left_word (_str, at);
+					else {
+						int type = separator.word_type(chr);
+						    left =  separator.get_left_word (_str, at, 0, type);
+							right = separator.get_right_word(_str, at, _str.length(), type);
+					}
+
+					caret.pos = min(at+right, _str.length());
+					caret.selection_offset = -int(right + left);
 					anchor();
 				}
 

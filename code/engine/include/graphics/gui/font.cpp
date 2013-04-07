@@ -80,7 +80,7 @@ namespace db {
 				: adv(adv), bear_x(bear_x), bear_y(bear_y), size(size) {}
 
 			font_file::glyph::glyph(const FT_Glyph_Metrics& m) 
-				: adv(m.horiAdvance), bear_x(m.horiBearingX), bear_y(m.horiBearingY), size(m.width, m.height)  {
+				: adv(m.horiAdvance >> 6), bear_x(m.horiBearingX >> 6), bear_y(m.horiBearingY >> 6), size(m.width >> 6, m.height >> 6)  {
 			}
 
 			bool font_file::open(font_in& fin, const char* filename, unsigned _pt, const charset& ranges) {

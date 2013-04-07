@@ -14,8 +14,8 @@ namespace db {
 
 				bool scrollarea::is_needed() {
 					bool need[2] = {
-						origin && origin->bounding_box.r > origin->rc.w(),
-						origin && origin->bounding_box.b > origin->rc.h()
+						origin && origin->content_size.w > origin->rc.w(),
+						origin && origin->content_size.h > origin->rc.h()
 					};
 
 					return  (flags == orientation::HORIZONTAL && need[0]) ||
@@ -47,16 +47,16 @@ namespace db {
 					if(!n) return;
 
 					if(flags & orientation::HORIZONTAL) {
-						int width = std::max(box->min_side, int(rc.w() * origin->rc.w() / origin->bounding_box.r));
-						sl.l = int((rc.w() - width) * origin->pen.x / (origin->bounding_box.r - origin->rc.w()));
+						int width = std::max(box->min_side, int(rc.w() * origin->rc.w() / origin->content_size.w));
+						sl.l = int((rc.w() - width) * origin->scroll.x / (origin->content_size.w - origin->rc.w()));
 						sl.t = 0;
 						sl.w   (width);
 						sl.h   (rc.h());
 					}
 					
 					if(flags & orientation::VERTICAL) {
-						int height = std::max(box->min_side, int(rc.h() * origin->rc.h() / origin->bounding_box.b));
-						sl.t = int((rc.h() - height) * origin->pen.y / (origin->bounding_box.b - origin->rc.h()));
+						int height = std::max(box->min_side, int(rc.h() * origin->rc.h() / origin->content_size.h));
+						sl.t = int((rc.h() - height) * origin->scroll.y / (origin->content_size.h - origin->rc.h()));
 						sl.l = 0;
 						sl.h   (height);
 						sl.w   (rc.w());
@@ -66,44 +66,44 @@ namespace db {
 				}
 
 
-				void scrollarea::update_pen_x() {
-					origin->pen.x = float(box->rc.l * (origin->bounding_box.r - origin->rc.w()) / (rc.w() - box->rc.w()));
+				void scrollarea::update_scroll_x() {
+					origin->scroll.x = float(box->rc.l * (origin->content_size.w - origin->rc.w()) / (rc.w() - box->rc.w()));
 				}
 
-				void scrollarea::update_pen_y() {
-					origin->pen.y = float(box->rc.t * (origin->bounding_box.b - origin->rc.h()) / (rc.h() - box->rc.h()));
+				void scrollarea::update_scroll_y() {
+					origin->scroll.y = float(box->rc.t * (origin->content_size.h - origin->rc.h()) / (rc.h() - box->rc.h()));
 				}
 
 				void scrollarea::event_proc(event e) {
 					if(!is_needed()) return;
 					auto& sys = in->owner;
-					auto& wnd = *sys.events;
+					auto& wnd = sys.events;
 					if(e == event::ldown && box) {
 						sys.lholded = box;
 						if(flags & orientation::HORIZONTAL) {
 							box->rc.center_x(wnd.mouse.pos.x - get_rect_absolute().l);
-							update_pen_x();
+							update_scroll_x();
 						}
 						if(flags & orientation::VERTICAL) {
 							box->rc.center_y(wnd.mouse.pos.y - get_rect_absolute().t);
-							update_pen_y();
+							update_scroll_y();
 						}
 						box->drag_origin = point(box->rc.l, box->rc.t);
 					}
 				}
 
 				void scrollarea::slider::event_proc(event e) {
-					auto& ms = in->owner.events->mouse;
+					auto& ms = in->owner.events.mouse;
 					scrollarea* pp = (scrollarea*)parent;
 					if(!pp->is_needed()) return;
 					if(e == event::ldrag) {
 						if(pp->flags & orientation::HORIZONTAL) {
 							rc.x(drag_origin.x + ms.pos.x - ms.ldrag.x);
-							pp->update_pen_x();
+							pp->update_scroll_x();
 						}
 						if(pp->flags & orientation::VERTICAL  ) {
 							rc.y(drag_origin.y + ms.pos.y - ms.ldrag.y);
-							pp->update_pen_y();
+							pp->update_scroll_y();
 						}
 					}
 				}

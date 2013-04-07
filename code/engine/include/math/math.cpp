@@ -208,9 +208,12 @@ namespace db {
 		}
 		
 		void rect_ltrb::contain(const rect_ltrb& rc) {
-			if(!good()) *this = rc;
 			l = min(l, rc.l);
 			t = min(t, rc.t);
+			contain_positive(rc);
+		}
+
+		void rect_ltrb::contain_positive(const rect_ltrb& rc) {
 			r = max(r, rc.r);
 			b = max(b, rc.b);
 		}
@@ -261,15 +264,19 @@ namespace db {
 			return pointf(l + w()/2.f, t + h()/2.f); 
 		}
 
-		void rect_wh::stick_relative(const rect_ltrb& bbox, pointf& pen) const {
-			pen.x = min(pen.x, float(bbox.r - w));
-			pen.x = max(pen.x, 0.f);
-			pen.y = min(pen.y, float(bbox.b - h));
-			pen.y = max(pen.y, 0.f);
+		void rect_wh::stick_relative(const rect_wh& content, pointf& scroll) const {
+			scroll.x = min(scroll.x, float(content.w - w));
+			scroll.x = max(scroll.x, 0.f);
+			scroll.y = min(scroll.y, float(content.h - h));
+			scroll.y = max(scroll.y, 0.f);
+		}
+		
+		bool rect_wh::inside(const rect_wh& rc) const {
+			return w <= rc.w && h <= rc.h;
 		}
 
-		bool rect_wh::is_sticked(const rect_ltrb& bbox, pointf& pen) const {
-			return pen.x >= 0.f && pen.x <= bbox.r - w && pen.y >= 0 && pen.y <= bbox.b - h; 
+		bool rect_wh::is_sticked(const rect_wh& content, pointf& scroll) const {
+			return scroll.x >= 0.f && scroll.x <= content.w - w && scroll.y >= 0 && scroll.y <= content.h - h; 
 		}
 		
 		void rect_ltrb::center_x(int c) {

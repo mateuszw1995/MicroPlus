@@ -38,14 +38,14 @@ namespace db {
 					virtual void on_del(bool);
 					virtual void on_drag();
 
-					// virtual void update_rectangles();
+					virtual rect_wh get_content_size();
 					virtual void event_proc(rect::event);
 					virtual void draw_proc(const draw_info&);
 					virtual void update_proc(system&);
 					virtual void on_focus(bool);
 
 					bool view_caret, blink_reset;
-					dragger scroller;
+					dragger drag;
 
 					textbox(const rect&, style default_style);
 				};

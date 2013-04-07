@@ -63,8 +63,10 @@ clabel_tickbox::clabel_tickbox(const rect& r, std::wstring label, style act, sty
 		stroke.set_width(1);
 		stroke.set_material(set ? ltblue : gray);
 		update_rc();
-		print.pen = -point(2, 1);
-	//	print.clip = false;
+		snap_scroll_to_content = false;
+		scroll = point(4, 4);
+		clip = false;
+		print.clip = false;
 		children.push_back(&print);
 }
 
@@ -86,7 +88,8 @@ void clabel_tickbox::event_proc(event m) {
 }
 
 void clabel_tickbox::update_rc() {
-	print.draft.draw(set ? active : inactive);
+	print.str = set ? active : inactive;
+	print.draft.draw(print.str);
 	print.update_str = false;
 	rc.w(print.draft.get_bbox().w + 4);
 	rc.h(print.draft.get_bbox().h + 2);
@@ -107,6 +110,7 @@ void ctext_modifier::event_proc(event m) {
 			mytext->on_bold();
 		else
 			mytext->on_italics();
+		mytext->need_redraw();
 	}
 	if(m == event::wheel || m == event::mdown) rect::event_proc(m);
 }
@@ -120,7 +124,6 @@ void ctext_modifier::draw_proc(const draw_info& in) {
 	else 
 		mat.color = t.get_italics_status() ? ltblue : white;
 
-	t.need_redraw();
 }
 
 ctextbox::ctextbox(const textbox& r) : textbox(r) {}

@@ -49,15 +49,25 @@ private:
 	fstr active, inactive;
 };
 
-struct ctext_modifier : public rect, public dynamic_border {
+struct text_modifier {
+	textbox& mytext;
+	text_modifier(textbox& mytext);
+	void redraw();
+};
+
+struct ctext_modifier : public rect, public dynamic_border, public text_modifier {
 	enum type {
 		ITALICSEN, BOLDEN
 	} _type;
-	textbox* mytext;
-	
-	ctext_modifier(const rect& r, textbox* mytext, type _type);
+
+	ctext_modifier(const rect& r, textbox& mytext, type _type);
 	void event_proc(event m);
 	void draw_proc(const draw_info& in);
+};
+
+struct ctext_option : public text_modifier, public clabel_tickbox {
+	bool redraw_on_switch;
+	ctext_option(const clabel_tickbox& tick, bool should_redraw);
 };
 
 struct ctextbox : public textbox, public dynamic_border {

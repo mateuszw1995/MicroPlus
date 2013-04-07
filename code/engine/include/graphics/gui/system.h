@@ -9,9 +9,22 @@
 
 todo:
 w textboxie poprawic przeciaganie zaznaczen double/triple clickow
+WYDZIELIC W SYSTEMIE OUTPUT GUI_RECT I BACKEND QUAD'OWY
+struct {
+gui_rect caret;
+vector<gui_rect> characters;
+vector<gui_rect> selections;
+}
+i tak dalej
+pros:
+- kazdy draw_proc generuje elementy do wyrysowania wedlug dowolnej kolejnosci => prostszy kod
+cons:
+- wincyj pamieci zuzytej w kazdym rect'cie
+
 
 z bboxami ma byc tak jak jest bo zauwaz ze bboxa rozpychaja tylko pierwsze child recty a nie ich wlasne bboxy
-BBOX JEST GLOBALNY!!!
+BBOX JEST GLOBALNY!!! twuj stary jest globalny, teraz sa lokalne
+
 
 */
 
@@ -83,13 +96,12 @@ namespace db {
 				fstr clipboard;
 
 				rect *lholded, *rholded;
-				event::state* events;
+				event::state& events;
 
 				std::vector<rect*> windows;
-				std::vector<quad> rect_array;
+				std::vector<quad> quad_array;
 
-
-				system(event::state* subscribe_events);
+				system(event::state& subscribe_events);
 
 				void copy_clipboard(fstr&);
 				void set_focus(rect*);

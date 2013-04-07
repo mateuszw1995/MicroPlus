@@ -29,26 +29,32 @@ namespace db {
 					quad_indices.caret = -1;
 				}
 
-				printer::blinker::blinker() : blink(false), interval_ms(250), blink_func(regular_blink) {
+				printer::blinker::blinker() : caret_visible(true), blink(true), interval_ms(250)//, blink_func(regular_blink) 
+				{
 					reset();
 				}
 				
-				void printer::blinker::regular_blink(blinker& b, quad& caret) {
-					for(int i = 0; i < 4; ++i)
-						caret.p[i].col.a = b.caret_visible ? 255 : 0;
-				}
+			//	void printer::blinker::regular_blink(blinker& b, quad& caret) {
+			//		for(int i = 0; i < 4; ++i)
+			//			caret.p[i].col.a = b.caret_visible ? 255 : 0;
+			//	}
 
-				void printer::blinker::update(quad& caret) {
+				void printer::blinker::update() {
 					if(timer.get_miliseconds() > interval_ms) {
 						caret_visible = !caret_visible;
 						timer.microseconds();
 					}
-					if(blink_func) blink_func(*this, caret);
+					//if(blink_func) blink_func(*this, caret);
 				}
 
 				void printer::blinker::reset() {
 					timer.microseconds();
 					caret_visible = true;
+				}
+				
+				void printer::update_proc(system& s) {
+					blink.update();
+					rect::update_proc(s);
 				}
 				
 				void printer::draw_text(std::vector<quad>& out, const ui& u) const {
@@ -74,12 +80,16 @@ namespace db {
 
 					if(!lines.empty() && !sectors.empty()) {
 						/* only these lines we want to process */
-						auto visible = d.get_line_visibility(get_local_clipper());
+						pair<int, int> visible;
+						
+						if(clip)
+							visible = d.get_line_visibility(get_local_clipper());
+						else visible = make_pair(0, lines.size()-1);
 
 						/* if this happens:
 						- check if there is always an empty line
 						- check if we return when clipper is not valid
-						- check if pen is always aligned */
+						- check if scroll is always aligned */
 						if(visible.first == -1) 
 							return;
 
@@ -95,34 +105,37 @@ namespace db {
 
 							/* here we highlight the line caret is currently on */
 							if(active && highlight_current_line)
-								local_add(highlight_mat, rect_ltrb(0, lines[caret_line].top, rc.w(), lines[caret_line].bottom()), v);
+								local_add(highlight_mat, rect_ltrb(scroll.x, lines[caret_line].top, scroll.x+rc.w(), lines[caret_line].bottom()), v);
 
 							/* let's calculate some values only once */
 							select_left = caret->get_left_selection();
 							select_right = caret->get_right_selection();
-							unsigned select_left_line =  d.get_line(select_left);
-							unsigned select_right_line = d.get_line(select_right);
-							unsigned first_visible_selection = max(select_left_line, unsigned(visible.first));
-							unsigned last_visible_selection	 = min(select_right_line, unsigned(visible.second));
 
-							/* manage selections */
-							for(unsigned i = first_visible_selection; i <= last_visible_selection; ++i) {
-								/* init selection rect on line rectangle;
-								its values won't change if selecting between first and the last line
-								*/
-								rect_ltrb sel_rect = d.lines[i].get_rect();
+							if(caret->selection_offset) {
+								unsigned select_left_line =  d.get_line(select_left);
+								unsigned select_right_line = d.get_line(select_right);
+								unsigned first_visible_selection = max(select_left_line, unsigned(visible.first));
+								unsigned last_visible_selection	 = min(select_right_line, unsigned(visible.second));
 
-								/* if it's the first line to process and we can see it, we have to trim its x coordinate */
-								if(i == first_visible_selection && select_left_line >= first_visible_selection)
-									sel_rect.l = d.sectors[select_left];
+								/* manage selections */
+								for(unsigned i = first_visible_selection; i <= last_visible_selection; ++i) {
+									/* init selection rect on line rectangle;
+									its values won't change if selecting between first and the last line
+									*/
+									rect_ltrb sel_rect = d.lines[i].get_rect();
 
-								/* similiarly with the last one
-								note that with only one line selecting, it is still correct to apply these two conditions
-								*/
-								if(i == last_visible_selection && select_right_line <= last_visible_selection)
-									sel_rect.r = d.sectors[select_right];
+									/* if it's the first line to process and we can see it, we have to trim its x coordinate */
+									if(i == first_visible_selection && select_left_line >= first_visible_selection)
+										sel_rect.l = d.sectors[select_left];
 
-								local_add(active ? selection_bg_mat : selection_inactive_bg_mat, sel_rect, v); 
+									/* similiarly with the last one
+									note that with only one line selecting, it is still correct to apply these two conditions
+									*/
+									if(i == last_visible_selection && select_right_line <= last_visible_selection)
+										sel_rect.r = d.sectors[select_right];
+
+									local_add(active ? selection_bg_mat : selection_inactive_bg_mat, sel_rect, v); 
+								}
 							}
 						}
 
@@ -155,7 +168,7 @@ namespace db {
 							/* if we can retrieve some sane values */
 							if(!lines[caret_line].empty()) {
 								if(align_caret_height)
-									caret_rect = rect_xywh(0, lines[caret_line].top, caret_width, lines[caret_line].height());
+									caret_rect = rect_xywh(sectors[caret->pos], lines[caret_line].top, caret_width, lines[caret_line].height());
 								else {
 									int pos = max(1u, caret->pos);
 									auto& glyph_font = *colors[pos-1].font_used->parent;
@@ -174,38 +187,38 @@ namespace db {
 						caret_rect = rect_xywh(0, 0, caret_width, caret->default_style.f->parent->get_height());
 					
 //					this->quad_indices.caret = v.size();
-					local_add(caret_mat, caret_rect, v); 
+					if(blink.caret_visible) local_add(caret_mat, caret_rect, v); 
 				}
 
 				rect_wh quick_print(std::vector<quad>& v,
 										const fstr& str, 
 										point pos, 
 										unsigned wrapping_width,
-										rect_xywh* clipper) 
+										const rect_xywh* clipper) 
 				{
 
 					rect_xywh rc(clipper ? *clipper : rect_xywh());
 					text_rect pr(rect(rc, material(pixel_32(255, 255, 255, 255))));
 					if(!clipper) pr.clip = false;
-					pr.pen = -pos;
+					pr.scroll = pos;
 					pr.str = str;
 					pr.draft.wrap_width = wrapping_width;
 					pr.draft.draw(pr.str);
 					pr.draw_text(v, pr.draft, pr.str);
 					return pr.draft.get_bbox();
 				}
-
+				
 				rect_wh quick_print(std::vector<quad>& v,
-										std::wstring& wstr,
+										const std::wstring& wstr,
 										gui::style style,
 										point pos, 
 										unsigned wrapping_width,
-										rect_xywh* clipper) 
+										const rect_xywh* clipper) 
 				{
 					rect_xywh rc(clipper ? *clipper : rect_xywh());
 					text_rect pr(rect(rc, material(pixel_32(255, 255, 255, 255))));
 					if(!clipper) pr.clip = false;
-					pr.pen = -pos;
+					pr.scroll = pos;
 					pr.str = gui::formatted_text(wstr, style);
 					pr.draft.wrap_width = wrapping_width;
 					pr.draft.draw(pr.str);
@@ -214,18 +227,22 @@ namespace db {
 				}
 
 				text_rect::text_rect(const rect& r) : printer(r), update_str(true) {}
-
-				void text_rect::update_rectangles() {
-					rect::update_rectangles();
-					bounding_box.contain(draft.get_bbox());
-				}
-
-				void text_rect::draw_proc(const draw_info& in) {
-					rect::draw_proc(in);
+					
+				void text_rect::guarded_redraw() {
 					if(update_str) {
 						draft.draw(str);
 						update_str = false;
 					}
+				}
+
+				rect_wh text_rect::get_content_size() {
+					guarded_redraw();
+					return draft.get_bbox();
+				}
+
+				void text_rect::draw_proc(const draw_info& in) {
+					guarded_redraw();
+					rect::draw_proc(in);
 					draw_text(in.v, draft, str);
 				}
 			}

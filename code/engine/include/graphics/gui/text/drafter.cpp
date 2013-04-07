@@ -83,12 +83,13 @@ namespace db {
 
 				unsigned drafter::line::hover(int x, const std::vector<int>& sectors) const {
 					if(end - begin == 0) 
-						return 0; /* obvious if we have no sectors */
+						return begin; /* obvious if we have no sectors */
 
-					unsigned iter = upper_bound(sectors.begin() + begin, sectors.begin() + end, x) - sectors.begin();
+					unsigned iter = lower_bound(sectors.begin() + begin, sectors.begin() + end, x) - sectors.begin();
 
 					/* if iter is equal to begin there's no "previous" sector we can compare to */
-					if(iter == begin) return iter;
+					if(iter == begin || iter == sectors.size()-1) return iter;
+					if(iter == end) return iter-1;
 					
 					/* snap result to the closest sector */
 					if(!wrapped && sectors[iter] - x > x - sectors[iter-1])
@@ -102,8 +103,12 @@ namespace db {
 				unsigned drafter::get_line(unsigned i) const {
 					if(lines.empty()) return 0;
 					line l;
-					l.begin = i;
-					return upper_bound(lines.begin(), lines.end(), l, [](const line& x, const line& y){return x.begin < y.begin;}) - lines.begin() - 1;
+					l.end = i;
+					auto res = upper_bound(lines.begin(), lines.end(), l, [](const line& x, const line& y){return x.end < y.end;}) - lines.begin();
+					
+					if(res == lines.size()) 
+					return res-1;
+					else return res;
 				}
 
 				drafter::drafter()
@@ -177,12 +182,11 @@ namespace db {
 						cached.push_back(&getf(source, i)->get_glyph(source[i].c));
 
 
-					unsigned l = 0, i = 0;
 					point pen(0, 0);
 
 					/* FIRST PASS: ONLY GENERATE LINES DEPENDING ON NEWLINE CHARACTERS AND WRAPPING WIDTH */
 					/* for every character */
-					for(i = 0; i < cached.size(); ++i) {
+					for(unsigned i = 0, l = 0; i < cached.size(); ++i) {
 						/* shortcut */
 						auto& g = *cached[i];
 
@@ -243,21 +247,20 @@ namespace db {
 					/* break the last line as it will never hit condition of wrapping nor newlining 
 						same things happen here
 					*/
-					/* we don't add 1 as i is already incremented after finishing the loop */
-					lines[l].end = i;//+1;
-					lines[l].right = pen.x;
-					max_x = max(max_x, lines[l].right);
+					(*lines.rbegin()).end = cached.size();
+					(*lines.rbegin()).right = pen.x;
+					max_x = max(max_x, (*lines.rbegin()).right);
 
 					/* SECOND PASS: GENERATE SECTORS AND FILL LINE INFO DEPENDING ON CHARACTERS HEIGHT */
 					
 					/* just to make sure */
 					pen = point();
-					for(l = 0; l < lines.size(); ++l) {
+					for(unsigned l = 0; l < lines.size(); ++l) {
 						lines[l].top = pen.y;
 
 						/* roll pen back */
 						pen.x = 0;
-						for(i = lines[l].begin; i < lines[l].end && i < cached.size(); ++i) {
+						for(unsigned i = lines[l].begin; i < lines[l].end && i < cached.size(); ++i) {
 							/* update line's height so it is maximum of all characters' heights */
 							lines[l].adjust(getf(source, i));
 

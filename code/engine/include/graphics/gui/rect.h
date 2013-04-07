@@ -80,11 +80,11 @@ namespace db {
 					loutdrag
 				};
 
-				bool draw, clip, fetch_wheel, scrollable, snap_scroll_to_bbox;
+				bool draw, clip, fetch_wheel, scrollable, snap_scroll_to_content;
 				point drag_origin;
-				rect_ltrb rc, /* actual rectangle */ 
-					bounding_box; /* content's (children) bounding box */
-				pointf pen; /* scrolls content */
+				rect_ltrb rc; /* actual rectangle */ 
+				rect_wh content_size; /* content's (children's) bounding box */
+				pointf scroll; /* scrolls content */
 
 				material mat;
 				rect* parent; 
@@ -93,8 +93,9 @@ namespace db {
 				
 				rect(const math::rect_xywh& rc = math::rect_xywh(), const material& = material());
 				
-				virtual rect_ltrb get_bounding_box() const;
-				virtual void update_rectangles();
+				virtual rect_wh get_content_size();
+				
+				void update_rectangles();
 				virtual void event_proc(      event); /* event listener */
 				virtual void event_proc(const info&); /* event generator */
 				virtual void update_proc(system&);
@@ -106,8 +107,8 @@ namespace db {
 				static rect_ltrb add_quad(const material&, const rect_ltrb& origin, const rect* clipper, std::vector<quad>& v);
 				rect_ltrb local_add(const material&, const rect_ltrb& origin, std::vector<quad>& v) const;
 
-				bool is_pen_aligned(); /*   is pen valid */
-				void align_pen(),      /* make pen valid */
+				bool is_scroll_aligned(); /*   is scroll valid */
+				void align_scroll(),      /* make scroll valid */
 					scroll_to_view();  /* scroll to view whole content */
 				const rect_ltrb& get_clipped_rect() const;
 				rect_ltrb get_rect_absolute() const;
@@ -119,6 +120,18 @@ namespace db {
 				point absolute_xy;
 
 				bool was_hovered;
+			};
+
+			template <class functor>
+			struct callback_rect : public rect {
+				functor callback;
+
+				callback_rect(const rect& r, const functor& callback) : rect(r), callback(callback) {} 
+
+				virtual void event_proc(event m) {
+					rect::event_proc(m);
+					callback(m);
+				}
 			};
 		}
 	}

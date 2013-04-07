@@ -2,6 +2,11 @@
 #include "customgui/gui1.h"
 #include <ctime>
 
+/* wordwrapping/kerning musza setowac need_redraw
+	jakis dziwny bug przy wrappingu kilku linii, szeroki newline na koncu sie robi
+	poprawic word wrapping albo sprawdzic czy dobrze ustawiona wartosc
+*/
+
 int resizer(glwindow& gl) {
 	gl.current();
 	glViewport(0,0,gl.get_window_rect().w,gl.get_window_rect().h);
@@ -80,14 +85,14 @@ int main() {
 	bool settings_active = false;
 	bool word_wrapping = true;
 
-	gui::system sys(&gl.events);
-	cbackground background(rect(rect_xywh(0, 0, gl.get_window_rect().w-20, gl.get_window_rect().h-20), material(gui::null_texture, pixel_32(6, 5, 20, 255))));
+	gui::system sys(gl.events);
+	cbackground background(rect(rect_xywh(0, 0, gl.get_window_rect().w-20, gl.get_window_rect().h-20), material(pixel_32(6, 5, 20, 255))));
 	
 	ctextbox  mytextbox(textbox(rect(rect_xywh(), material(darkgray)), style(fonts + 0, white)));
 	
 	/* ui settings */
-	mytextbox.whitelist = L"0123456789.";
-	mytextbox.max_characters = 15;
+	// mytextbox.whitelist = L"0123456789.";
+	// mytextbox.max_characters = 15;
 
 	/* structural settings */
 	mytextbox.draft.wrap_width = 0;
@@ -98,34 +103,35 @@ int main() {
 	mytextbox.blink.interval_ms = 500;
 	mytextbox.selection_bg_mat.color = pixel_32(128, 255, 255, 120);
 	mytextbox.selection_inactive_bg_mat.color = pixel_32(128, 255, 255, 40);
-	mytextbox.highlight_mat = material(gui::null_texture, pixel_32(15, 15, 15, 255)); 
+	mytextbox.highlight_mat = material(pixel_32(15, 15, 15, 255)); 
 	mytextbox.caret_mat.color = pixel_32(255, 255, 255, 255);
 	mytextbox.highlight_current_line = true;
 	mytextbox.highlight_during_selection = true;
 	mytextbox.align_caret_height = true;
 	mytextbox.caret_width = 1;;
-	mytextbox.scroller.vel_mult = 100.0;
+	mytextbox.drag.vel_mult = 100.0;
 	
 	ctext_modifier bold_button(rect(rect_xywh (230, 75, 20, 20), textures + 2), &mytextbox, ctext_modifier::BOLDEN);
 	ctext_modifier italics_button(rect(rect_xywh (260, 75, 20, 20), textures + 3), &mytextbox, ctext_modifier::ITALICSEN);
 	
 	gui::style   active(fonts + 1, ltblue);
 	gui::style inactive(fonts + 0, gray);
-	ctickbox  settings(			rect(rect_xywh(20, 47, 200, 15), material()), material(textures + 1, ltblue), material(textures + 1, gray), settings_active);
-	clabel_tickbox  highlight(	rect(rect_xywh(20, 17, 200, 15), material()), L"Highlight current line", active, inactive, mytextbox.highlight_current_line);
-	clabel_tickbox  kerning(	rect(rect_xywh(20, 47, 200, 15), material()), L"Kerning", active, inactive, mytextbox.draft.kerning);
-	clabel_tickbox  word_wrap(	rect(rect_xywh(20, 77, 200, 15), material()), L"Word wrapping", active, inactive, word_wrapping);
+	ctickbox  settings(			rect(rect_xywh(20, 47, 200, 15)), material(textures + 1, ltblue), material(textures + 1, gray), settings_active);
+	clabel_tickbox  highlight(	rect(rect_xywh(20, 17, 200, 15)), L"Highlight current line", active, inactive, mytextbox.highlight_current_line);
+	clabel_tickbox  kerning(	rect(rect_xywh(20, 47, 200, 15)), L"Kerning", active, inactive, mytextbox.draft.kerning);
+	clabel_tickbox  word_wrap(	rect(rect_xywh(20, 77, 200, 15)), L"Word wrapping", active, inactive, word_wrapping);
 	
-	cslider   sl(scrollarea::slider(20, material(gui::null_texture, pixel_32(104, 104, 104, 255))));
-	cslider  slh(scrollarea::slider(20, material(gui::null_texture, pixel_32(104, 104, 104, 255))));
-	scrollarea  myscrtx(rect_xywh(0, 0, 10, 0), material(gui::null_texture, pixel_32(62, 62, 62, 255)), &mytextbox, &sl, scrollarea::orientation::VERTICAL);
-	scrollarea myscrhtx(rect_xywh(0, 0, 0, 10), material(gui::null_texture, pixel_32(62, 62, 62, 255)), &mytextbox, &slh, scrollarea::orientation::HORIZONTAL);
-	
+	cslider   sl(scrollarea::slider(20, pixel_32(104, 104, 104, 255)));
+	cslider  slh(scrollarea::slider(20, pixel_32(104, 104, 104, 255)));
+	scrollarea  myscrtx(rect_xywh(0, 0, 10, 0), pixel_32(62, 62, 62, 255), &mytextbox, &sl, scrollarea::orientation::VERTICAL);
+	scrollarea myscrhtx(rect_xywh(0, 0, 0, 10), pixel_32(62, 62, 62, 255), &mytextbox, &slh, scrollarea::orientation::HORIZONTAL);
+	//background.scroll = point(10, 10);
+	//background.snap_scroll_to_content = false;
 	background.children.push_back(&bold_button);
 	background.children.push_back(&italics_button);
-	//background.children.push_back(&highlight);
-	//background.children.push_back(&kerning);
-	//background.children.push_back(&word_wrap);
+	background.children.push_back(&highlight);
+	background.children.push_back(&kerning);
+	background.children.push_back(&word_wrap);
 	background.children.push_back(&settings);
 	background.children.push_back(&myscrtx);
 	background.children.push_back(&myscrhtx);
@@ -196,11 +202,12 @@ int main() {
 			sys.call_updaters();
 			sys.update_rectangles();
 			sys.update_array();
+			gui::text::quick_print(sys.quad_array, L"AAAA KURWAAA\nAAAAAAAAAAAAAAAAAAAAAAAA XDDDDDDDDDDDDDDD", gui::style(fonts+3, pixel_32(255,0,0,195)), point(20, 20));
 
-			glVertexPointer(2, GL_INT, sizeof(gui::vertex), sys.rect_array.data());
-			glTexCoordPointer(2, GL_FLOAT, sizeof(gui::vertex), (char*)(sys.rect_array.data()) + sizeof(int)*2);
-			glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(gui::vertex), (char*)(sys.rect_array.data()) + sizeof(int)*2 + sizeof(float)*2);
-			glDrawArrays(GL_QUADS, 0, sys.rect_array.size() * 4);
+			glVertexPointer(2, GL_INT, sizeof(gui::vertex), sys.quad_array.data());
+			glTexCoordPointer(2, GL_FLOAT, sizeof(gui::vertex), (char*)(sys.quad_array.data()) + sizeof(int)*2);
+			glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(gui::vertex), (char*)(sys.quad_array.data()) + sizeof(int)*2 + sizeof(float)*2);
+			glDrawArrays(GL_QUADS, 0, sys.quad_array.size() * 4);
 
 			window::errlog.log_successful(false);
 			if(!gl.swap_buffers()) break;

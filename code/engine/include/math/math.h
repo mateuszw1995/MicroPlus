@@ -67,8 +67,9 @@ namespace db {
 			rect_wh(int w = 0, int h = 0);
 			int w,h, area() const, perimeter() const, max_side() const, 
 				fits(const rect_wh& bigger) const; // 0 - no, 1 - yes, 2 - flipped, 3 - perfectly, 4 perfectly flipped
-			void stick_relative(const rect_ltrb& content, pointf& pen) const;
-			bool is_sticked(const rect_ltrb& content, pointf& pen) const;
+			void stick_relative(const rect_wh& content, pointf& scroll) const;
+			bool is_sticked(const rect_wh& content, pointf& scroll) const;
+			bool inside(const rect_wh& bigger) const;
 
 			bool good() const;
 			rect_wh operator*(float) const;
@@ -82,6 +83,8 @@ namespace db {
 			rect_ltrb(const point&, const rect_wh&);
 
 			void contain(const rect_ltrb& smaller);
+			void contain_positive(const rect_ltrb& smaller);
+
 			bool clip(const rect_ltrb& bigger);
 			bool hover(const point& mouse) const;
 			bool hover(const rect_ltrb&) const;

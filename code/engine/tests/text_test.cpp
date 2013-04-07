@@ -47,14 +47,69 @@ TEST(Text, WordJumping) {
 	EXPECT_EQ(5, wsep.get_left_word(fs, 5));
 	EXPECT_EQ(6, wsep.get_left_word(fs, 6));
 	EXPECT_EQ(1, wsep.get_left_word(fs, 7));
+	EXPECT_EQ(1, wsep.get_left_word(fs, 11));
 	EXPECT_EQ(4, wsep.get_right_word(fs, 11));
 	EXPECT_EQ(1, wsep.get_right_word(fs, 14));
 	EXPECT_EQ(6, wsep.get_right_word(fs, 0));
 	EXPECT_EQ(0, wsep.get_right_word(fs, fs.length()));
 	EXPECT_EQ(1, wsep.get_right_word(fs, fs.length()-1));
 	EXPECT_EQ(1, wsep.get_right_word(fs, fs.length()-2));
+	fs = formatted_text(L"Abhjf\nh\n ds.\n fdsf df. dgf .dfg sdfgs.d", style(&f, pixel_32()));
 }
 
+TEST(Text, WordSelection) {
+	font f;
+	font_file ff;
+	ff.create(make_pair(0, 10));
+	f.build(&ff);
+	textbox tx(rect(), style(&f, pixel_32()));
+	fstr fs = formatted_text(L"Abhjfh ds..\n fdsf df.\n\n\n dgf .dfg sdfgs.d", style(&f, pixel_32()));
+	tx.insert(fs);
+	tx.select_word(0);
+	EXPECT_EQ(0, tx.get_left_selection());
+	EXPECT_EQ(6, tx.get_right_selection());
+	EXPECT_EQ(6, tx.get_caret_pos());
+	EXPECT_TRUE(iswalnum(L'h'));
+	EXPECT_TRUE(iswalnum(tx.get_str()[2].c));
+	EXPECT_FALSE(iswspace(L'h'));
+	EXPECT_FALSE(iswspace(tx.get_str()[2].c));
+	tx.select_word(2);
+	EXPECT_EQ(0, tx.get_left_selection());
+	EXPECT_EQ(6, tx.get_right_selection());
+	EXPECT_EQ(6, tx.get_caret_pos());
+	tx.select_word(5);
+	EXPECT_EQ(0, tx.get_left_selection());
+	EXPECT_EQ(6, tx.get_right_selection());
+	EXPECT_EQ(6, tx.get_caret_pos());
+	tx.select_word(6);
+	EXPECT_EQ(6, tx.get_left_selection());
+	EXPECT_EQ(7, tx.get_right_selection());
+	EXPECT_EQ(7, tx.get_caret_pos());
+	tx.select_word(7);
+	EXPECT_EQ(7, tx.get_left_selection());
+	EXPECT_EQ(9, tx.get_right_selection());
+	EXPECT_EQ(9, tx.get_caret_pos());
+	tx.select_word(9);
+	EXPECT_EQ(9, tx.get_left_selection());
+	EXPECT_EQ(11, tx.get_right_selection());
+	EXPECT_EQ(11, tx.get_caret_pos());
+	tx.select_word(11);
+	EXPECT_EQ(9, tx.get_left_selection());
+	EXPECT_EQ(11, tx.get_right_selection());
+	EXPECT_EQ(11, tx.get_caret_pos());
+	tx.select_word(12);
+	EXPECT_EQ(12, tx.get_left_selection());
+	EXPECT_EQ(13, tx.get_right_selection());
+	EXPECT_EQ(13, tx.get_caret_pos());
+	tx.select_word(22);
+	EXPECT_EQ(21, tx.get_left_selection());
+	EXPECT_EQ(22, tx.get_right_selection());
+	EXPECT_EQ(22, tx.get_caret_pos());
+	tx.select_line(22);
+	EXPECT_EQ(22, tx.get_left_selection());
+	EXPECT_EQ(23, tx.get_right_selection());
+	EXPECT_EQ(22, tx.get_caret_pos());
+}
 
 TEST(Text, UndoRedo) {
 	font f;
@@ -118,10 +173,25 @@ TEST(Text, BoundsCheck) {
 	tx.select_word(0);
 	tx.character(L'L');
 	EXPECT_EQ(wstring(L"L"), wstr(tx.get_str()));
-	tx.select_word(0);
+	tx.select_word(1);
 	tx.backspace();
 	EXPECT_EQ(wstring(L""), wstr(tx.get_str()));
+	tx.character(L'a');
+	tx.character(L'b');
+	tx.character(L'c');
+	tx.character(L'd');
+	tx.select_word(4);
+	EXPECT_EQ(4, tx.get_caret_pos());
+	EXPECT_EQ(0, tx.get_left_selection());
+	tx.caret_right_word();
+	tx.character(L'\n');
+	tx.select_word(4);
+	EXPECT_EQ(4, tx.get_caret_pos());
+	EXPECT_EQ(0, tx.get_left_selection());
 
+	tx.guarded_redraw();
+	tx.select_all();
+	tx.del();
 	
 	tx.select_line(0);
 	tx.backspace();

@@ -53,22 +53,22 @@ namespace db {
 			rect::draw_info::draw_info(system& owner, std::vector<quad>& v) : owner(owner), v(v) {}
 
 			rect::rect(const rect_xywh& rc, const material& mat) 
-				: rc(rc), mat(mat), parent(0), 
-				draw(true), was_hovered(false), fetch_wheel(false), clip(true), scrollable(true), bounding_box(rect_xywh()), rc_clipped(rect_xywh()) 
+				: rc(rc), mat(mat), parent(0), snap_scroll_to_content(true),
+				draw(true), was_hovered(false), fetch_wheel(false), clip(true), scrollable(true), content_size(rect_wh()), rc_clipped(rect_xywh()) 
 			{
 				quad_indices.background = -1;
 			}
 			
-			rect_ltrb rect::get_bounding_box() const {
-				/* init the bounding box */
-				rect_ltrb bbox = rect_ltrb(0, 0, 0, 0);
+			rect_wh rect::get_content_size() {
+				/* init on zero */
+				rect_ltrb content = rect_ltrb(0, 0, 0, 0);
 				
-				/* enlarge the bounding box by every child */
+				/* enlarge the content size by every child */
 				for(size_t i = 0; i < children.size(); ++i)
 					if(children[i]->draw)
-				 		bbox.contain(children[i]->rc);
+				 		content.contain_positive(children[i]->rc);
 				
-				return bbox;
+				return content;
 			}
 
 			void rect::update_rectangles() {
@@ -78,20 +78,20 @@ namespace db {
 				/* if we have parent */
 				if(parent) {
 					/* we have to save our global coordinates in absolute_xy */
-					absolute_xy = parent->absolute_xy + point(rc) - parent->pen;
+					absolute_xy = parent->absolute_xy + point(rc) - parent->scroll;
  					rc_clipped  = rect_xywh(absolute_xy.x, absolute_xy.y, rc.w(), rc.h());
 					
 					/* and we have to clip by parent's rc 
-						DONE WHEN DRAWING
 					*/
 				    rc_clipped.clip(parent->rc_clipped);
 				}
 					
-				/* update bbox */
-				bounding_box = this->get_bounding_box();
+				/* update content size */
+				content_size = this->get_content_size();
 				
-				/* align pen only to be positive and not to exceed bounding box */
-				align_pen();
+				/* align scroll only to be positive and not to exceed content size */
+				if(snap_scroll_to_content)
+					align_scroll();
 
 				/* do the same for every child */
 				for(size_t i = 0; i < children.size(); ++i) {
@@ -130,9 +130,9 @@ namespace db {
 			/* handle focus and passing scroll to parents */
 			void rect::event_proc(event e) {
 				auto& sys =	 in->owner;
-				auto& wnd = *sys.events;
+				auto& wnd = sys.events;
 				if(e == event::mdown || e == event::mdoubleclick) {
-					if(!bounding_box.inside(rect_wh(rc))) {
+					if(!content_size.inside(rect_wh(rc))) {
 						sys.middlescroll.subject = this;
 						sys.middlescroll.pos = wnd.mouse.pos;
 						sys.set_focus(this);
@@ -150,22 +150,22 @@ namespace db {
 				}
 				if(e == event::wheel) {
 					if(wnd.keys[db::event::keys::SHIFT]) {
-						int temp(int(pen.x));
+						int temp(int(scroll.x));
 						if(scrollable) {
-							pen.x -= wnd.mouse.scroll;
-							align_pen();
+							scroll.x -= wnd.mouse.scroll;
+							align_scroll();
 						}
-						if((!scrollable || temp == pen.x) && parent) {
+						if((!scrollable || temp == scroll.x) && parent) {
 							parent->event_proc(event::wheel);
 						}
 					}
 					else {
-						int temp(int(pen.y));
+						int temp(int(scroll.y));
 						if(scrollable) {
-							pen.y -= wnd.mouse.scroll;
-							align_pen();
+							scroll.y -= wnd.mouse.scroll;
+							align_scroll();
 						}
-						if((!scrollable || temp == pen.y) && parent) {
+						if((!scrollable || temp == scroll.y) && parent) {
 							parent->event_proc(event::wheel);
 						}
 					}
@@ -180,7 +180,7 @@ namespace db {
 				using namespace db::event;
 				using namespace mouse;
 				auto& sys = inf.owner;
-				auto& m = sys.events->mouse;
+				auto& m = sys.events.mouse;
 				unsigned msg = inf.msg;
 				in = &inf;
 
@@ -265,12 +265,12 @@ namespace db {
 				}
 			}
 			
-			bool rect::is_pen_aligned() {
-				return rect_wh(rc).is_sticked(bounding_box, pen);
+			bool rect::is_scroll_aligned() {
+				return rect_wh(rc).is_sticked(content_size, scroll);
 			}
 			
-			void rect::align_pen() {
-				rect_wh(rc).stick_relative(bounding_box, pen);
+			void rect::align_scroll() {
+				rect_wh(rc).stick_relative(content_size, scroll);
 			}
 
 			void rect::scroll_to_view() {
@@ -279,14 +279,14 @@ namespace db {
 					rect_ltrb parent_global = parent->get_rect_absolute();
 					point off1 = point(max(0, global.r + 2 - parent_global.r), max(0, global.b + 2 - parent_global.b));
 					point off2 = point(max(0, parent_global.l - global.l + 2 + off1.x), max(0, parent_global.t - global.t + 2 + off1.y));
-					parent->pen += off1;
-					parent->pen -= off2;
+					parent->scroll += off1;
+					parent->scroll -= off2;
 					parent->scroll_to_view();
 				}
 			}
 
 			rect_ltrb rect::local_add(const material& mat, const rect_ltrb& origin, std::vector<quad>& v) const {
-				return add_quad(mat, origin+get_absolute_xy()+pen, this, v);
+				return add_quad(mat, origin+get_absolute_xy()-scroll, this, v);
 			}
 			
 			rect_ltrb rect::add_quad(const material& mat, const rect_ltrb& origin, const rect* p, std::vector<quad>& v) {
@@ -298,7 +298,7 @@ namespace db {
 			}
 			
 			rect_ltrb rect::get_local_clipper() const {
-				return rect_ltrb(rect_wh(rc)) + pen;
+				return rect_ltrb(rect_wh(rc)) + scroll;
 			}
 				
 			rect_ltrb rect::get_rect_absolute() const {

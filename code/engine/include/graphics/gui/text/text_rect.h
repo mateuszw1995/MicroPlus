@@ -11,7 +11,9 @@ namespace db {
 					bool update_str;
 
 					text_rect(const rect& = rect());
-					virtual void update_rectangles();
+
+					void guarded_redraw();
+					virtual rect_wh get_content_size();
 					virtual void draw_proc(const draw_info&);
 				};
 			}

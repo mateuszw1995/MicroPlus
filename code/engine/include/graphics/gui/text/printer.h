@@ -25,12 +25,12 @@ namespace db {
 						bool blink, caret_visible;
 						int interval_ms;
 
-						static void regular_blink(blinker&, quad& caret);
-						void (*blink_func)(blinker&, quad&);
+						//static void regular_blink(blinker&, quad& caret);
+						//void (*blink_func)(blinker&, quad&);
 
 						window::timer timer;
 						blinker();
-						void update(quad& caret);
+						void update();
 						void reset();
 					};
 
@@ -53,6 +53,8 @@ namespace db {
 
 					void draw_text(std::vector<quad>& out, const ui&) const;
 					
+					void update_proc(system&);
+
 					/* if caret is 0, draw no caret */
 					void draw_text(std::vector<quad>& out, 
 						const drafter&, 
@@ -73,14 +75,14 @@ namespace db {
 										const fstr& str, 
 										point pos, 
 										unsigned wrapping_width = 0,
-										rect_xywh* parent = 0);
+										const rect_xywh* parent = 0);
 
 				rect_wh quick_print(std::vector<quad>& v,
 										const std::wstring& wstr,
 										gui::style style,
 										point pos, 
 										unsigned wrapping_width = 0,
-										rect_xywh* parent = 0);
+										const rect_xywh* parent = 0);
 			}
 		}
 	}
