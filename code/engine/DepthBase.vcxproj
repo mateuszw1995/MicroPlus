@@ -29,6 +29,7 @@
     <ClInclude Include="include\graphics\gui\text\text_rect.h" />
     <ClInclude Include="include\graphics\gui\text\ui.h" />
     <ClInclude Include="include\graphics\gui\text\word_separator.h" />
+    <ClInclude Include="include\graphics\gui\tickbox.h" />
     <ClInclude Include="include\graphics\io\image.h" />
     <ClInclude Include="include\graphics\io\mesh.h" />
     <ClInclude Include="include\graphics\io\renderer.h" />
@@ -64,6 +65,7 @@
     <ClCompile Include="include\graphics\gui\textbox.cpp" />
     <ClCompile Include="include\graphics\gui\text\ui.cpp" />
     <ClCompile Include="include\graphics\gui\text\word_separator.cpp" />
+    <ClCompile Include="include\graphics\gui\tickbox.cpp" />
     <ClCompile Include="include\graphics\io\image.cpp" />
     <ClCompile Include="include\graphics\io\mesh.cpp" />
     <ClCompile Include="include\graphics\io\texture.cpp" />

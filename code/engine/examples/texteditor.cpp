@@ -7,6 +7,24 @@
 	poprawic word wrapping albo sprawdzic czy dobrze ustawiona wartosc
 */
 
+struct text_modifier {
+	textbox& mytext;
+	virtual void operator()(rect::event m);
+
+	text_modifier(textbox& mytext);
+	void redraw();
+	void operator()(rect::event m);
+};
+
+struct style_modifier : public text_modifier {
+	enum type {
+		ITALICSEN, BOLDEN
+	} _type;
+
+	style_modifier(const text_modifier&, type _type);
+	void operator()(rect::event m);
+};
+
 int resizer(glwindow& gl) {
 	gl.current();
 	glViewport(0,0,gl.get_window_rect().w,gl.get_window_rect().h);
@@ -20,7 +38,6 @@ int resizer(glwindow& gl) {
 
 int main() {
 	srand((unsigned int)(time(NULL)));
-
 	db::error errlog(0, 0);
 
 	errlog.open("main_log.txt");

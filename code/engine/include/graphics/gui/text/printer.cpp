@@ -226,11 +226,20 @@ namespace db {
 					return pr.draft.get_bbox();
 				}
 
-				text_rect::text_rect(const rect& r) : printer(r), update_str(true) {}
-					
+				text_rect::text_rect(const printer& r, const fstr& _str) : printer(r), update_str(true), _str(_str) {}
+
+				fstr& text_rect::str() {
+					update_str = true;
+					return _str;
+				}
+
+				const fstr& text_rect::get_str() {
+					return _str;
+				}
+
 				void text_rect::guarded_redraw() {
 					if(update_str) {
-						draft.draw(str);
+						draft.draw(_str);
 						update_str = false;
 					}
 				}
@@ -243,7 +252,7 @@ namespace db {
 				void text_rect::draw_proc(const draw_info& in) {
 					guarded_redraw();
 					rect::draw_proc(in);
-					draw_text(in.v, draft, str);
+					draw_text(in.v, draft, _str);
 				}
 			}
 		}

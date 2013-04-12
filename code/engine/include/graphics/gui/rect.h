@@ -80,6 +80,12 @@ namespace db {
 					loutdrag
 				};
 
+				enum class appearance {
+					released = 0,
+					hovered = 1,
+					pushed = 2
+				};
+
 				bool draw, clip, fetch_wheel, scrollable, snap_scroll_to_content;
 				point drag_origin;
 				rect_ltrb rc; /* actual rectangle */ 
@@ -101,15 +107,29 @@ namespace db {
 				virtual void update_proc(system&);
 				virtual void draw_proc(const draw_info&);
 				virtual void on_focus(bool);
+
+				/* event_proc default subroutines */
+				void handle_scroll(event);
+				void handle_middleclick(event);
+				void handle_focus(event);
+
+				/* draw_proc default subroutines */
 				void draw_rect(const draw_info& in), 
 					 draw_children(const draw_info& in);
 
 				static rect_ltrb add_quad(const material&, const rect_ltrb& origin, const rect* clipper, std::vector<quad>& v);
 				rect_ltrb local_add(const material&, const rect_ltrb& origin, std::vector<quad>& v) const;
+				
+				/* how should rect look like depending on incoming event */
+				appearance get_appearance(event m); 
+				
+				/*  does scroll not exceed the content */
+				bool is_scroll_aligned();
 
-				bool is_scroll_aligned(); /*   is scroll valid */
-				void align_scroll(),      /* make scroll valid */
-					scroll_to_view();  /* scroll to view whole content */
+				/* align scroll to not exceed the content */
+				void align_scroll(), 
+				/* try to scroll to view whole content */    
+					scroll_to_view();  
 				const rect_ltrb& get_clipped_rect() const;
 				rect_ltrb get_rect_absolute() const;
 				const point& get_absolute_xy() const;
@@ -120,18 +140,6 @@ namespace db {
 				point absolute_xy;
 
 				bool was_hovered;
-			};
-
-			template <class functor>
-			struct callback_rect : public rect {
-				functor callback;
-
-				callback_rect(const rect& r, const functor& callback) : rect(r), callback(callback) {} 
-
-				virtual void event_proc(event m) {
-					rect::event_proc(m);
-					callback(m);
-				}
 			};
 		}
 	}

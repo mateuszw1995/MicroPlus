@@ -3,21 +3,6 @@
 
 dynamic_border::dynamic_border() : stroke(1, material(gui::null_texture, ltblue), rect::solid_stroke::OUTSIDE) {}
 
-int dynamic_border::poll_border(rect::event m) {
-	if(m == rect::event::hout || m == rect::event::lup || m == rect::event::loutup) {
-		stroke.set_width(0);
-		return 0;
-	}
-	if(m == rect::event::hover) {
-		stroke.set_width(1);
-		return 1;
-	}
-	if(m == rect::event::lpressed || m == rect::event::ldown || m == rect::event::ldoubleclick || m == rect::event::ltripleclick ) {
-		stroke.set_width(2);
-		return 2;
-	}
-	return 0;
-}
 
 cbackground::cbackground(const rect& r) : rect(r) {}
 

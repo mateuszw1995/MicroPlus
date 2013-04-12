@@ -126,6 +126,9 @@
     <ClInclude Include="include\graphics\gui\scrollarea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\graphics\gui\tickbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\error\error.cpp">
@@ -219,6 +222,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="include\graphics\gui\scrollarea.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\graphics\gui\tickbox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

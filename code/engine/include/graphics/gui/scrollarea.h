@@ -1,5 +1,4 @@
 #pragma once
-#include "system.h"
 #include "rect.h"
 
 namespace db {

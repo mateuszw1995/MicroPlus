@@ -128,26 +128,10 @@ namespace db {
 			}
 			
 			/* handle focus and passing scroll to parents */
-			void rect::event_proc(event e) {
+			
+			void rect::handle_scroll(event e) {
 				auto& sys =	 in->owner;
 				auto& wnd = sys.events;
-				if(e == event::mdown || e == event::mdoubleclick) {
-					if(!content_size.inside(rect_wh(rc))) {
-						sys.middlescroll.subject = this;
-						sys.middlescroll.pos = wnd.mouse.pos;
-						sys.set_focus(this);
-					} else if(parent) {
-						parent->event_proc(e);
-					}
-				}
-				if(e == event::ldown ||
-					e == event::ldoubleclick ||
-					e == event::ltripleclick ||
-					e == event::rdoubleclick ||
-					e == event::rdown
-					) {
-						sys.set_focus(this);
-				}
 				if(e == event::wheel) {
 					if(wnd.keys[db::event::keys::SHIFT]) {
 						int temp(int(scroll.x));
@@ -170,6 +154,38 @@ namespace db {
 						}
 					}
 				}
+			}
+
+			void rect::handle_middleclick(event e) {
+				auto& sys =	 in->owner;
+				auto& wnd = sys.events;
+				if(e == event::mdown || e == event::mdoubleclick) {
+					if(!content_size.inside(rect_wh(rc))) {
+						sys.middlescroll.subject = this;
+						sys.middlescroll.pos = wnd.mouse.pos;
+						sys.set_focus(this);
+					} else if(parent) {
+						parent->event_proc(e);
+					}
+				}
+			}
+
+			void rect::handle_focus(event e) {
+				auto& sys =	 in->owner;
+				if(e == event::ldown ||
+					e == event::ldoubleclick ||
+					e == event::ltripleclick ||
+					e == event::rdoubleclick ||
+					e == event::rdown
+					) {
+						sys.set_focus(this);
+				}
+			}
+
+			void rect::event_proc(event e) {
+				handle_middleclick(e);
+				handle_focus(e);
+				handle_scroll(e);
 			}
 
 			void rect::on_focus(bool) { 
@@ -264,7 +280,25 @@ namespace db {
 					if(sys.lholded != this) drag_origin = point(rc.l, rc.t);
 				}
 			}
-			
+
+			rect::appearance rect::get_appearance(rect::event m) {
+				if(		m == rect::event::hout 
+					||	m == rect::event::lup 
+					||	m == rect::event::loutup)
+					return appearance::released;
+
+				if(		m == rect::event::hover)
+					return appearance::hovered;
+
+				if(		m == rect::event::lpressed 
+					||	m == rect::event::ldown 
+					||	m == rect::event::ldoubleclick 
+					||	m == rect::event::ltripleclick )
+					return appearance::pushed;
+
+				return appearance::released;
+			}
+
 			bool rect::is_scroll_aligned() {
 				return rect_wh(rc).is_sticked(content_size, scroll);
 			}
@@ -307,6 +341,18 @@ namespace db {
 
 			const point& rect::get_absolute_xy() const {
 				return absolute_xy;
+			}
+
+			
+			appearance_rect::appearance_rect(const rect& r) : rect(r) {}
+
+			void appearance_rect::event_proc(event m) {
+				switch(get_appearance(m)) {
+				case appearance::released: this->on_released(); break;
+				case appearance::hovered: this->on_hovered(); break;
+				case appearance::pushed: this->on_pushed(); break;
+				default: this->on_released(); break;
+				}
 			}
 		}
 	}

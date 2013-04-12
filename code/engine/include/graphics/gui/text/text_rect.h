@@ -5,12 +5,15 @@ namespace db {
 	namespace graphics {
 		namespace gui {
 			namespace text {
-				struct text_rect : public text::printer {
-					fstr str;
+				class text_rect : public text::printer {
+					fstr _str;
 					text::drafter draft;
 					bool update_str;
-
-					text_rect(const rect& = rect());
+				public:
+					text_rect(const printer& = rect(), const fstr& = fstr());
+					
+						  fstr& str();
+					const fstr& get_str();
 
 					void guarded_redraw();
 					virtual rect_wh get_content_size();
