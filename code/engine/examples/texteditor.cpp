@@ -144,6 +144,12 @@ int main() {
 		std::bind(&text::ui::get_italics_status, &mytextbox.editor)
 		);
 
+	
+	cslider   sl(scrollarea::slider(20), sliderbox);
+	cslider  slh(scrollarea::slider(20), sliderbox);
+	cscrollarea  myscrtx(scrollarea (rect_xywh(0, 0, 10, 0), &mytextbox, &sl, scrollarea::orientation::VERTICAL), scrollareabox);
+	cscrollarea myscrhtx(scrollarea (rect_xywh(0, 0, 0, 10), &mytextbox, &slh, scrollarea::orientation::HORIZONTAL), scrollareabox);
+
 	text::style   active(fonts + 1, ltblue);
 	text::style inactive(fonts + 0, gray1);
 
@@ -161,9 +167,10 @@ int main() {
 		[&mytextbox](bool set){mytextbox.editor.draft().kerning = set;}
 	);
 	cchecklabel  word_wrap(checklabel(true, rect_xywh(20, 77, 200, 15), L"Word wrapping", active, inactive), labelbox_active, labelbox_inactive,
-		[&mytextbox, &background](bool set) mutable {mytextbox.editor.draft().wrap_width = set ? mytextbox.rc.w() : 0;
-								if(set) mytextbox.rc.b = background.rc.b-10;
-								else    mytextbox.rc.b = background.rc.b;
+		[&mytextbox, &background, &myscrhtx](bool set) mutable {mytextbox.editor.draft().wrap_width = set ? mytextbox.rc.w() : 0;
+								if(set) mytextbox.rc.b = background.rc.b;
+								else    mytextbox.rc.b = background.rc.b-10;
+								myscrhtx.align();
 			}
 	);
 
@@ -172,10 +179,6 @@ int main() {
 	highlight.snap_scroll_to_content = false;
 	kerning.snap_scroll_to_content = false;
 
-	cslider   sl(scrollarea::slider(20), sliderbox);
-	cslider  slh(scrollarea::slider(20), sliderbox);
-	cscrollarea  myscrtx(scrollarea (rect_xywh(0, 0, 10, 0), &mytextbox, &sl, scrollarea::orientation::VERTICAL), scrollareabox);
-	cscrollarea myscrhtx(scrollarea (rect_xywh(0, 0, 0, 10), &mytextbox, &slh, scrollarea::orientation::HORIZONTAL), scrollareabox);
 	
 	//background.scroll = point(-10, -10);
 	//background.snap_scroll_to_content = false;
