@@ -1,5 +1,5 @@
-line: 65
-file: c:\users\admin\documents\github\microplus\code\engine\examples\texteditor.cpp
+line: 62
+file: c:\users\anonymous\documents\github\microplus\code\engine\examples\texteditor.cpp
 func: main
 message: freetype deinitialization
 

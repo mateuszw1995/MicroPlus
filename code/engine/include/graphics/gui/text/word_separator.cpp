@@ -4,10 +4,11 @@
 namespace db {
 	namespace graphics {
 		namespace gui {
+			namespace text {
 				bool word_separator::default_is_newline(wchar_t i) {
 					return (i == 0x000A || i == 0x000D);
 				}
-				
+
 				int word_separator::default_word_type(wchar_t c) {
 					if(iswspace(c)) return 0;
 					else if(iswalnum(c)) return 1;
@@ -23,7 +24,7 @@ namespace db {
 				word_separator::word_separator(int (*word_type)(wchar_t)) : word_type(word_type) {
 					if(word_type == 0) set_default();
 				}
-				
+
 				unsigned word_separator::get_left_word(const fstr& str, int at) const {
 					return get_left_word(str, at, -1);
 				}
@@ -67,7 +68,7 @@ namespace db {
 
 					return offset;
 				}
-				
+
 				unsigned word_separator::get_right_word(const fstr& _str, int at, int max_right, int wordtype) const {
 					if(max_right == -1) max_right = _str.length();
 					if(_str.empty() || at >= int(max_right)) return 0;
@@ -83,7 +84,7 @@ namespace db {
 
 					return offset;
 				}
-
+			}
 		}
 	}
 }

@@ -9,6 +9,7 @@
 #include "../math/math.h"
 #include "../event.h"
 #include "timer.h"
+#include <functional>
 
 namespace db {
 	namespace window {
@@ -60,14 +61,13 @@ namespace db {
 			db::event::state events;
 				
 			/* user settings */
-			int (*resize)(glwindow&); /* resize function */
+			std::function<void (glwindow&)> resize; /* resize function */
 			bool limit_resize; /* should we limit window resizing to arbitrary rect_wh's (see set_minimum/maximum_size */
 			unsigned triple_click_delay; /* maximum delay time for the next click (after doubleclick) to be considered tripleclick (in miliseconds) */
 			
 			static bool init();
 			glwindow(const char* name, bool limit_resize);
 			
-			void resize_func(int (*)(glwindow&));
 			bool create(const math::rect_xywh& client_rectangle, bool doublebuffer = true, int _menu = ALL, int bitsperpixel = 24),
 			     swap_buffers(), 
 				 focus_keyboard(), 

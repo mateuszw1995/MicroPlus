@@ -1,9 +1,9 @@
 #pragma once
 #include <algorithm>
 #include "ui.h"
-#include "text_rect.h"
 #include "drafter.h"
 #include "printer.h"
+#include "../rect.h"
 #include "../../../window/window.h"
 
 #undef min
@@ -14,7 +14,7 @@ namespace db {
 		using namespace io::input;
 		namespace gui {
 			namespace text {
-				printer::printer(const rect& r) : rect(r), 
+				printer::printer() :
 					caret_mat(material(null_texture, pixel_32(0, 0, 0, 255))),
 					align_caret_height(true), caret_width(0),
 					highlight_current_line(false),
@@ -52,38 +52,53 @@ namespace db {
 					caret_visible = true;
 				}
 				
-				void printer::update_proc(system& s) {
-					blink.update();
-					rect::update_proc(s);
-				}
-				
-				void printer::draw_text(std::vector<quad>& out, const ui& u) const {
-					draw_text(out, u.draft, u.get_str(), &u.caret);
+				void printer::draw_text(std::vector<quad>& out, ui& u, const rect& parent) const {
+					draw_text(out, u.get_draft(), u.get_str(), &u.caret, parent);
 				}
 
 				void printer::draw_text(std::vector<quad>& out, 
-					const drafter& d, 
-					const fstr& colors, 
-					const caret_info* caret) const 
+						const drafter& d, 
+						const fstr& colors,
+						const caret_info* caret,
+						const rect& parent
+						) const 
+				{
+					draw_text(out, d, colors, caret, parent.scroll*-1, &parent.get_clipped_rect());
+				}
+				void printer::draw_text(std::vector<quad>& out, 
+						const drafter& d, 
+						const fstr& colors,
+						const caret_info* caret,
+						point scroll,
+						const rect_ltrb* parent
+						) const 
 				{
 					/* shortcuts */
 					auto& lines			= d.lines;
 					auto& sectors		= d.sectors;
 					auto& v = out;
+					bool clip = parent != nullptr;
+
+					point pos(0, 0);
+
+					if(clip) 
+						pos = point(*parent);
+
+					point global = pos + scroll;
 
 					/* we'll draw caret at the very end of procedure so we have to declare this variable here */
 					rect_xywh caret_rect(0, 0, 0, 0);
 					
 					/* validations */
 					/* return if we want to clip but the clipper is not a valid rectangle */
-					if(clip && !get_clipped_rect().good()) return; 
+					if(clip && !parent->good()) return; 
 
 					if(!lines.empty() && !sectors.empty()) {
 						/* only these lines we want to process */
 						pair<int, int> visible;
 						
 						if(clip)
-							visible = d.get_line_visibility(get_local_clipper());
+							visible = d.get_line_visibility(rect_ltrb(rect_wh(*parent)) - scroll);
 						else visible = make_pair(0, lines.size()-1);
 
 						/* if this happens:
@@ -105,7 +120,7 @@ namespace db {
 
 							/* here we highlight the line caret is currently on */
 							if(active && highlight_current_line)
-								local_add(highlight_mat, rect_ltrb(scroll.x, lines[caret_line].top, scroll.x+rc.w(), lines[caret_line].bottom()), v);
+								gui::add_quad(highlight_mat, rect_xywh(-scroll.x, lines[caret_line].top, parent->w(), lines[caret_line].height()) + global, parent, v);
 
 							/* let's calculate some values only once */
 							select_left = caret->get_left_selection();
@@ -134,7 +149,7 @@ namespace db {
 									if(i == last_visible_selection && select_right_line <= last_visible_selection)
 										sel_rect.r = d.sectors[select_right];
 
-									local_add(active ? selection_bg_mat : selection_inactive_bg_mat, sel_rect, v); 
+									gui::add_quad(active ? selection_bg_mat : selection_inactive_bg_mat, sel_rect+global, parent, v); 
 								}
 							}
 						}
@@ -157,8 +172,8 @@ namespace db {
 										charcolor = selected_text_color;
 									
 									/* add the resulting character taking bearings into account */
-									local_add(material(&g.tex, charcolor), 
-									rect_xywh (sectors[i] + g.info->bear_x, lines[l].top + lines[l].asc - g.info->bear_y, g.info->size.w, g.info->size.h), 
+									gui::add_quad(material(&g.tex, charcolor), 
+									rect_xywh (sectors[i] + g.info->bear_x, lines[l].top + lines[l].asc - g.info->bear_y, g.info->size.w, g.info->size.h) + global, parent, 
 									v);
 								}
 							}
@@ -187,73 +202,40 @@ namespace db {
 						caret_rect = rect_xywh(0, 0, caret_width, caret->default_style.f->parent->get_height());
 					
 //					this->quad_indices.caret = v.size();
-					if(blink.caret_visible) local_add(caret_mat, caret_rect, v); 
+					if(blink.caret_visible) gui::add_quad(caret_mat, caret_rect + global, parent, v); 
 				}
 
 				rect_wh quick_print(std::vector<quad>& v,
 										const fstr& str, 
 										point pos, 
 										unsigned wrapping_width,
-										const rect_xywh* clipper) 
+										const rect_ltrb* clipper) 
 				{
-
-					rect_xywh rc(clipper ? *clipper : rect_xywh());
-					text_rect pr(rect(rc, material(pixel_32(255, 255, 255, 255))));
-					if(!clipper) pr.clip = false;
-					pr.scroll = pos;
-					pr.str = str;
-					pr.draft.wrap_width = wrapping_width;
-					pr.draft.draw(pr.str);
-					pr.draw_text(v, pr.draft, pr.str);
-					return pr.draft.get_bbox();
+					drafter dr;
+					printer pr;
+					dr.wrap_width = wrapping_width;
+					dr.draw(str);
+					pr.draw_text(v, dr, str, 0, pos, clipper);
+					return dr.get_bbox();
 				}
 				
 				rect_wh quick_print(std::vector<quad>& v,
 										const std::wstring& wstr,
-										gui::style style,
+										gui::text::style style,
 										point pos, 
 										unsigned wrapping_width,
-										const rect_xywh* clipper) 
+										const rect_ltrb* clipper) 
 				{
-					rect_xywh rc(clipper ? *clipper : rect_xywh());
-					text_rect pr(rect(rc, material(pixel_32(255, 255, 255, 255))));
-					if(!clipper) pr.clip = false;
-					pr.scroll = pos;
-					pr.str = gui::formatted_text(wstr, style);
-					pr.draft.wrap_width = wrapping_width;
-					pr.draft.draw(pr.str);
-					pr.draw_text(v, pr.draft, pr.str);
-					return pr.draft.get_bbox();
+					fstr str = format(wstr.c_str(), style);
+					drafter dr;
+					printer pr;
+					dr.wrap_width = wrapping_width;
+					dr.draw(str);
+					pr.draw_text(v, dr, str, 0, pos, clipper);
+					return dr.get_bbox();
 				}
 
-				text_rect::text_rect(const printer& r, const fstr& _str) : printer(r), update_str(true), _str(_str) {}
-
-				fstr& text_rect::str() {
-					update_str = true;
-					return _str;
-				}
-
-				const fstr& text_rect::get_str() {
-					return _str;
-				}
-
-				void text_rect::guarded_redraw() {
-					if(update_str) {
-						draft.draw(_str);
-						update_str = false;
-					}
-				}
-
-				rect_wh text_rect::get_content_size() {
-					guarded_redraw();
-					return draft.get_bbox();
-				}
-
-				void text_rect::draw_proc(const draw_info& in) {
-					guarded_redraw();
-					rect::draw_proc(in);
-					draw_text(in.v, draft, _str);
-				}
+				
 			}
 		}
 	}

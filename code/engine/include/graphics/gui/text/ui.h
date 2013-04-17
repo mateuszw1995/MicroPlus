@@ -1,6 +1,6 @@
 #pragma once
 #include "caret.h"
-#include "drafter.h"
+#include "draft_interface.h"
 #include "../../../misc/undoredo.h"
 #include "../font.h"
 
@@ -8,7 +8,7 @@ namespace db {
 	namespace graphics {
 		namespace gui {
 			namespace text {/* Undo/Redo interface implementation to satisfy the template, you shouldn't care */
-				class ui {	
+				class ui : public draft_redrawer {	
 					struct action {
 						ui* subject;
 
@@ -39,7 +39,6 @@ namespace db {
 						void set_redo();
 					};
 
-					fstr _str;
 					unsigned anchor_pos;
 					bool redraw, forced_bold, forced_italics, bold_bound, italics_bound;
 
@@ -49,10 +48,9 @@ namespace db {
 					void unbind_styles();
 					void anchor();
 					void clean_selection();
-
+					
+					using draft_redrawer::str;
 				public:
-
-					drafter draft;
 					word_separator separator;
 					/* nullptr - no whitelisting */
 					const wchar_t* whitelist; 
@@ -98,10 +96,6 @@ namespace db {
 						italics();
 					bool undo(),
 						redo();
-
-					void need_redraw();
-					void guarded_redraw();
-					virtual const fstr& get_str() const;
 
 					/* gets formatting template that will be applied to subsequent characters, includes forced bolds/italics */ 
 					style get_neighbor_style() const;

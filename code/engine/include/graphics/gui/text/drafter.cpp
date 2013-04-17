@@ -16,12 +16,12 @@ namespace db {
 					return (i == 0x000A || i == 0x000D);
 				}
 				
-				font* drafter::getf(const gui::fstr& source, unsigned i) const {
+				font* drafter::getf(const gui::text::fstr& source, unsigned i) const {
 					//return (i < source.length() && source[i].font_used) ? source[i].font_used : target_caret->default_style.f;
 					return source[i].font_used;
 				}
 				
-				int drafter::get_kern(const gui::fstr& source, unsigned i, unsigned l) const {
+				int drafter::get_kern(const gui::text::fstr& source, unsigned i, unsigned l) const {
 					if(kerning && i > lines[l].begin && getf(source, i) == getf(source, i-1)) {
 						auto& vk = cached[i]->info->kerning;
 						for(unsigned k = 0; k < vk.size(); ++k)
@@ -31,7 +31,7 @@ namespace db {
 					return 0;
 				}
 				
-				void drafter::find_ascdesc(const gui::fstr& in, int l, int r, int& asc, int& desc) const {
+				void drafter::find_ascdesc(const gui::text::fstr& in, int l, int r, int& asc, int& desc) const {
 					if(l == r) {
 						if(l > 0) {
 							asc =  getf(in, l-1)->parent->ascender;
@@ -82,8 +82,8 @@ namespace db {
 				}
 
 				unsigned drafter::line::hover(int x, const std::vector<int>& sectors) const {
-					if(end - begin == 0) 
-						return begin; /* obvious if we have no sectors */
+					if(end - begin <= 1) 
+						return begin; /* obvious if we have no (or one) sectors */
 
 					unsigned iter = lower_bound(sectors.begin() + begin, sectors.begin() + end, x) - sectors.begin();
 
@@ -193,7 +193,7 @@ namespace db {
 						/* advance pen taking kerning into consideration */
 						pen.x += get_kern(source,  i, l) + g.info->adv;
 						/* at this point "pen.x" means "where would caret be AFTER placing this character" */
-						bool wrap = (wrap_width > 0 && pen.x >= int(wrap_width));
+						bool wrap = (wrap_width > 0 && pen.x + g.info->bear_x >= int(wrap_width));
 
 						/* if we have just encountered a newline character or there is need to wrap, we have to break the current line and 
 						create another */
@@ -205,6 +205,7 @@ namespace db {
 							/* end is exclusive, so we add 1 */
 							lines[l].end = i+1;
 							
+					
 							/* push new line object */
 							lines.push_back(line());
 							/* set it, begin is inclusive */
@@ -233,7 +234,13 @@ namespace db {
 								/* otherwise we move only last character and update pen; 
 									note there's no kerning because it's always first character in line
 								*/
-								else pen.x += g.info->adv;
+								else {
+									int advance = g.info->adv;
+									lines[l].right -= advance;
+									--lines[l].end;
+									--lines[l+1].begin;
+									pen.x += advance;
+								}
 							}
 							
 							/* expand text bounding box's right coordinate */
@@ -273,6 +280,10 @@ namespace db {
 					}
 
 					sectors.push_back(pen.x);
+					if(wrap_width && max_x> wrap_width) {
+						int guwno = pen.x;
+
+					}
 				}
 
 				rect_wh drafter::get_bbox() const {

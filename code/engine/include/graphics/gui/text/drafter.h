@@ -4,6 +4,7 @@
 #include "word_separator.h"
 // ui relates on draft object (result) only
 // if bugs viewing the caret, check the viewcaret where "car" variable was changed to caret_rect
+// neither drafter nor printer have their fstr declared as member fields because it is better to pass it around than rewrite each time we want to change string
 namespace db {
 	namespace graphics {
 		namespace gui {
@@ -54,9 +55,9 @@ namespace db {
 					pair<int, int> get_line_visibility(const rect_ltrb& clipper) const;
 				private:
 					int max_x;
-					void find_ascdesc(const gui::fstr& source, int i, int j, int&, int&) const;
-					int get_kern(const gui::fstr& source, unsigned code1, unsigned code2) const;
-					font* getf(const gui::fstr& source, unsigned i) const;
+					void find_ascdesc(const fstr& source, int i, int j, int&, int&) const;
+					int get_kern(const fstr& source, unsigned code1, unsigned code2) const;
+					font* getf(const fstr& source, unsigned i) const;
 				};
 			}
 		}

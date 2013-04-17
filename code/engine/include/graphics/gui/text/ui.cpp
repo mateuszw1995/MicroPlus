@@ -19,7 +19,7 @@ namespace db {
 					redraw(true),
 					forced_italics(false), max_characters(0), whitelist(0) {}
 				font* ui::getf(unsigned i) const {
-					return (i < _str.length() && _str[i].font_used) ? _str[i].font_used : caret.default_style.f;
+					return (i < get_str().length() && get_str()[i].font_used) ? get_str()[i].font_used : caret.default_style.f;
 				}
 
 				void ui::anchor() {
@@ -27,24 +27,9 @@ namespace db {
 				}
 
 				void ui::clean_selection() {
-					_str.erase(_str.begin() + get_left_selection(), _str.begin() + get_right_selection());
+					str().erase(get_str().begin() + get_left_selection(), get_str().begin() + get_right_selection());
 					caret.pos = get_left_selection();
 					caret.selection_offset = 0;
-				}
-
-				void ui::need_redraw() {
-					redraw = true;
-				}
-
-				void ui::guarded_redraw() {
-					if(redraw) {
-						draft.draw(_str);
-						redraw = false;
-					}
-				}
-
-				const fstr& ui::get_str() const {
-					return _str;
 				}
 
 				unsigned ui::get_caret_pos() const {
@@ -97,7 +82,7 @@ namespace db {
 						--caret.pos;
 						if(s) ++caret.selection_offset;
 
-						//if(separator.is_newline(_str[caret.pos].c)) --caret.line;
+						//if(separator.is_newline(get_str()[caret.pos].c)) --caret.line;
 						anchor();
 					}
 					unbind_styles();
@@ -109,11 +94,11 @@ namespace db {
 							caret_right(caret.selection_offset, false);
 						caret.selection_offset = 0;
 					}
-					else if(caret.pos < _str.length()) {
+					else if(caret.pos < get_str().length()) {
 						++caret.pos;
 						if(s) --caret.selection_offset;
 
-						//if(separator.is_newline(_str[caret.pos-1].c)) ++caret.line;
+						//if(separator.is_newline(get_str()[caret.pos-1].c)) ++caret.line;
 						anchor();
 					}
 					unbind_styles();
@@ -128,7 +113,7 @@ namespace db {
 				}
 
 				void ui::caret_right(unsigned n, bool s) {
-					caret.pos += (n = min(n, _str.length() - caret.pos));
+					caret.pos += (n = min(n, get_str().length() - caret.pos));
 					anchor();
 					if(s) caret.selection_offset -= n;
 					else caret.selection_offset = 0;
@@ -136,11 +121,11 @@ namespace db {
 				}
 
 				void ui::caret_left_word (bool s) {
-					caret_left(separator.get_left_word(_str, caret.pos), s);
+					caret_left(separator.get_left_word(get_str(), caret.pos), s);
 				}
 
 				void ui::caret_right_word (bool s) {
-					caret_right(separator.get_right_word(_str, caret.pos), s);
+					caret_right(separator.get_right_word(get_str(), caret.pos), s);
 				}
 
 				void ui::cut(system& sys) {
@@ -159,11 +144,11 @@ namespace db {
 
 				void ui::copy(system& sys) {
 					if(caret.selection_offset)
-						sys.copy_clipboard(_str.substr(get_left_selection(), std::abs(caret.selection_offset)));
+						sys.copy_clipboard(get_str().substr(get_left_selection(), std::abs(caret.selection_offset)));
 					else {
 						unsigned tmp = caret.pos;
 						select_line(caret.pos);
-						if(caret.selection_offset) sys.copy_clipboard(_str.substr(get_left_selection(), std::abs(caret.selection_offset)));
+						if(caret.selection_offset) sys.copy_clipboard(get_str().substr(get_left_selection(), std::abs(caret.selection_offset)));
 					}
 
 				}
@@ -187,19 +172,19 @@ namespace db {
 					fstr& s = whitelist ? _s : ss;
 
 					if(max_characters > 0) {
-						size_t newlen = _str.size() + s.size() - std::abs(caret.selection_offset);
+						size_t newlen = get_str().size() + s.size() - std::abs(caret.selection_offset);
 						if(newlen > max_characters) {
 							s.erase(s.size() - (newlen - max_characters));
 						}
 					}
 
 					if(caret.selection_offset) {
-						edit.action(action(*this, get_left_selection(), s, _str.substr(get_left_selection(), std::abs(caret.selection_offset))));
+						edit.action(action(*this, get_left_selection(), s, get_str().substr(get_left_selection(), std::abs(caret.selection_offset))));
 						clean_selection();
 					}
 					else edit.action(action(*this, caret.pos, s, action::INSERT));
 
-					_str.insert(caret.pos, s);
+					str().insert(caret.pos, s);
 					caret.pos += s.length();
 					edit.front().set_redo();
 
@@ -216,40 +201,39 @@ namespace db {
 				}
 
 				void ui::character(const formatted_char& ch) {
-					if(!is_whitelisted(ch.c) || (max_characters > 0 && _str.size() + 1 - std::abs(caret.selection_offset) > max_characters)) return;
+					if(!is_whitelisted(ch.c) || (max_characters > 0 && get_str().size() + 1 - std::abs(caret.selection_offset) > max_characters)) return;
 
 					if(caret.selection_offset) {
-						edit.action(action(*this, get_left_selection(), ch, _str.substr(get_left_selection(), get_right_selection()-get_left_selection())));
+						edit.action(action(*this, get_left_selection(), ch, get_str().substr(get_left_selection(), get_right_selection()-get_left_selection())));
 						clean_selection();
 					}
 					else edit.action(action(*this, caret.pos, ch));
-					_str.insert(_str.begin() + caret.pos, 1, ch);
+					str().insert(get_str().begin() + caret.pos, 1, ch);
 					++caret.pos;
 					edit.front().set_redo();
 					anchor();
-					need_redraw();
 				}
 
 				void ui::backspace(bool ctrl) {
 					if(caret.selection_offset) {
-						edit.action(action(*this, get_left_selection(), _str.substr(get_left_selection(), get_right_selection()-get_left_selection()), action::ERASE));
+						edit.action(action(*this, get_left_selection(), get_str().substr(get_left_selection(), get_right_selection()-get_left_selection()), action::ERASE));
 						clean_selection();
 						edit.front().set_redo();
 						need_redraw();
 					}
 					else if(ctrl) {
-						unsigned left_offset = separator.get_left_word(_str, caret.pos);
+						unsigned left_offset = separator.get_left_word(get_str(), caret.pos);
 						if(caret.pos > left_offset-1) {
-							edit.action(action(*this, caret.pos - left_offset, _str.substr(caret.pos - left_offset, left_offset), action::ERASE));
+							edit.action(action(*this, caret.pos - left_offset, get_str().substr(caret.pos - left_offset, left_offset), action::ERASE));
 							caret.pos -= left_offset;
-							_str.erase(_str.begin() + caret.pos, _str.begin() + caret.pos + left_offset);
+							str().erase(get_str().begin() + caret.pos, get_str().begin() + caret.pos + left_offset);
 							edit.front().set_redo();
 							need_redraw();
 						}
 					}
 					else if(caret.pos > 0) {
-						edit.action(action(*this, caret.pos-1, _str.substr(caret.pos-1, 1), action::ERASE));
-						_str.erase(_str.begin() + --caret.pos);
+						edit.action(action(*this, caret.pos-1, get_str().substr(caret.pos-1, 1), action::ERASE));
+						str().erase(get_str().begin() + --caret.pos);
 						edit.front().set_redo();
 						need_redraw();
 					}
@@ -258,22 +242,22 @@ namespace db {
 
 				void ui::del(bool ctrl) {
 					if(caret.selection_offset) {
-						edit.action(action(*this, get_left_selection(), _str.substr(get_left_selection(), get_right_selection()-get_left_selection()), action::ERASE));
+						edit.action(action(*this, get_left_selection(), get_str().substr(get_left_selection(), get_right_selection()-get_left_selection()), action::ERASE));
 						clean_selection();
 						edit.front().set_redo();
 						//anchor();
 					}
 					else if(ctrl) {
-						int right_offset = separator.get_right_word(_str, caret.pos);
-						if(caret.pos + right_offset - 1 < _str.length()) {
-							edit.action(action(*this, caret.pos, _str.substr(caret.pos, right_offset), action::ERASE));
-							_str.erase(_str.begin() + caret.pos, _str.begin() + caret.pos + right_offset);
+						int right_offset = separator.get_right_word(get_str(), caret.pos);
+						if(caret.pos + right_offset - 1 < get_str().length()) {
+							edit.action(action(*this, caret.pos, get_str().substr(caret.pos, right_offset), action::ERASE));
+							str().erase(get_str().begin() + caret.pos, get_str().begin() + caret.pos + right_offset);
 							edit.front().set_redo();
 						}
 					}
-					else if(caret.pos < _str.length()) {
-						edit.action(action(*this, caret.pos, _str.substr(caret.pos, 1), action::ERASE));
-						_str.erase(_str.begin() + caret.pos);
+					else if(caret.pos < get_str().length()) {
+						edit.action(action(*this, caret.pos, get_str().substr(caret.pos, 1), action::ERASE));
+						str().erase(get_str().begin() + caret.pos);
 						edit.front().set_redo();
 					}
 					anchor();
@@ -281,34 +265,33 @@ namespace db {
 				}
 
 				void ui::select_all() {
-					caret.pos = _str.length();
+					caret.pos = get_str().length();
 					caret.selection_offset = -int(caret.pos);
 					anchor();
 				}
 
 				void ui::select_word(unsigned at) {
-					if(_str.empty()) return;
+					if(get_str().empty()) return;
 
 					int left = 0, right = 0;
-					auto chr = _str[min(at, _str.length()-1)].c;
+					auto chr = get_str()[min(at, get_str().length()-1)].c;
 
-					if(at >= _str.length() || separator.is_newline(chr))
-						left = separator.get_left_word (_str, at);
+					if(at >= get_str().length() || separator.is_newline(chr))
+						left = separator.get_left_word (get_str(), at);
 					else {
 						int type = separator.word_type(chr);
-						    left =  separator.get_left_word (_str, at, 0, type);
-							right = separator.get_right_word(_str, at, _str.length(), type);
+						    left =  separator.get_left_word (get_str(), at, 0, type);
+							right = separator.get_right_word(get_str(), at, get_str().length(), type);
 					}
 
-					caret.pos = min(at+right, _str.length());
+					caret.pos = min(at+right, get_str().length());
 					caret.selection_offset = -int(right + left);
 					anchor();
 				}
 
 				void ui::select_line(unsigned at) {
-					guarded_redraw();
-					if(_str.empty()) return;
-					auto& line = draft.lines[draft.get_line(caret.pos)];
+					if(get_str().empty()) return;
+					auto& line = get_draft().lines[get_draft().get_line(at)];
 					caret.pos = line.begin;
 					caret.selection_offset = int(line.end - line.begin);
 					anchor();
@@ -331,7 +314,7 @@ namespace db {
 						for(int i = l; i < r; ++i) {
 							font* f = getf(i);
 							edit.front().states.push_back(f->is_bolded());
-							_str[i].font_used = f->get_bold(bold_all);
+							str()[i].font_used = f->get_bold(bold_all);
 						}
 					} else if(forced_bold = !forced_bold)
 						bold_bound = !get_neighbor_style().f->is_bolded();
@@ -355,11 +338,10 @@ namespace db {
 						for(int i = l; i < r; ++i) {
 							font* f = getf(i);
 							edit.front().states.push_back(f->is_italicsed());
-							_str[i].font_used = f->get_italics(it_all);
+							str()[i].font_used = f->get_italics(it_all);
 						}
 					} else if(forced_italics = !forced_italics)
 						italics_bound = !get_neighbor_style().f->is_italicsed();
-					need_redraw();
 				}
 
 				bool ui::undo() {
@@ -378,9 +360,9 @@ namespace db {
 						caret.pos = get_left_selection();
 					}
 
-					int line = draft.get_line(caret.pos);
+					int line = get_draft().get_line(caret.pos);
 					if(line > 0) {
-						auto c = draft.lines[line-1].hover(draft.sectors[min(draft.sectors.size()-1, anchor_pos)], draft.sectors);
+						auto c = get_draft().lines[line-1].hover(get_draft().sectors[min(get_draft().sectors.size()-1, anchor_pos)], get_draft().sectors);
 						caret.selection_offset += caret.pos - c;
 						caret.pos = c;
 					}
@@ -394,9 +376,9 @@ namespace db {
 						caret.pos = get_right_selection();
 					}
 
-					unsigned line = draft.get_line(caret.pos);
-					if(line < draft.lines.size() - 1) {
-						auto c = draft.lines[line+1].hover(draft.sectors[min(draft.sectors.size()-1, anchor_pos)], draft.sectors);
+					unsigned line = get_draft().get_line(caret.pos);
+					if(line < get_draft().lines.size() - 1) {
+						auto c = get_draft().lines[line+1].hover(get_draft().sectors[min(get_draft().sectors.size()-1, anchor_pos)], get_draft().sectors);
 						caret.selection_offset -= c - caret.pos;
 						caret.pos = c;
 					}
@@ -406,12 +388,12 @@ namespace db {
 
 				void ui::home(bool s) {
 					guarded_redraw();
-					set_caret(draft.lines[draft.get_line(caret.pos)].begin, s);
+					set_caret(get_draft().lines[get_draft().get_line(caret.pos)].begin, s);
 				}
 
 				void ui::end(bool s) {
 					guarded_redraw();
-					set_caret(draft.lines[draft.get_line(caret.pos)].end, s);
+					set_caret(get_draft().lines[get_draft().get_line(caret.pos)].end, s);
 				}
 
 				ui::action::action(ui& subject, int where, const formatted_char& ch) 
@@ -443,34 +425,34 @@ namespace db {
 					if(flag == action::NONE) return;
 
 					if(flag == (undo ? action::INSERT : action::ERASE)) {
-						subject->_str.erase(where, _str.length());
+						subject->str().erase(where, _str.length());
 					}
 					else if(flag == (undo ? action::ERASE : action::INSERT)) {
-						subject->_str.insert(where, _str);
+						subject->str().insert(where, _str);
 					}
 
 					if(flag == action::CHARACTERS) {
 						if(undo) {
-							subject->_str.erase(where, _str.length()+1);
+							subject->str().erase(where, _str.length()+1);
 						}
 						else {
-							subject->_str.insert(where, 1, character);
-							subject->_str.insert(where +1, _str);
+							subject->str().insert(where, 1, character);
+							subject->str().insert(where +1, _str);
 						}
 					}
 
 					if(flag == action::REPLACE) {
-						subject->_str.erase(where, undo ? _str.length() : replaced.length());
-						subject->_str.insert(where, undo ? replaced : _str);
+						subject->str().erase(where, undo ? _str.length() : replaced.length());
+						subject->str().insert(where, undo ? replaced : _str);
 					}
 
 					if(flag == action::REPLACE_CHARACTERS) {
-						subject->_str.erase(where, undo ? _str.length()+1 : replaced.length());
+						subject->str().erase(where, undo ? _str.length()+1 : replaced.length());
 						if(undo) 
-							subject->_str.insert(where, replaced);
+							subject->str().insert(where, replaced);
 						else {
-							subject->_str.insert(where, 1, character);
-							subject->_str.insert(where +1, _str);
+							subject->str().insert(where, 1, character);
+							subject->str().insert(where +1, _str);
 						}
 					}
 
@@ -480,7 +462,7 @@ namespace db {
 
 					if(flag == action::BOLDEN || flag == action::ITALICSEN) {
 						for(int i = where; i < right; ++i) {
-							font*& f = subject->_str[i].font_used;
+							font*& f = subject->str()[i].font_used;
 							f = flag == action::BOLDEN ?	subject->getf(i)->get_bold   (undo ? (unapply ? true : states[i-where]) : !unapply):
 								subject->getf(i)->get_italics(undo ? (unapply ? true : states[i-where]) : !unapply);
 						}
@@ -518,7 +500,7 @@ namespace db {
 				}
 
 				style ui::get_neighbor_style() const {
-					if(!_str.empty()) return (caret.pos ? _str[caret.pos-1] : _str[0]);
+					if(!get_str().empty()) return (caret.pos ? get_str()[caret.pos-1] : get_str()[0]);
 					else return caret.default_style;
 				}
 

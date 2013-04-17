@@ -1,147 +1,117 @@
 #pragma once
 #include "gui1.h"
 
-dynamic_border::dynamic_border() : stroke(1, material(gui::null_texture, ltblue), rect::solid_stroke::OUTSIDE) {}
+cbackground::cbackground(const rect_xywh& r, const stylesheet& styles) 
+	: styles(styles), rect(r)  {}
 
+cchecklabel::cchecklabel(const checklabel& c, const stylesheet& styles_active, const stylesheet& styles_inactive, const std::function<void (bool)>& callback) 
+	: styles_active(styles_active), styles_inactive(styles_inactive), checklabel(c), callback(callback) {}
 
-cbackground::cbackground(const rect& r) : rect(r) {}
+ccheckbox::ccheckbox(bool set, const rect_xywh& r, const stylesheet& styles_active, const stylesheet& styles_inactive, const std::function<void (bool)>& callback) 
+	: styles_active(styles_active), styles_inactive(styles_inactive), checkbox(set, r), callback(callback) {}
+
+cslider::cslider(const scrollarea::slider& r, const stylesheet& styles) 
+	: styles(styles), slider(r) {}
+
+cscrollarea::cscrollarea(const scrollarea& r, const stylesheet& styles) 
+	: styles(styles), scrollarea(r) {}
+
+ctextbox::ctextbox(const textbox& r, const stylesheet& styles)
+	: styles(styles), textbox(r) {}
+
+text_modifier::text_modifier(bool set, const rect_xywh& r, 
+							 const stylesheet& styles_active, 
+							 const stylesheet& styles_inactive, 
+							 const std::function<void ()>& callback,
+							 const std::function<bool ()>& active_condition)
+	: checkbox(set, r), styles_active(styles_active), styles_inactive(styles_inactive), callback(callback), active_condition(active_condition) {}
 
 void cbackground::event_proc(event m) {
-	if(m == event::wheel || m == event::mdown) rect::event_proc(m);
+	rect::event_proc(m);
+	styles.update_appearance(m);
+}
+
+void ccheckbox::event_proc(event m) {
+	checkbox::event_proc(m);
+	styles_active  .update_appearance(m);
+	styles_inactive.update_appearance(m);
+}
+
+void cchecklabel::event_proc(event m) {
+	checklabel::event_proc(m);
+	styles_active  .update_appearance(m);
+	styles_inactive.update_appearance(m);
+}
+
+void text_modifier::event_proc(event m) {
+	checkbox::event_proc(m);
+	styles_active  .update_appearance(m);
+	styles_inactive.update_appearance(m);
+}
+
+void cslider::event_proc(event m) {
+	slider::event_proc(m);
+	styles.update_appearance(m);
+}
+
+void cscrollarea::event_proc(event m) {
+	scrollarea::event_proc(m);
+	styles.update_appearance(m);
+}
+
+void ctextbox::event_proc(event m) {
+	textbox::event_proc(m);
+	styles.update_appearance(m);
 }
 
 void cbackground::draw_proc(const draw_info& in) {
-	rect::draw_proc(in);
-	stroke.draw(*this, in);
+	draw_rect(in, styles);
+	draw_children(in);
 }
 
-ctickbox::ctickbox(const rect& r, material active, material inactive, bool& set) : rect(r), active(active), inactive(inactive), set(set) {
-	mat = set ? active : inactive;
-	stroke.set_width(1);
-	stroke.set_material(set ? ltblue : gray);
+void ccheckbox::draw_proc(const draw_info& in) {
+	draw_rect(in, set ? styles_active : styles_inactive);
+	draw_children(in);
 }
 
-void ctickbox::event_proc(event m) {
-	if(m == rect::event::lclick) {
-		set = !set;
-		mat = set ? active : inactive;
-	}
-	
-	if(poll_border(m) == 0) {
-		stroke.set_width(1);
-		stroke.set_material(set ? ltblue : gray);
-	}
-	else {
-		stroke.set_material(white);
-	}
-
-	if(m == event::wheel || m == event::mdown) rect::event_proc(m);
+void cchecklabel::draw_proc(const draw_info& in) {
+	draw_rect(in, set ? styles_active : styles_inactive);
+	draw_label(in);
+	draw_children(in);
 }
 
-void ctickbox::draw_proc(const draw_info& in) {
-	rect::draw_proc(in);
-	stroke.draw(*this, in);
+void text_modifier::draw_proc(const draw_info& in) {
+	set = active_condition();
+	draw_rect(in, set ? styles_active : styles_inactive);
+	draw_children(in);
 }
 
-clabel_tickbox::clabel_tickbox(const rect& r, std::wstring label, style act, style inact, bool& set) 
-	: rect(r), set(set), active(formatted_text(label.c_str(), act)), inactive(formatted_text(label.c_str(), inact)) {
-		stroke.set_width(1);
-		stroke.set_material(set ? ltblue : gray);
-		update_rc();
-		snap_scroll_to_content = false;
-		scroll = point(4, 4);
-		clip = false;
-		print.clip = false;
-		children.push_back(&print);
+void cslider::draw_proc(const draw_info& in) {
+	draw_rect(in, styles);
 }
 
-void clabel_tickbox::event_proc(event m) {
-	if(m == rect::event::lclick) {
-		set = !set;
-		update_rc();
-	}
-	
-	if(poll_border(m) == 0) {
-		stroke.set_width(1);
-		stroke.set_material(set ? ltblue : gray);
-	}
-	else {
-		stroke.set_material(white);
-	}
-
-	if(m == event::wheel || m == event::mdown) rect::event_proc(m);
+void cscrollarea::draw_proc(const draw_info& in) {
+	draw_rect(in, styles);
+	draw_slider(in);
 }
 
-void clabel_tickbox::update_rc() {
-	print.str = set ? active : inactive;
-	print.draft.draw(print.str);
-	print.update_str = false;
-	rc.w(print.draft.get_bbox().w + 4);
-	rc.h(print.draft.get_bbox().h + 2);
+void ctextbox::draw_proc(const draw_info& in) {					
+	draw_rect(in, styles);
+	draw_text_ui(in);
 }
 
-void clabel_tickbox::draw_proc(const draw_info& in) {
-	rect::draw_children(in);
-	stroke.draw(*this, in);
+void ccheckbox::on_change(bool flag) {
+	//checkbox::on_change(flag);
+	if(callback) callback(flag);
 }
 
-ctext_modifier::ctext_modifier(const rect& r, textbox* mytext, type _type) : _type(_type), mytext(mytext), rect(r) {
+void cchecklabel::on_change(bool flag) {
+	checklabel::on_change(flag);
+	if(callback) callback(flag);
 }
 
-void ctext_modifier::event_proc(event m) {
-	poll_border(m);
-	if(m == event::lclick) {
-		if(_type == BOLDEN)
-			mytext->on_bold();
-		else
-			mytext->on_italics();
-		mytext->need_redraw();
-	}
-	if(m == event::wheel || m == event::mdown) rect::event_proc(m);
+void text_modifier::on_change(bool flag) {
+	//checkbox::on_change(flag);
+	if(callback) callback();
 }
 
-void ctext_modifier::draw_proc(const draw_info& in) {
-	rect::draw_proc(in);
-	auto& t = *mytext;
-	stroke.draw(*this, in);
-	if(_type == BOLDEN)
-		mat.color = t.get_bold_status() ? ltblue : white;
-	else 
-		mat.color = t.get_italics_status() ? ltblue : white;
-
-}
-
-ctextbox::ctextbox(const textbox& r) : textbox(r) {}
-
-void ctextbox::on_focus(bool f) {
-	//if(f)
-	//	scroll_to_view();
-	return textbox::on_focus(f);
-}
-
-void ctextbox::draw_proc(const draw_info& in) {
-	textbox::draw_proc(in);
-	stroke.draw(*this, in);
-}
-
-cslider::cslider(const scrollarea::slider& r) : slider(r.min_side, r.mat) {}
-
-void cslider::event_proc(event m) {
-	if(m == event::hover && mat.color.r == 104) {
-		mat.color = pixel_32(180, 180, 180, 255);
-	}
-	if(m == event::hout && mat.color.r == 180) {			
-		mat.color = pixel_32(104, 104, 104, 255);
-	}
-	if(m == event::ldown || m == event::ldoubleclick || m == event::ltripleclick) {			
-		mat.color = white;
-	}
-	if(m == event::lup) {
-		mat.color = pixel_32(180, 180, 180, 255);
-	}
-	if(m == event::loutup) {		
-		mat.color = pixel_32(104, 104, 104, 255);
-	}
-
-	slider::event_proc(m);
-}

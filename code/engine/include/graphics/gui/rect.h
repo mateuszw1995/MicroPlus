@@ -4,8 +4,8 @@
 namespace db {
 	namespace graphics {
 		namespace gui {
+			struct stylesheet;
 			struct rect {
-
 				/* 
 				index_info structure tells the index of a particular rectangle in the quad vector.
 
@@ -33,23 +33,6 @@ namespace db {
 					mutable bool scroll_fetched;
 					info(system&, unsigned); 
 				} const *in;
-
-				struct solid_stroke {
-					struct border {
-						int width;
-						material mat;
-					} left, top, right, bottom;
-
-					enum type {
-						INSIDE, OUTSIDE
-					} _type;
-
-					solid_stroke(int width = 1, const material& = material(), type = OUTSIDE);
-
-					void set_width(int);
-					void set_material(const material&);
-					void draw(const rect&, const draw_info&) const;
-				};
 
 				enum class event {
 					keydown,
@@ -83,21 +66,21 @@ namespace db {
 				enum class appearance {
 					released = 0,
 					hovered = 1,
-					pushed = 2
+					pushed = 2,
+					unknown
 				};
 
-				bool draw, clip, fetch_wheel, scrollable, snap_scroll_to_content;
+				bool draw, clip, fetch_wheel, scrollable, snap_scroll_to_content, preserve_focus;
 				point drag_origin;
 				rect_ltrb rc; /* actual rectangle */ 
 				rect_wh content_size; /* content's (children's) bounding box */
 				pointf scroll; /* scrolls content */
 
-				material mat;
 				rect* parent; 
 
 				std::vector<rect*> children;
 				
-				rect(const math::rect_xywh& rc = math::rect_xywh(), const material& = material());
+				rect(const math::rect_xywh& rc = math::rect_xywh());
 				
 				virtual rect_wh get_content_size();
 				
@@ -114,14 +97,15 @@ namespace db {
 				void handle_focus(event);
 
 				/* draw_proc default subroutines */
-				void draw_rect(const draw_info& in), 
-					 draw_children(const draw_info& in);
+				void draw_rect		(const draw_info& in, const material& = material()), 
+					 draw_rect		(const draw_info& in, const stylesheet&),
+					 draw_children	(const draw_info& in);
 
 				static rect_ltrb add_quad(const material&, const rect_ltrb& origin, const rect* clipper, std::vector<quad>& v);
 				rect_ltrb local_add(const material&, const rect_ltrb& origin, std::vector<quad>& v) const;
 				
 				/* how should rect look like depending on incoming event */
-				appearance get_appearance(event m); 
+				static appearance get_appearance(event m); 
 				
 				/*  does scroll not exceed the content */
 				bool is_scroll_aligned();

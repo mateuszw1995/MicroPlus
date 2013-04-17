@@ -187,17 +187,13 @@ namespace db {
 		glwindow* glwindow::parent = 0;
 		
 		glwindow::glwindow(const char* name, bool limit_resize)
-			: hwnd(0), hdc(0), hglrc(0), name(name), bpp(0), resize(0), menu(false), transparent(false), active(false), doubled(false), limit_resize(limit_resize) {
+			: hwnd(0), hdc(0), hglrc(0), name(name), bpp(0), resize(nullptr), menu(false), transparent(false), active(false), doubled(false), limit_resize(limit_resize) {
 			for(int i=0;i<256;++i) events.keys[i] = false;
 			events.key = events.utf16 = events.utf32 = 0;
 			events.mouse.state[0] = events.mouse.state[1] = false;
 			triple_click_delay = GetDoubleClickTime();
 		}
 		
-		void glwindow::resize_func(int (*r)(glwindow&)) {
-			resize = r;
-		}
-
 		bool glwindow::create(const rect_xywh& crect, bool doublebuffer, int _menu, int _bpp) {
 			int f = 1;
 			menu = _menu; bpp = _bpp; doublebuf = doublebuffer;

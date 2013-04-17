@@ -137,6 +137,23 @@ namespace db {
 
 			int x, y, r() const, b() const;
 			void r(int), b(int);
+			
+			template <class P>
+			rect_xywh& operator+=(const P& p) {
+				x += int(p.x);
+				y += int(p.y);
+				return *this;
+			}
+			
+			template <class P>
+			rect_xywh operator-(const P& p) const {
+				return rect_xywh(x - int(p.x), y - int(p.y), w, h);
+			}
+
+			template <class P>
+			rect_xywh operator+(const P& p) const {
+				return rect_xywh(x + int(p.x), y + int(p.y), w, h);
+			}
 		};
 		
 		struct rect_xywhf : public rect_xywh {

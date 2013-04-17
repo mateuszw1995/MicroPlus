@@ -1,5 +1,5 @@
 #pragma once
-#include "../rect.h"
+#include "../system.h"
 // got to revise gui systems in terms of rectangle update'ing
 namespace db {
 	namespace graphics {
@@ -8,7 +8,7 @@ namespace db {
 				struct caret_info;
 				class ui;
 				struct drafter;
-				struct printer : public rect {
+				struct printer {
 					/* these integers hold information at what index particular quads are pushed to the resulting vector
 					may be useful for further processing
 					still needs implementing
@@ -39,7 +39,7 @@ namespace db {
 					
 					unsigned caret_width; 
 					
-					bool active, kerning, 
+					bool active, 
 						align_caret_height, /* whether caret should be always of line height */
 						highlight_current_line, 
 						highlight_during_selection;
@@ -49,19 +49,27 @@ namespace db {
 						selection_bg_mat,
 						selection_inactive_bg_mat; /* material for line highlighting */
 					
-					printer(const rect&);
+					printer();
 
-					void draw_text(std::vector<quad>& out, const ui&) const;
+					void draw_text(std::vector<quad>& out, ui&, const rect& parent) const;
 					
-					void update_proc(system&);
-
-					/* if caret is 0, draw no caret */
-					void draw_text(std::vector<quad>& out, 
+					void draw_text(
+						std::vector<quad>& out, 
 						const drafter&, 
 						const fstr& colors, 
-						const caret_info* caret = 0) const;
+						/* if caret is 0, draw no caret */
+						const caret_info* caret,
+						const rect& parent
+						) const;
 					
-					virtual void draw_proc(const draw_info&) = 0;
+					void draw_text(
+						std::vector<quad>& out, 
+						const drafter&, 
+						const fstr& colors,
+						/* if caret is 0, draw no caret */
+						const caret_info* caret,
+						point scroll,
+						const rect_ltrb* parent = 0) const;
 		 		};
 				
 				/* 
@@ -75,14 +83,14 @@ namespace db {
 										const fstr& str, 
 										point pos, 
 										unsigned wrapping_width = 0,
-										const rect_xywh* parent = 0);
+										const rect_ltrb* parent = 0);
 
 				rect_wh quick_print(std::vector<quad>& v,
 										const std::wstring& wstr,
-										gui::style style,
+										style style,
 										point pos, 
 										unsigned wrapping_width = 0,
-										const rect_xywh* parent = 0);
+										const rect_ltrb* parent = 0);
 			}
 		}
 	}

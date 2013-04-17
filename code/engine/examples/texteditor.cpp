@@ -2,38 +2,14 @@
 #include "customgui/gui1.h"
 #include <ctime>
 
-/* wordwrapping/kerning musza setowac need_redraw
-	jakis dziwny bug przy wrappingu kilku linii, szeroki newline na koncu sie robi
-	poprawic word wrapping albo sprawdzic czy dobrze ustawiona wartosc
-*/
-
-struct text_modifier {
-	textbox& mytext;
-	virtual void operator()(rect::event m);
-
-	text_modifier(textbox& mytext);
-	void redraw();
-	void operator()(rect::event m);
-};
-
-struct style_modifier : public text_modifier {
-	enum type {
-		ITALICSEN, BOLDEN
-	} _type;
-
-	style_modifier(const text_modifier&, type _type);
-	void operator()(rect::event m);
-};
-
-int resizer(glwindow& gl) {
+void resizer(glwindow& gl) {
 	gl.current();
-	glViewport(0,0,gl.get_window_rect().w,gl.get_window_rect().h);
+	glViewport(0, 0, gl.get_window_rect().w, gl.get_window_rect().h);
 	
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
-	glOrtho( 0, gl.get_window_rect().w, gl.get_window_rect().h, 0, 0, 1 );
+	glOrtho(0, gl.get_window_rect().w, gl.get_window_rect().h, 0, 0, 1);
 	glMatrixMode(GL_MODELVIEW);
-	return 0;
 }
 
 int main() {
@@ -50,8 +26,7 @@ int main() {
 	
 	glwindow::init();
 	glwindow gl("Conspiracy", 0);
-	gl.create(math::rect_xywh(20, 20, 800, 800), true);
-	gl.resize_func(resizer);
+	gl.create(math::rect_xywh(20, 20, 794, 800), true);
 	gl.set_show(gl.SHOW); 
 	gl.current();
 	resizer(gl);
@@ -99,50 +74,110 @@ int main() {
 	gui::null_texture->translate_uv(pointf(2, 2));
 	gui::null_texture->scale_uv(0.000000001f, 0.000000001f);
 
-	bool settings_active = false;
-	bool word_wrapping = true;
-
 	gui::system sys(gl.events);
-	cbackground background(rect(rect_xywh(0, 0, gl.get_window_rect().w-20, gl.get_window_rect().h-20), material(pixel_32(6, 5, 20, 255))));
 	
-	ctextbox  mytextbox(textbox(rect(rect_xywh(), material(darkgray)), style(fonts + 0, white)));
+	stylesheet sliderbox;
+	sliderbox.released.color = gray3;
+	sliderbox.hovered.color = gray4;
+	sliderbox.pushed.color = white;
+
+	stylesheet scrollareabox;
+	scrollareabox.released.color = gray2;
+
+	stylesheet labelbox_inactive;
+	labelbox_inactive.released.border = solid_stroke(1, gray1);
+	labelbox_inactive.hovered.border = solid_stroke(1, ltblue);
+	labelbox_inactive.pushed.border = solid_stroke(2, ltblue);
 	
+	stylesheet labelbox_active;
+	labelbox_active.released.border = solid_stroke(1, ltblue);
+	labelbox_active.hovered.border = solid_stroke(2, ltblue);
+	labelbox_active.pushed.border = solid_stroke(3, ltblue);
+
+	stylesheet checkbox_active(stylesheet::style  (ltblue, gui::null_texture, solid_stroke(0)));
+	checkbox_active.hovered.border = solid_stroke(1, ltblue);
+	checkbox_active.pushed.border = solid_stroke (2, ltblue);
+	stylesheet checkbox_inactive(checkbox_active);
+	checkbox_inactive.released.color = white;
+
+	stylesheet bold_button_active(checkbox_active);
+	stylesheet bold_button_inactive(checkbox_inactive);
+	stylesheet italics_button_active(checkbox_active);
+	stylesheet italics_button_inactive(checkbox_inactive);
+	bold_button_active.released.background_image    = bold_button_inactive.released.background_image    = textures + 2;
+	italics_button_active.released.background_image = italics_button_inactive.released.background_image = textures + 3;
+
+	stylesheet bgcol(stylesheet::style(darkblue, gui::null_texture, solid_stroke(0)));
+	stylesheet textfield(stylesheet::style(gray1, gui::null_texture, solid_stroke(1, ltblue)));
+
+	cbackground background(rect_ltrb(0, 0, gl.get_window_rect().w-20, gl.get_window_rect().h-20), bgcol);
+	
+	ctextbox  mytextbox(textbox(rect_xywh(rect_ltrb(10, 17, gl.get_window_rect().w-20, gl.get_window_rect().h-20)), text::style(fonts + 0, white)), textfield);
 	/* ui settings */
 	// mytextbox.whitelist = L"0123456789.";
 	// mytextbox.max_characters = 15;
 
 	/* structural settings */
-	mytextbox.draft.wrap_width = 0;
-	mytextbox.draft.kerning = false;
+	mytextbox.editor.draft().wrap_width = 0;
+	mytextbox.editor.draft().kerning = false;
 	
 	/* visual settings */
-	mytextbox.blink.blink = true;
-	mytextbox.blink.interval_ms = 500;
-	mytextbox.selection_bg_mat.color = pixel_32(128, 255, 255, 120);
-	mytextbox.selection_inactive_bg_mat.color = pixel_32(128, 255, 255, 40);
-	mytextbox.highlight_mat = material(pixel_32(15, 15, 15, 255)); 
-	mytextbox.caret_mat.color = pixel_32(255, 255, 255, 255);
-	mytextbox.highlight_current_line = true;
-	mytextbox.highlight_during_selection = true;
-	mytextbox.align_caret_height = true;
-	mytextbox.caret_width = 1;;
+	mytextbox.print.blink.blink = true;
+	mytextbox.print.blink.interval_ms = 500;
+	mytextbox.print.selection_bg_mat.color = pixel_32(128, 255, 255, 120);
+	mytextbox.print.selection_inactive_bg_mat.color = pixel_32(128, 255, 255, 40);
+	mytextbox.print.highlight_mat = material(pixel_32(15, 15, 15, 255)); 
+	mytextbox.print.caret_mat.color = pixel_32(255, 255, 255, 255);
+	mytextbox.print.highlight_current_line = true;
+	mytextbox.print.highlight_during_selection = true;
+	mytextbox.print.align_caret_height = true;
+	mytextbox.print.caret_width = 1;;
 	mytextbox.drag.vel_mult = 100.0;
 	
-	ctext_modifier bold_button(rect(rect_xywh (230, 75, 20, 20), textures + 2), &mytextbox, ctext_modifier::BOLDEN);
-	ctext_modifier italics_button(rect(rect_xywh (260, 75, 20, 20), textures + 3), &mytextbox, ctext_modifier::ITALICSEN);
+	text_modifier bold_button(false, rect_xywh (230, 75, 20, 20), bold_button_active, bold_button_inactive, 
+		std::bind(&ctextbox::on_bold, &mytextbox),
+		std::bind(&text::ui::get_bold_status, &mytextbox.editor)
+		);
+
+	text_modifier italics_button(false, rect_xywh (260, 75, 20, 20), italics_button_active, italics_button_inactive, 
+		std::bind(&ctextbox::on_italics, &mytextbox),
+		std::bind(&text::ui::get_italics_status, &mytextbox.editor)
+		);
+
+	text::style   active(fonts + 1, ltblue);
+	text::style inactive(fonts + 0, gray1);
+
+	ccheckbox  settings(false, rect_xywh(20, 47, 200, 15), checkbox_active, checkbox_inactive,
+		[&mytextbox](bool set){ mytextbox.rc.t = set ? 100 : 17; }
+	);
+
+	settings.styles_active.released.background_image = textures + 1; 
+	settings.styles_inactive.released.background_image = textures + 1; 
+
+	cchecklabel  highlight(checklabel(mytextbox.print.highlight_current_line, rect_xywh(20, 17, 200, 15), L"Highlight current line", active, inactive), labelbox_active, labelbox_inactive,
+		[&mytextbox](bool set){mytextbox.print.highlight_current_line = set;}
+	);
+	cchecklabel  kerning(checklabel  (mytextbox.editor.get_draft().kerning, rect_xywh(20, 47, 200, 15), L"Kerning", active, inactive), labelbox_active, labelbox_inactive,
+		[&mytextbox](bool set){mytextbox.editor.draft().kerning = set;}
+	);
+	cchecklabel  word_wrap(checklabel(true, rect_xywh(20, 77, 200, 15), L"Word wrapping", active, inactive), labelbox_active, labelbox_inactive,
+		[&mytextbox, &background](bool set) mutable {mytextbox.editor.draft().wrap_width = set ? mytextbox.rc.w() : 0;
+								if(set) mytextbox.rc.b = background.rc.b-10;
+								else    mytextbox.rc.b = background.rc.b;
+			}
+	);
+
+	//highlight.scroll = point(-5, -5);
+	//kerning.scroll = point(5, 5);
+	highlight.snap_scroll_to_content = false;
+	kerning.snap_scroll_to_content = false;
+
+	cslider   sl(scrollarea::slider(20), sliderbox);
+	cslider  slh(scrollarea::slider(20), sliderbox);
+	cscrollarea  myscrtx(scrollarea (rect_xywh(0, 0, 10, 0), &mytextbox, &sl, scrollarea::orientation::VERTICAL), scrollareabox);
+	cscrollarea myscrhtx(scrollarea (rect_xywh(0, 0, 0, 10), &mytextbox, &slh, scrollarea::orientation::HORIZONTAL), scrollareabox);
 	
-	gui::style   active(fonts + 1, ltblue);
-	gui::style inactive(fonts + 0, gray);
-	ctickbox  settings(			rect(rect_xywh(20, 47, 200, 15)), material(textures + 1, ltblue), material(textures + 1, gray), settings_active);
-	clabel_tickbox  highlight(	rect(rect_xywh(20, 17, 200, 15)), L"Highlight current line", active, inactive, mytextbox.highlight_current_line);
-	clabel_tickbox  kerning(	rect(rect_xywh(20, 47, 200, 15)), L"Kerning", active, inactive, mytextbox.draft.kerning);
-	clabel_tickbox  word_wrap(	rect(rect_xywh(20, 77, 200, 15)), L"Word wrapping", active, inactive, word_wrapping);
-	
-	cslider   sl(scrollarea::slider(20, pixel_32(104, 104, 104, 255)));
-	cslider  slh(scrollarea::slider(20, pixel_32(104, 104, 104, 255)));
-	scrollarea  myscrtx(rect_xywh(0, 0, 10, 0), pixel_32(62, 62, 62, 255), &mytextbox, &sl, scrollarea::orientation::VERTICAL);
-	scrollarea myscrhtx(rect_xywh(0, 0, 0, 10), pixel_32(62, 62, 62, 255), &mytextbox, &slh, scrollarea::orientation::HORIZONTAL);
-	//background.scroll = point(10, 10);
+	//background.scroll = point(-10, -10);
 	//background.snap_scroll_to_content = false;
 	background.children.push_back(&bold_button);
 	background.children.push_back(&italics_button);
@@ -171,6 +206,22 @@ int main() {
 
 	event::message msg;
 	atl.nearest();
+
+	gl.resize = [&](glwindow& gl) mutable {
+		resizer(gl); 
+		background.rc = rect_xywh(0, 0, gl.get_window_rect().w, gl.get_window_rect().h);
+		//mytextbox.rc = background.rc;
+		mytextbox.rc.r = background.rc.r - 10;
+		//mytextbox.rc.b = background.rc.b;
+		
+		settings.rc = rect_xywh(background.rc.r - 15, 0, 15, 15);
+		word_wrap.callback(word_wrap.get_state());
+
+		myscrtx.align();
+		myscrhtx.align();
+	};
+
+	gl.resize(gl);
 	while(true) {
 
 		if(gl.poll_events(msg)) {
@@ -196,30 +247,15 @@ int main() {
 			gl.current();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glLoadIdentity();
-			
-			background.rc = rect_xywh(0, 0, gl.get_window_rect().w, gl.get_window_rect().h);
-			mytextbox.rc = background.rc;
-			mytextbox.rc.l += 10;
-			mytextbox.rc.t += settings_active ? 100 : 17;
-			mytextbox.rc.r -= 10;
-			if(!word_wrapping) {
-				mytextbox.draft.wrap_width = 0;
-				mytextbox.rc.b -= 10;
-			}
-			else {
-				mytextbox.draft.wrap_width = mytextbox.rc.w();
-			}
-			settings.rc = rect_xywh(background.rc.r - 15, 0, 15, 15);
-			myscrtx.align();
-			myscrhtx.align();
-			mytextbox.stroke.right.width = !myscrtx.is_needed();
-			mytextbox.stroke.bottom.width = !myscrhtx.is_needed();
+
+			mytextbox.styles.released.border.value.right.width = !myscrtx.is_needed();
+			mytextbox.styles.released.border.value.bottom.width = !myscrhtx.is_needed();
 
 			sys.update_rectangles();
 			sys.call_updaters();
 			sys.update_rectangles();
 			sys.update_array();
-			gui::text::quick_print(sys.quad_array, L"AAAA KURWAAA\nAAAAAAAAAAAAAAAAAAAAAAAA XDDDDDDDDDDDDDDD", gui::style(fonts+3, pixel_32(255,0,0,195)), point(20, 20));
+			// gui::text::quick_print(sys.quad_array, L"AAAA KURWAAA\nAAAAAAAAAAAAAAAAAAAAAAAA XDDDDDDDDDDDDDDD", text::style(fonts+3, pixel_32(255,0,0,195)), point(20, 20));
 
 			glVertexPointer(2, GL_INT, sizeof(gui::vertex), sys.quad_array.data());
 			glTexCoordPointer(2, GL_FLOAT, sizeof(gui::vertex), (char*)(sys.quad_array.data()) + sizeof(int)*2);
@@ -234,6 +270,7 @@ int main() {
 		}
 
 		fps.loop();
+		int chujnia = gl.get_window_rect().w;
 	}
 
 	window::errlog.close();

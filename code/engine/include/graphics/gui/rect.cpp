@@ -1,60 +1,16 @@
 #pragma once
 #include "rect.h"
+#include "stylesheet.h"
 
 namespace db {
 	namespace graphics {
 		namespace gui {
-			rect::solid_stroke::solid_stroke(int width, const material& mat, type _type) : _type(_type) {
-				left.width = width; left.mat = mat;
-				right = top = bottom = left;
-			}
-
-			void rect::solid_stroke::set_width(int w) {
-				left.width = top.width = right.width = bottom.width = w; 
-			}
-
-			void rect::solid_stroke::set_material(const material& mat) {
-				left.mat = top.mat = right.mat = bottom.mat = mat; 
-			}
-
-			void rect::solid_stroke::draw(const rect& r, const draw_info& in) const {
-				rect_ltrb g = r.get_rect_absolute();
-
-				if(_type == OUTSIDE) {
-					g.l -= left.width;
-					g.t -= top.width;
-					g.r += right.width;
-					g.b += bottom.width;
-				}
-
-				rect_ltrb lines[4] = { g, g, g, g }; 
-
-				lines[0].r = g.l + left.width;
-				lines[1].b = g.t + top.width;
-				lines[2].l = g.r - right.width;
-				lines[3].t = g.b - bottom.width;
-
-				if(top.width) {
-					lines[0].t += top.width;
-					lines[2].t += top.width;
-				}
-				if(bottom.width) {
-					lines[0].b -= top.width;
-					lines[2].b -= top.width;
-				}
-
-				add_quad(left.  mat, lines[0], r.parent, in.v);
-				add_quad(top.   mat, lines[1], r.parent, in.v);
-				add_quad(right. mat, lines[2], r.parent, in.v);
-				add_quad(bottom.mat, lines[3], r.parent, in.v);
-			}
-			
 			rect::info::info(system& owner, unsigned msg) : owner(owner), msg(msg), mouse_fetched(false), scroll_fetched(false) {}
 			rect::draw_info::draw_info(system& owner, std::vector<quad>& v) : owner(owner), v(v) {}
 
-			rect::rect(const rect_xywh& rc, const material& mat) 
-				: rc(rc), mat(mat), parent(0), snap_scroll_to_content(true),
-				draw(true), was_hovered(false), fetch_wheel(false), clip(true), scrollable(true), content_size(rect_wh()), rc_clipped(rect_xywh()) 
+			rect::rect(const rect_xywh& rc) 
+				: rc(rc), parent(0), snap_scroll_to_content(true),
+				draw(true), was_hovered(false), fetch_wheel(false), clip(true), scrollable(true), content_size(rect_wh()), rc_clipped(rect_xywh()), preserve_focus(false) 
 			{
 				quad_indices.background = -1;
 			}
@@ -101,10 +57,19 @@ namespace db {
 				}
 			}
 			
-			void rect::draw_rect(const draw_info& in) {
+			void rect::draw_rect(const draw_info& in, const material& mat) {
 				quad_indices.background = in.v.size();
 				if(!add_quad(mat, rc_clipped, 0, in.v).good()) quad_indices.background = -1;
 				// rc_clipped = add_quad(mat, rc_clipped, parent, in.v);
+			}
+			
+			void rect::draw_rect(const draw_info& in, const stylesheet& styles) {
+				auto st = styles.get_style();
+
+				if(st.color.active || st.background_image.active)
+					draw_rect(in, material(st));
+				
+				if(st.border.active) st.border.value.draw(in.v, *this);
 			}
 
 			void rect::draw_children(const draw_info& in) {
@@ -121,12 +86,11 @@ namespace db {
 					children[i]->update_proc(owner);
 				}
 			}
-
+			
 			void rect::draw_proc(const draw_info& in) {
-				draw_rect(in);
 				draw_children(in);
 			}
-			
+
 			/* handle focus and passing scroll to parents */
 			
 			void rect::handle_scroll(event e) {
@@ -178,7 +142,11 @@ namespace db {
 					e == event::rdoubleclick ||
 					e == event::rdown
 					) {
-						sys.set_focus(this);
+						if(sys.get_focus()) {
+							if(preserve_focus || !sys.get_focus()->preserve_focus)
+								sys.set_focus(this);
+						}
+						else sys.set_focus(this);
 				}
 			}
 
@@ -214,8 +182,10 @@ namespace db {
 						bool hover = rc_clipped.hover(m.pos);
 
 						if(hover && !inf.mouse_fetched) {
+							if(!was_hovered) 
+								event_proc(event::hover);
+							
 							inf.mouse_fetched = was_hovered = true;
-							event_proc(event::hover);
 							if(msg == lup) {
 								event_proc(event::lup);	
 							}
@@ -296,7 +266,7 @@ namespace db {
 					||	m == rect::event::ltripleclick )
 					return appearance::pushed;
 
-				return appearance::released;
+				return appearance::unknown;
 			}
 
 			bool rect::is_scroll_aligned() {
@@ -343,17 +313,6 @@ namespace db {
 				return absolute_xy;
 			}
 
-			
-			appearance_rect::appearance_rect(const rect& r) : rect(r) {}
-
-			void appearance_rect::event_proc(event m) {
-				switch(get_appearance(m)) {
-				case appearance::released: this->on_released(); break;
-				case appearance::hovered: this->on_hovered(); break;
-				case appearance::pushed: this->on_pushed(); break;
-				default: this->on_released(); break;
-				}
-			}
 		}
 	}
 }

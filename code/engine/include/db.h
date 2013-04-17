@@ -47,6 +47,8 @@ LINKER INPUT:
 			// text
 			//#include "graphics/gui/system.h"
 			//#include "graphics/gui/rect.h"
+			#include "graphics/gui/stylesheet.h"
+			#include "graphics/gui/checkbox.h"
 			#include "graphics/gui/scrollarea.h"
 			#include "graphics/gui/textbox.h"
 			//#include "graphics/gui/font.h"

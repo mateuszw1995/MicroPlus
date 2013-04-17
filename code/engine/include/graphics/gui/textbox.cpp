@@ -7,13 +7,14 @@ namespace db {
 	using namespace io::input;
 		namespace gui {
 			namespace controls {
-				textbox::textbox(const rect& r, style default_style) 
-					: printer(r), ui(default_style), view_caret(false), blink_reset(false) {}
+				textbox::textbox(const rect& r, text::style default_style) 
+					: rect(r), editor(default_style), view_caret(false), blink_reset(false) { 
+						preserve_focus = true; 
+				}
 
-				void textbox::draw_proc(const draw_info& in) {
-					rect::draw_proc(in);
-					guarded_redraw();
-					draw_text(in.v, *this);
+				void textbox::draw_text_ui(const draw_info& in) {
+					editor.guarded_redraw();
+					print.draw_text(in.v, editor, *this);
 				}
 				
 				//void textbox::update_rectangles() {
@@ -29,100 +30,99 @@ namespace db {
 						in = &_inf;
 						on_drag();
 					}
-					printer::update_proc(owner);
+
+					print.blink.update();
 				}
 				
 				point textbox::local_mouse() {
 					return in->owner.events.mouse.pos + scroll - get_absolute_xy();
 				}
 
-				void textbox::on_caret_left(bool s)			{ caret_left(s);			view_caret = true; blink_reset = true;}
-				void textbox::on_caret_right(bool s)		{ caret_right(s);			view_caret = true; blink_reset = true;}
-				void textbox::on_caret_left_word(bool s)	{ caret_left_word(s);		view_caret = true; blink_reset = true;}
-				void textbox::on_caret_right_word(bool s)	{ caret_right_word(s);		view_caret = true; blink_reset = true;}
-				void textbox::on_caret_up(bool s)			{ caret_up(s);				view_caret = true; blink_reset = true;}
-				void textbox::on_caret_down(bool s)			{ caret_down(s);			view_caret = true; blink_reset = true;}
+				void textbox::on_caret_left(bool s)			{ editor.caret_left(s);			view_caret = true; blink_reset = true;}
+				void textbox::on_caret_right(bool s)		{ editor.caret_right(s);		view_caret = true; blink_reset = true;}
+				void textbox::on_caret_left_word(bool s)	{ editor.caret_left_word(s);	view_caret = true; blink_reset = true;}
+				void textbox::on_caret_right_word(bool s)	{ editor.caret_right_word(s);	view_caret = true; blink_reset = true;}
+				void textbox::on_caret_up(bool s)			{ editor.caret_up(s);			view_caret = true; blink_reset = true;}
+				void textbox::on_caret_down(bool s)			{ editor.caret_down(s);			view_caret = true; blink_reset = true;}
 				void textbox::on_caret_ctrl_up()			{ 
-					guarded_redraw();
-					int li = draft.get_line_visibility(get_local_clipper()).first;
+					editor.guarded_redraw();
+					int li = editor.get_draft().get_line_visibility(get_local_clipper()).first;
 					if(li == -1) return;
-					auto& l = draft.lines[li];
+					auto& l = editor.get_draft().lines[li];
 
 					if(int(scroll.y) != l.get_rect().y)
 					   scroll.y  = float(l.get_rect().y);
 					else if(li > 0) 
-						scroll.y -= float(draft.lines[li-1].get_rect().h);  
-				
+						scroll.y -= float(editor.get_draft().lines[li-1].get_rect().h);  
 				}
 
 				void textbox::on_caret_ctrl_down()			{ 
-					guarded_redraw();
-					int li = draft.get_line_visibility(get_local_clipper()).second;
+					editor.guarded_redraw();
+					int li = editor.get_draft().get_line_visibility(get_local_clipper()).second;
 					if(li == -1) return;
-					auto& l = draft.lines[li];
+					auto& l = editor.get_draft().lines[li];
 
 					if(int(scroll.y) != l.get_rect().b() - rc.h())
 					   scroll.y  = float(l.get_rect().b() - rc.h());
-					else if(li < int(draft.lines.size()-1)) 
-						scroll.y += float(draft.lines[li+1].get_rect().h);  
-				
+					else if(li < int(editor.get_draft().lines.size()-1)) 
+						scroll.y += float(editor.get_draft().lines[li+1].get_rect().h);  
 				}
 
 				void textbox::on_place_caret(bool s) {  
-						guarded_redraw();
+						editor.guarded_redraw();
 						//if(!s) caret.selection_offset = 0;
-						set_caret(draft.map_to_caret_pos(local_mouse()), s);
+						editor.set_caret(editor.get_draft().map_to_caret_pos(local_mouse()), s);
 						blink_reset = true;
 					//	view_caret = true; 
 				}
 
 				void textbox::on_select_word() {
-						guarded_redraw();
-						select_word(draft.map_to_caret_pos(local_mouse()));
+						editor.guarded_redraw();
+						editor.select_word(editor.get_draft().map_to_caret_pos(local_mouse()));
 						blink_reset = true;
 						view_caret = true; 
 				}
 
 				void textbox::on_select_line() { 
-						guarded_redraw();
-						select_line(draft.map_to_caret_pos(local_mouse()));
+						editor.guarded_redraw();
+						editor.select_line(editor.get_draft().map_to_caret_pos(local_mouse()));
 						blink_reset = true;
 						view_caret = true; 
 				}
 
-				void textbox::on_select_all()		{ select_all();							view_caret = true;						}
-				void textbox::on_home(bool s)		{ home(s);								view_caret = true;						}
-				void textbox::on_end(bool s)		{ end(s);								view_caret = true;						}
+				void textbox::on_select_all()		{ editor.select_all();							view_caret = true;						}
+				void textbox::on_home(bool s)		{ editor.home(s);								view_caret = true;						}
+				void textbox::on_end(bool s)		{ editor.end(s);								view_caret = true;						}
 				void textbox::on_pagedown()			{ scroll.y += get_rect_absolute().h();												}
 				void textbox::on_pageup()			{ scroll.y -= get_rect_absolute().h();												}
-				void textbox::on_character()		{ character(in->owner.events.utf16);	view_caret = true; blink_reset = true;	}	
-				void textbox::on_cut()				{ cut(in->owner);						view_caret = true;						}	  
-				void textbox::on_bold()				{ bold();								view_caret = true;						}	  
-				void textbox::on_italics()			{ italics();							view_caret = true;						}	  
-				void textbox::on_copy()				{ copy(in->owner);						view_caret = true;						}	    
-				void textbox::on_undo()				{ undo();								view_caret = true;						}	  	
-				void textbox::on_redo()				{ redo();								view_caret = true;						}	  	
-				void textbox::on_paste()			{ paste(in->owner);						view_caret = true; blink_reset = true;	}	  	
-				void textbox::on_backspace(bool c)	{ backspace(c);							view_caret = true; blink_reset = true;	}
-				void textbox::on_del(bool c)		{ del(c);								view_caret = true; blink_reset = true;	}
+				void textbox::on_character()		{ editor.character(in->owner.events.utf16);		view_caret = true; blink_reset = true;	}	
+				void textbox::on_cut()				{ editor.cut(in->owner);						view_caret = true;						}	  
+				void textbox::on_bold()				{ editor.bold();								view_caret = true;						}	  
+				void textbox::on_italics()			{ editor.italics();								view_caret = true;						}	  
+				void textbox::on_copy()				{ editor.copy(in->owner);						view_caret = true;						}	    
+				void textbox::on_undo()				{ editor.undo();								view_caret = true;						}	  	
+				void textbox::on_redo()				{ editor.redo();								view_caret = true;						}	  	
+				void textbox::on_paste()			{ editor.paste(in->owner);						view_caret = true; blink_reset = true;	}	  	
+				void textbox::on_backspace(bool c)	{ editor.backspace(c);							view_caret = true; blink_reset = true;	}
+				void textbox::on_del(bool c)		{ editor.del(c);								view_caret = true; blink_reset = true;	}
 				
 				void textbox::on_drag()	{ 
-						set_caret(draft.map_to_caret_pos(local_mouse()), true);
+						editor.set_caret(editor.get_draft().map_to_caret_pos(local_mouse()), true);
 						drag.drag(local_mouse(), get_local_clipper()); 
 						blink_reset = true;
 				}
 	
 				void textbox::on_focus(bool f) {
-					active = f;
+					print.active = f;
 					blink_reset = true;
 				}
 
 				rect_wh textbox::get_content_size() {
-					guarded_redraw();
-					return draft.get_bbox();
+					editor.guarded_redraw();
+					return editor.get_draft().get_bbox();
 				}
 
-				void textbox::event_proc(rect::event e) {
+				void textbox::handle_interface(event e) {
 					using namespace db::event::keys;
 					auto& w = in->owner.events;
 					auto* k = w.keys;
@@ -189,16 +189,20 @@ namespace db {
 					}
 
 					if(view_caret) {
-						guarded_redraw();
-						scroll += draft.view_caret(get_caret_pos(), get_local_clipper());
+						editor.guarded_redraw();
+						scroll += editor.get_draft().view_caret(editor.get_caret_pos(), get_local_clipper());
 						view_caret = false;
 					}
 
 					if(blink_reset) {
-						blink.reset();
+						print.blink.reset();
 						blink_reset = false;
 					}
-					return rect::event_proc(e);
+				}
+
+				void textbox::event_proc(rect::event e) {
+					handle_interface(e);
+					rect::event_proc(e);
 				}
 			}
 		}

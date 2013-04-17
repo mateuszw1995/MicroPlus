@@ -61,24 +61,26 @@ namespace db {
 				void rotate90(int times);
 				rect_ltrb get_rect() const;
 			};
-			
-			struct formatted_char {
-				font* font_used;
-				wchar_t c;
-				unsigned char r, g, b, a;
-				void set(wchar_t, font* = 0, const pixel_32& = pixel_32());
-				void set(font* = 0, const pixel_32& = pixel_32());
-			};
-			
-			struct style {
-				font* f;
-				pixel_32 color;
-				style(font*, pixel_32);
-				style(const formatted_char&);
-				operator formatted_char();
-			};
 
-			typedef std::basic_string<formatted_char> fstr;
+			namespace text {
+				struct formatted_char {
+					font* font_used;
+					wchar_t c;
+					unsigned char r, g, b, a;
+					void set(wchar_t, font* = 0, const pixel_32& = pixel_32());
+					void set(font* = 0, const pixel_32& = pixel_32());
+				};
+
+				struct style {
+					font* f;
+					pixel_32 color;
+					style(font*, pixel_32);
+					style(const formatted_char&);
+					operator formatted_char();
+				};
+
+				typedef std::basic_string<formatted_char> fstr;
+			}
 
 			struct rect;
 			class system {
@@ -93,7 +95,7 @@ namespace db {
 					float speed_mult;
 				} middlescroll;
 
-				fstr clipboard;
+				text::fstr clipboard;
 
 				rect *lholded, *rholded;
 				event::state& events;
@@ -103,7 +105,7 @@ namespace db {
 
 				system(event::state& subscribe_events);
 
-				void copy_clipboard(fstr&);
+				void copy_clipboard(text::fstr&);
 				void set_focus(rect*);
 				rect* get_focus() const;
 
@@ -124,18 +126,22 @@ namespace db {
 				returns clipped rectangle
 			*/
 			extern rect_ltrb add_quad(const material&, const rect_ltrb& origin, const rect_ltrb* clipper, std::vector<quad>& v);
-			extern fstr formatted_text(const std::wstring&, style);
-			extern void formatted_text(const std::wstring&, style, fstr&);
-			extern void formatted_text(const wchar_t*, style, fstr&);
-			extern fstr formatted_text(const wchar_t*, style);
-			extern void paste_clipboard(fstr& out, formatted_char = formatted_char());
+			
+			namespace text {
+				extern fstr format(const std::wstring&, style);
+				extern void format(const std::wstring&, style, fstr&);
+				extern void format(const wchar_t*, style, fstr&);
+				extern fstr format(const wchar_t*, style);
+			}
+
+			extern void paste_clipboard(text::fstr& out, text::formatted_char = text::formatted_char());
 			extern void scale_virtual_res(rect_wh vres, rect_wh display, vector<quad>& quads);
 		}
 	}
 	namespace misc {
-		extern std::wstring wstr(const graphics::gui::fstr& f);
+		extern std::wstring wstr(const graphics::gui::text::fstr& f);
 		template <class T>
-		T wnum(const graphics::gui::fstr& f) {
+		T wnum(const graphics::gui::text::fstr& f) {
 			std::wistringstream ss(wstr(f));
 			T v;
 			ss >> v;

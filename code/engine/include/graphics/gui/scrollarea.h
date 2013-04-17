@@ -8,11 +8,12 @@ namespace db {
 				class scrollarea : public rect {
 					void update_scroll_x();
 					void update_scroll_y();
+					using rect::children;
 				public:
 					bool disappear_if_fits;
 
-					virtual void event_proc(event);
-					virtual void update_proc(system&);
+					virtual void event_proc(event) override;
+					virtual void update_proc(system&) override;
 
 					rect* origin;
 					void align();
@@ -22,10 +23,10 @@ namespace db {
 						pointf val;
 						friend class scrollarea;
 					public:
-						virtual void event_proc(event);
+						virtual void event_proc(event) override;
 
 						int min_side;
-						slider(int min_side, const material&);
+						slider(int min_side);
 
 					} *box;
 
@@ -35,7 +36,9 @@ namespace db {
 						OMNI = (HORIZONTAL | VERTICAL)
 					} flags;
 
-					scrollarea(const math::rect_xywh& rc, const material&, rect* origin, slider* box, orientation flags);
+					scrollarea(const math::rect_xywh& rc, rect* origin, slider* box, orientation flags);
+
+					void draw_slider(const draw_info&);
 				};
 			}
 		}

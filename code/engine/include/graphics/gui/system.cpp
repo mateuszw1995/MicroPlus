@@ -8,7 +8,7 @@ namespace db {
 	using namespace window;
 	using namespace math;
 	namespace misc {
-		std::wstring wstr(const graphics::gui::fstr& f) {
+		std::wstring wstr(const graphics::gui::text::fstr& f) {
 			size_t l = f.size();
 			std::wstring ww;
 			ww.reserve(l);
@@ -23,59 +23,60 @@ namespace db {
 		using namespace io::input;
 		namespace gui {
 			io::input::texture* null_texture = 0;
-			
-			void formatted_text(const wchar_t* _str, style s, fstr& out) {
-				out.clear();
-				formatted_char ch;
-				int len = wcslen(_str);
-				for(int i = 0; i < len; ++i) {
-					ch.set(_str[i], s.f, s.color);
-					out.append(1, ch);
-				}
-			}
 
-			fstr formatted_text(const wchar_t* _str, style s) {
-				fstr out;	
-
-				formatted_char ch;
-				ch.font_used = s.f;
-				int len = wcslen(_str);
-
-				//out.reserve(len);
-				for(int i = 0; i < len; ++i) {
-					ch.set(_str[i], s.f, s.color);
-					out.append(1, ch);
+			namespace text {
+				void format(const wchar_t* _str, style s, fstr& out) {
+					out.clear();
+					formatted_char ch;
+					int len = wcslen(_str);
+					for(int i = 0; i < len; ++i) {
+						ch.set(_str[i], s.f, s.color);
+						out.append(1, ch);
+					}
 				}
 
-				return out;
-			}
+				fstr format(const wchar_t* _str, style s) {
+					fstr out;	
 
-			void formatted_text(const std::wstring& _str, style s, fstr& out) {
-				out.clear();
-				formatted_char ch;
-				int len = _str.length();
-				for(int i = 0; i < len; ++i) {
-					ch.set(_str[i], s.f, s.color);
-					out.append(1, ch);
-				}
-			}
+					formatted_char ch;
+					ch.font_used = s.f;
+					int len = wcslen(_str);
 
-			fstr formatted_text(const std::wstring& _str, style s) {
-				fstr out;	
+					//out.reserve(len);
+					for(int i = 0; i < len; ++i) {
+						ch.set(_str[i], s.f, s.color);
+						out.append(1, ch);
+					}
 
-				formatted_char ch;
-				ch.font_used = s.f;
-				int len = _str.length();
-
-				//out.reserve(len);
-				for(int i = 0; i < len; ++i) {
-					ch.set(_str[i], s.f, s.color);
-					out.append(1, ch);
+					return out;
 				}
 
-				return out;
-			}
+				void format(const std::wstring& _str, style s, fstr& out) {
+					out.clear();
+					formatted_char ch;
+					int len = _str.length();
+					for(int i = 0; i < len; ++i) {
+						ch.set(_str[i], s.f, s.color);
+						out.append(1, ch);
+					}
+				}
 
+				fstr format(const std::wstring& _str, style s) {
+					fstr out;	
+
+					formatted_char ch;
+					ch.font_used = s.f;
+					int len = _str.length();
+
+					//out.reserve(len);
+					for(int i = 0; i < len; ++i) {
+						ch.set(_str[i], s.f, s.color);
+						out.append(1, ch);
+					}
+
+					return out;
+				}
+			}
 
 			void scale_virtual_res(rect_wh vres, rect_wh display, vector<quad>& quads) {
 				float x_mult = display.w/float(vres.w);
@@ -193,25 +194,27 @@ namespace db {
 				return rect_ltrb(p[0].x, p[0].y, p[2].x, p[2].y);
 			}
 
-			void formatted_char::set(wchar_t ch, font* f, const pixel_32& p) {
-				font_used = f;
-				c = ch;
-				memcpy(&r, &p, sizeof(pixel_32));
-			}
-			
-			void formatted_char::set(font* f, const pixel_32& p) {
-				font_used = f;
-				memcpy(&r, &p, sizeof(pixel_32));
-			}
-			
-			style::style(font* f, pixel_32 c) : f(f), color(c) {}
-			
-			style::style(const formatted_char& c) : f(c.font_used), color(pixel_32(c.r, c.g, c.b, c.a)) {}
+			namespace text {
+				void formatted_char::set(wchar_t ch, font* f, const pixel_32& p) {
+					font_used = f;
+					c = ch;
+					memcpy(&r, &p, sizeof(pixel_32));
+				}
 
-			style::operator formatted_char() {
-				formatted_char c;
-				c.set(f, color);
-				return c;
+				void formatted_char::set(font* f, const pixel_32& p) {
+					font_used = f;
+					memcpy(&r, &p, sizeof(pixel_32));
+				}
+
+				style::style(font* f, pixel_32 c) : f(f), color(c) {}
+
+				style::style(const formatted_char& c) : f(c.font_used), color(pixel_32(c.r, c.g, c.b, c.a)) {}
+
+				style::operator formatted_char() {
+					formatted_char c;
+					c.set(f, color);
+					return c;
+				}
 			}
 
 			system::system(event::state& events) : events(events), own_copy(false), own_clip(false), fetch_clipboard(true), focus(0), lholded(0), rholded(0) {
@@ -282,7 +285,7 @@ namespace db {
 				}
 			}
 
-			void paste_clipboard(fstr& out, formatted_char f) {
+			void paste_clipboard(text::fstr& out, text::formatted_char f) {
 				std::wstring w;
 				window::paste_clipboard(w);
 				size_t len = w.length();
@@ -294,7 +297,7 @@ namespace db {
 				}
 			}
 
-			void system::copy_clipboard(fstr& s) {
+			void system::copy_clipboard(text::fstr& s) {
 				clipboard = s;
 				own_copy = true;
 				own_clip = true;
@@ -349,7 +352,7 @@ namespace db {
 				}
 				else if(gl.msg == event::clipboard_change) {
 					if(!own_copy && fetch_clipboard) {
-						formatted_char ch;
+						text::formatted_char ch;
 						ch.set(0, 0, pixel_32(0, 0, 0, 255));
 						paste_clipboard(clipboard, ch);
 						own_clip = false;

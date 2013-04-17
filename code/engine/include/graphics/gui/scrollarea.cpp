@@ -5,12 +5,16 @@ namespace db {
 	namespace graphics {
 		namespace gui {
 			namespace controls {
-				scrollarea::scrollarea(const math::rect_xywh& rc, const material& mat, rect* origin, slider* box, orientation flags)
-					: rect(rc, mat), origin(origin), box(box), flags(flags), disappear_if_fits(true) {
+				scrollarea::scrollarea(const math::rect_xywh& rc, rect* origin, slider* box, orientation flags)
+					: rect(rc), origin(origin), box(box), flags(flags), disappear_if_fits(true) {
 						children.push_back(box);
 				}
+					
+				void scrollarea::draw_slider(const draw_info& in) {
+					draw_children(in);
+				}
 
-				scrollarea::slider::slider(int min_side, const material& mat) : rect(rc, mat), min_side(min_side) {}
+				scrollarea::slider::slider(int min_side) : min_side(min_side) {}
 
 				bool scrollarea::is_needed() {
 					bool need[2] = {

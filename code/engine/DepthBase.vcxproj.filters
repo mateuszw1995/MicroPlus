@@ -126,7 +126,16 @@
     <ClInclude Include="include\graphics\gui\scrollarea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\graphics\gui\tickbox.h">
+    <ClInclude Include="include\graphics\gui\text\draft_interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\gui\checkbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\gui\stylesheet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics\gui\stroke.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -224,7 +233,19 @@
     <ClCompile Include="include\graphics\gui\scrollarea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="include\graphics\gui\tickbox.cpp">
+    <ClCompile Include="include\graphics\gui\text\draft_interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\graphics\gui\text\text_rect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\graphics\gui\checkbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\graphics\gui\stylesheet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\graphics\gui\stroke.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,5 +1,6 @@
 #pragma once
 #include "dragger.h"
+#include "rect.h"
 #include "text\printer.h"
 #include "text\ui.h"
 #include "../../misc/undoredo.h"
@@ -7,7 +8,7 @@ namespace db {
 	namespace graphics {
 		namespace gui {
 			namespace controls {
-				class textbox : public text::printer, public text::ui {
+				class textbox : public rect {
 					point local_mouse();
 				public:
 					virtual void on_caret_left(bool select);
@@ -38,16 +39,21 @@ namespace db {
 					virtual void on_del(bool);
 					virtual void on_drag();
 
-					virtual rect_wh get_content_size();
-					virtual void event_proc(rect::event);
-					virtual void draw_proc(const draw_info&);
-					virtual void update_proc(system&);
-					virtual void on_focus(bool);
+					virtual rect_wh get_content_size() override;
+					virtual void event_proc(rect::event) override;
+					virtual void update_proc(system&) override;
+					virtual void on_focus(bool) override;
+
+					void draw_text_ui(const draw_info&);
+					void handle_interface(event);
 
 					bool view_caret, blink_reset;
 					dragger drag;
+					
+					text::ui editor;
+					text::printer print;
 
-					textbox(const rect&, style default_style);
+					textbox(const rect&, text::style default_style);
 				};
 			}
 		}
